@@ -2,13 +2,14 @@ import org.lwjgl.LWJGLException
 import org.lwjgl.opengl.Display
 import org.lwjgl.opengl.DisplayMode
 import org.lwjgl.opengl.GL11
+import org.lwjgl.util.vector.Matrix4f
 
 import scala.math.random
 
 import Common._
 
 class Volume(val size: Int) {
-  val data = new Array[Int](size*size*size)
+  val data = new Array[Int]((size+1)*(size+1)*(size+1))
   
   def get(x: Int, y: Int, z: Int) =
     data(clamp(x, size) + clamp(y, size)*size + clamp(z, size)*size*size)
@@ -23,8 +24,9 @@ class Volume(val size: Int) {
         x <- 0 until size
         y <- 0 until size
         z <- 0 until size
-      } yield (x, y, z, random)) filter { _._4 >= clamp(p, 0, 1) }
+      } yield (x, y, z, random)) filter { _._4 <= clamp(p, 0, 1) }
     fill map { x => put(x._1, x._2, x._3, 1) }
+    ()
   }
 
   def getNeighbours(x: Int, y: Int, z: Int) = {
@@ -48,9 +50,32 @@ object QuadGen {
       z <- 0 until vol.size
       } {
         if (vol.get(x,y,z) == 0) {
-          for (neighbour <- vol.getNeighbours(x,y,z)) {
+          for ((nx,ny,nz) <- vol.getNeighbours(x,y,z) if vol.get(nx,ny,nz) != 0) {
             // Generate quad
-
+            val d = 0.5f
+            val dx: Float = (int2float(x) - nx) / 2.0f
+            val dy: Float = (int2float(y) - ny) / 2.0f
+            val dz: Float = (int2float(z) - nz) / 2.0f
+            
+            GL11.glColor3f(0.2f, 0.2f, 0.2f)
+            GL11.glBegin(GL11.GL_QUADS)
+            if (dx != 0) { 
+              GL11.glVertex3f(nx + dx, ny + d, nz - d)
+              GL11.glVertex3f(nx + dx, ny + d, nz + d)
+              GL11.glVertex3f(nx + dx, ny - d, nz + d)
+              GL11.glVertex3f(nx + dx, ny - d, nz - d)
+            } else if (dy != 0) {
+              GL11.glVertex3f(nx + d, ny + dy, nz - d)
+              GL11.glVertex3f(nx + d, ny + dy, nz + d)
+              GL11.glVertex3f(nx - d, ny + dy, nz + d)
+              GL11.glVertex3f(nx - d, ny + dy, nz - d)
+            } else if (dz != 0) {
+              GL11.glVertex3f(nx + d, ny - d, nz + dz)
+              GL11.glVertex3f(nx + d, ny + d, nz + dz)
+              GL11.glVertex3f(nx - d, ny + d, nz + dz)
+              GL11.glVertex3f(nx - d, ny - d, nz + dz)
+            }
+            GL11.glEnd()
           }
         }
     }
@@ -59,10 +84,22 @@ object QuadGen {
 
 object Terrain {
   // The array containing volume data
-  val volume = new Volume(20)
+  val volume = new Volume(50)
+  val WIDTH = 800
+
+  val HEIGHT = 600
+  var projectionMatrix: Matrix4f = null
+
+  def setupMatrices() = {
+    // Setup projection matrix
+    projectionMatrix = new Matrix4f()
+    val fov = 60f
+//    aspectRation =
+  }
+
   def start() = {
     try {
-      Display.setDisplayMode(new DisplayMode(800,600))
+      Display.setDisplayMode(new DisplayMode(WIDTH, HEIGHT))
       Display.create()
     } catch {
       case ex: LWJGLException => {
@@ -71,27 +108,20 @@ object Terrain {
       }
     }
     
+    volume.fillRandom(0.2)
+
     // init OpenGL here
     GL11.glMatrixMode(GL11.GL_PROJECTION)
     GL11.glLoadIdentity()
-    GL11.glOrtho(0, 800, 0, 600, 1, -1)
+    GL11.glOrtho(-WIDTH, WIDTH, -HEIGHT, HEIGHT, 1, -1)
     GL11.glMatrixMode(GL11.GL_MODELVIEW)
     GL11.glClearColor(0.8f, 0.8f, 0.8f, 1.0f)
 
     while (! Display.isCloseRequested()) {
       // Clear the screen and depth buffer
       GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT)
-
-      // Set the color of the quad (RGBA)
-      GL11.glColor3f(0.5f, 0.5f, 1.0f)
-
-      // Draw quad
-      GL11.glBegin(GL11.GL_QUADS)
-      GL11.glVertex2f(100,100)
-      GL11.glVertex2f(300,100)
-      GL11.glVertex2f(300,300)
-      GL11.glVertex2f(100,300)
-      GL11.glEnd()
+      
+      QuadGen.tesselateQuads(volume)
       
       Display.update()
     }
