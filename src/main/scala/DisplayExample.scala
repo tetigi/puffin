@@ -27,9 +27,9 @@ object DisplayExample {
     println("Done!")
   }
 
-  def main(args : Array[String]) = {
-    println(System.getProperty("java.library.path"))
-    DisplayExample.start()
-  }
+  //def main(args : Array[String]) = {
+  //  println(System.getProperty("java.library.path"))
+  //  DisplayExample.start()
+  //}
 
 }

@@ -43,8 +43,8 @@ object QuadExample {
     println("Done!")
   }
 
-  def main(args : Array[String]) = {
-    QuadExample.start()
-  }
+  //def main(args : Array[String]) = {
+  //  QuadExample.start()
+  //}
 
 }
