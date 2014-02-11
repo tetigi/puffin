@@ -1,11 +1,7 @@
 #version 410
 
-in Data{
-  vec3 color;
-} gdata;
-
-out vec3 fragment;
+out vec4 outputColor;
 
 void main(){
-  fragment = gdata.color;
+  outputColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);
 }

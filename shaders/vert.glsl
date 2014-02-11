@@ -1,14 +1,7 @@
 #version 410
 
-in vec3 normal;
-in vec4 position;
-
-out Data{
-  vec3 normal;
-  vec4 position;
-} vdata;
+layout(location = 0) in vec4 position;
 
 void main(void){
-  vdata.position = position;
-  vdata.normal = normal;
+  gl_Position = position;
 }

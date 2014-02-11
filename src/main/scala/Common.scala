@@ -25,7 +25,7 @@ object Common {
       GL20.glShaderSource(shader, readFileAsString(filename))
       GL20.glCompileShader(shader)
 
-      if (GL20.glGetShader(shader, GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE) {
+      if (GL20.glGetShaderi(shader, GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE) {
         throw new RuntimeException("Error creating shader: " + getLogInfo(shader))
       }
       return shader
