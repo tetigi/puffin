@@ -11,6 +11,7 @@ import org.lwjgl.opengl.GL15
 import org.lwjgl.opengl.GL20
 import org.lwjgl.opengl.GL30
 import org.lwjgl.util.vector.Matrix4f
+import org.lwjgl.util.vector.Vector3f
 import org.lwjgl.util.glu.GLU
 import org.lwjgl.opengl.ARBFragmentShader
 import org.lwjgl.opengl.ARBVertexShader
@@ -103,6 +104,7 @@ object QuadGen {
           }
         }
     }
+    //quads
     val verts = Array(
       -0.5f, 0.5f, 0f,    // Left top         ID: 0
       -0.5f, -0.5f, 0f,   // Left bottom      ID: 1
@@ -112,7 +114,6 @@ object QuadGen {
     val vertBuffer = BufferUtils.createFloatBuffer(verts.length)
     vertBuffer.put(verts)
     vertBuffer.flip()
-    //quads
     ListBuffer(vertBuffer)
   }
 }
@@ -139,6 +140,40 @@ object Terrain {
     GL11.glClearColor(0.4f, 0.6f, 0.9f, 0f)
     GL11.glViewport(0, 0, WIDTH, HEIGHT)
   }
+
+  var projectionMatrix: Matrix4f = null
+  var viewMatrix: Matrix4f = null
+  var modelMatrix: Matrix4f = null
+  var matrix44Buffer: FloatBuffer = null
+
+  def setupMatrices() = {
+    projectionMatrix = new Matrix4f()
+    val fieldOfView = 60f
+    val aspectRatio = WIDTH.toFloat / HEIGHT.toFloat
+    val nearPlane = 0.1f
+    val farPlane = 100f
+
+    def cotan(x: Double) = 1.0 / tan(x)
+    val yScale = cotan(toRadians((fieldOfView / 2f)).toDouble).toFloat
+    val xScale = yScale / aspectRatio
+    val frustumLength = farPlane - nearPlane
+    
+    projectionMatrix.m00 = xScale
+    projectionMatrix.m11 = yScale
+    projectionMatrix.m22 = -((farPlane + nearPlane) / frustumLength)
+    projectionMatrix.m23 = -1
+    projectionMatrix.m23 = -((2 * nearPlane * farPlane) / frustumLength)
+    projectionMatrix.m32 = 0
+
+    viewMatrix = new Matrix4f()
+    modelMatrix = new Matrix4f()
+
+    matrix44Buffer = BufferUtils.createFloatBuffer(16)
+  }
+
+  val cameraPos: Vector3f = new Vector3f(0, 0, -1)
+  val modelScale: Vector3f = new Vector3f(1, 1, 1)
+  val modelPos: Vector3f = new Vector3f(0, 0, 0)
   
   def start() = {
     
@@ -147,6 +182,7 @@ object Terrain {
 
     // init OpenGL here
     setupOpenGL()
+    setupMatrices()
     
     val vertShader = createShader("shaders/vert.glsl", GL20.GL_VERTEX_SHADER)
     //val geomShader = createShader("shaders/geom.glsl", ARBGeometryShader4.GL_GEOMETRY_SHADER_ARB)
@@ -162,7 +198,28 @@ object Terrain {
 
     GL20.glLinkProgram(program)
     GL20.glValidateProgram(program)
+
+    val projectionMatrixLoc = GL20.glGetUniformLocation(program, "projectionMatrix")
+    val viewMatrixLoc = GL20.glGetUniformLocation(program, "viewMatrix")
+    val modelMatrixLoc = GL20.glGetUniformLocation(program, "modelMatrix")
+
+    Matrix4f.translate(cameraPos, viewMatrix, viewMatrix)
+
+    Matrix4f.scale(modelScale, modelMatrix, modelMatrix)
+    Matrix4f.translate(modelPos, modelMatrix, modelMatrix)
+    Matrix4f.rotate(toRadians(45).toFloat, new Vector3f(1, 0, 0), viewMatrix, viewMatrix)
+
     GL20.glUseProgram(program)
+
+    projectionMatrix.store(matrix44Buffer)
+    matrix44Buffer.flip()
+    GL20.glUniformMatrix4(projectionMatrixLoc, false, matrix44Buffer)
+    viewMatrix.store(matrix44Buffer)
+    matrix44Buffer.flip()
+    GL20.glUniformMatrix4(viewMatrixLoc, false, matrix44Buffer)
+    modelMatrix.store(matrix44Buffer)
+    matrix44Buffer.flip()
+    GL20.glUniformMatrix4(modelMatrixLoc, false, matrix44Buffer)
 
     val verts = Array(
       -0.5f, 0.5f, 0f,    // Left top         ID: 0
@@ -174,45 +231,45 @@ object Terrain {
     vertBuffer.put(verts)
     vertBuffer.flip()
       
-    //val quads = QuadGen.tesselateQuads(volume)
+    val quads = QuadGen.tesselateQuads(volume)
     val indices: Array[Byte] = Array(0, 1, 2, 2, 3, 0)
     val indicesCount = indices.length
     val indicesBuffer = BufferUtils.createByteBuffer(indicesCount)
     indicesBuffer.put(indices)
     indicesBuffer.flip()
 
-    //for (quadBuffer <- quads) {
-    println("quad")
+    for (quadBuffer <- quads) {
+      println("quad")
 
-    // SETUP QUAD
-    val vaoId = GL30.glGenVertexArrays()
-    GL30.glBindVertexArray(vaoId)
+      // SETUP QUAD
+      val vaoId = GL30.glGenVertexArrays()
+      GL30.glBindVertexArray(vaoId)
 
-    val vboId = GL15.glGenBuffers()
-    GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboId)
-    GL15.glBufferData(GL15.GL_ARRAY_BUFFER, vertBuffer, GL15.GL_STATIC_DRAW)
-    GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 0, 0)
-    GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0)
+      val vboId = GL15.glGenBuffers()
+      GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboId)
+      GL15.glBufferData(GL15.GL_ARRAY_BUFFER, vertBuffer, GL15.GL_STATIC_DRAW)
+      GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 0, 0)
+      GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0)
 
-    GL30.glBindVertexArray(0)
+      GL30.glBindVertexArray(0)
 
-    val vboiId = GL15.glGenBuffers()
-    GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboiId)
-    GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL15.GL_STATIC_DRAW)
-    GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0)
+      val vboiId = GL15.glGenBuffers()
+      GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboiId)
+      GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL15.GL_STATIC_DRAW)
+      GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0)
       
-    // LOOP CYCLE
-    GL11.glClear(GL11.GL_COLOR_BUFFER_BIT)
-    GL30.glBindVertexArray(vaoId)
-    GL20.glEnableVertexAttribArray(0)
-    GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboiId)
+      // LOOP CYCLE
+      GL11.glClear(GL11.GL_COLOR_BUFFER_BIT)
+      GL30.glBindVertexArray(vaoId)
+      GL20.glEnableVertexAttribArray(0)
+      GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboiId)
 
-    GL11.glDrawElements(GL11.GL_TRIANGLES, indicesCount, GL11.GL_UNSIGNED_BYTE, 0)
+      GL11.glDrawElements(GL11.GL_TRIANGLES, indicesCount, GL11.GL_UNSIGNED_BYTE, 0)
 
-    GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0)
-    GL20.glDisableVertexAttribArray(0)
-    GL30.glBindVertexArray(0)
-   // }
+      GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0)
+      GL20.glDisableVertexAttribArray(0)
+      GL30.glBindVertexArray(0)
+    }
       
     Display.update()
     while (! Display.isCloseRequested()) {
