@@ -60,7 +60,9 @@ class Volume(val size: Int) {
 
 object QuadGen {
   def tesselateQuads(vol: Volume) = {
-    val quads: ListBuffer[FloatBuffer] = new ListBuffer()
+    val quadVerts: ListBuffer[Float] = new ListBuffer()
+    val indices: ListBuffer[Int] = new ListBuffer()
+    var i: Int = 0
     for {
       x <- 0 until vol.size
       y <- 0 until vol.size
@@ -73,48 +75,43 @@ object QuadGen {
             val dx: Float = (x.toFloat - nx) / 2.0f
             val dy: Float = (y.toFloat - ny) / 2.0f
             val dz: Float = (z.toFloat - nz) / 2.0f
-            var verts: Array[Float] = null
             if (dx != 0) { 
               //GL11.glNormal3d(dx * 2, 0, 0)
-              verts = Array(
+              quadVerts.appendAll(List(
                 nx + dx, ny + d, nz - d,
                 nx + dx, ny + d, nz + d,
                 nx + dx, ny - d, nz + d,
-                nx + dx, ny - d, nz - d)
+                nx + dx, ny - d, nz - d))
             } else if (dy != 0) {
               //GL11.glNormal3d(0, dy * 2, 0)
-              verts = Array(
+              quadVerts.appendAll(List(
                 nx + d, ny + dy, nz - d,
                 nx + d, ny + dy, nz + d,
                 nx - d, ny + dy, nz + d,
-                nx - d, ny + dy, nz - d)
+                nx - d, ny + dy, nz - d))
             } else if (dz != 0) {
               //GL11.glNormal3d(0, 0, dz * 2)
-              verts = Array(
+              quadVerts.appendAll(List(
                 nx + d, ny - d, nz + dz,
                 nx + d, ny + d, nz + dz,
                 nx - d, ny + d, nz + dz,
-                nx - d, ny - d, nz + dz)
+                nx - d, ny - d, nz + dz))
             }
 
-            val vertBuffer = BufferUtils.createFloatBuffer(verts.length)
-            vertBuffer.put(verts)
-            vertBuffer.flip()
-            quads += vertBuffer
+            indices.appendAll(List(
+              i, i+1, i+2,
+              i+2, i+3, i))
+            i += 4
           }
         }
     }
-    //quads
-    val verts = Array(
-      -0.5f, 0.5f, 0f,    // Left top         ID: 0
-      -0.5f, -0.5f, 0f,   // Left bottom      ID: 1
-      0.5f, -0.5f, 0f,    // Right bottom     ID: 2
-      0.5f, 0.5f, 0f      // Right left       ID: 3
-      )
-    val vertBuffer = BufferUtils.createFloatBuffer(verts.length)
-    vertBuffer.put(verts)
+    val vertBuffer = BufferUtils.createFloatBuffer(quadVerts.length)
+    vertBuffer.put(quadVerts.toArray)
     vertBuffer.flip()
-    ListBuffer(vertBuffer)
+    val indicesBuffer = BufferUtils.createIntBuffer(indices.length)
+    indicesBuffer.put(indices.toArray)
+    indicesBuffer.flip()
+    (vertBuffer, indicesBuffer, indices.length)
   }
 }
 
@@ -172,12 +169,12 @@ object Terrain {
   }
 
   val cameraPos: Vector3f = new Vector3f(0, 0, -1)
-  val modelScale: Vector3f = new Vector3f(1, 1, 1)
+  val modelScale: Vector3f = new Vector3f(0.5f, 0.5f, 0.5f)
   val modelPos: Vector3f = new Vector3f(0, 0, 0)
   
   def start() = {
     
-    volume.fillRandom(0.2)
+    volume.fillRandom(1)
 
 
     // init OpenGL here
@@ -207,7 +204,7 @@ object Terrain {
 
     Matrix4f.scale(modelScale, modelMatrix, modelMatrix)
     Matrix4f.translate(modelPos, modelMatrix, modelMatrix)
-    Matrix4f.rotate(toRadians(45).toFloat, new Vector3f(1, 0, 0), viewMatrix, viewMatrix)
+   // Matrix4f.rotate(toRadians(45).toFloat, new Vector3f(1, 0, 0), viewMatrix, viewMatrix)
 
     GL20.glUseProgram(program)
 
@@ -221,56 +218,50 @@ object Terrain {
     matrix44Buffer.flip()
     GL20.glUniformMatrix4(modelMatrixLoc, false, matrix44Buffer)
 
-    val verts = Array(
+    var verts = Array(
       -0.5f, 0.5f, 0f,    // Left top         ID: 0
       -0.5f, -0.5f, 0f,   // Left bottom      ID: 1
       0.5f, -0.5f, 0f,    // Right bottom     ID: 2
-      0.5f, 0.5f, 0f      // Right left       ID: 3
+      0.5f, 0.5f, 0f,      // Right left       ID: 3
+      0.6f, 0.5f, 0f,    // Left top         ID: 0
+      0.6f, -0.5f, 0f,   // Left bottom      ID: 1
+      1.1f, -0.5f, 0f,    // Right bottom     ID: 2
+      1.1f, 0.5f, 0f      // Right top       ID: 3
       )
     val vertBuffer = BufferUtils.createFloatBuffer(verts.length)
     vertBuffer.put(verts)
     vertBuffer.flip()
       
-    val quads = QuadGen.tesselateQuads(volume)
-    val indices: Array[Byte] = Array(0, 1, 2, 2, 3, 0)
+    //val (vertBuffer, indicesBuffer, indicesCount) = QuadGen.tesselateQuads(volume)
+    //println(indicesCount)
+    val indices: Array[Byte] = Array(0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4)
     val indicesCount = indices.length
     val indicesBuffer = BufferUtils.createByteBuffer(indicesCount)
     indicesBuffer.put(indices)
     indicesBuffer.flip()
 
-    for (quadBuffer <- quads) {
-      println("quad")
+    // SETUP QUAD
+    val vaoId = GL30.glGenVertexArrays()
+    GL30.glBindVertexArray(vaoId)
 
-      // SETUP QUAD
-      val vaoId = GL30.glGenVertexArrays()
-      GL30.glBindVertexArray(vaoId)
+    val vboId = GL15.glGenBuffers()
+    GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboId)
+    GL15.glBufferData(GL15.GL_ARRAY_BUFFER, vertBuffer, GL15.GL_STATIC_DRAW)
+    GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 0, 0)
+    GL20.glEnableVertexAttribArray(0)
 
-      val vboId = GL15.glGenBuffers()
-      GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboId)
-      GL15.glBufferData(GL15.GL_ARRAY_BUFFER, vertBuffer, GL15.GL_STATIC_DRAW)
-      GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 0, 0)
-      GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0)
 
-      GL30.glBindVertexArray(0)
-
-      val vboiId = GL15.glGenBuffers()
-      GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboiId)
-      GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL15.GL_STATIC_DRAW)
-      GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0)
+    val vboiId = GL15.glGenBuffers()
+    GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboiId)
+    GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL15.GL_STATIC_DRAW)
+    GL30.glBindVertexArray(0)
       
-      // LOOP CYCLE
-      GL11.glClear(GL11.GL_COLOR_BUFFER_BIT)
-      GL30.glBindVertexArray(vaoId)
-      GL20.glEnableVertexAttribArray(0)
-      GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboiId)
+    // LOOP CYCLE
+    GL11.glClear(GL11.GL_COLOR_BUFFER_BIT)
+    GL30.glBindVertexArray(vaoId)
 
-      GL11.glDrawElements(GL11.GL_TRIANGLES, indicesCount, GL11.GL_UNSIGNED_BYTE, 0)
+    GL11.glDrawElements(GL11.GL_TRIANGLES, indicesCount, GL11.GL_UNSIGNED_BYTE, 0)
 
-      GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0)
-      GL20.glDisableVertexAttribArray(0)
-      GL30.glBindVertexArray(0)
-    }
-      
     Display.update()
     while (! Display.isCloseRequested()) {
       // do nothing
