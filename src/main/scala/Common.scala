@@ -1,4 +1,5 @@
 import org.lwjgl.opengl.ARBShaderObjects
+import org.lwjgl.opengl.GL20
 import org.lwjgl.opengl.GL11
 
 import scala.math._
@@ -15,23 +16,23 @@ object Common {
 
   def createShader(filename: String, shaderType: Int): Int   = {
     def getLogInfo(obj: Int) =
-      ARBShaderObjects.glGetInfoLogARB(obj, ARBShaderObjects.glGetObjectParameteriARB(obj, ARBShaderObjects.GL_OBJECT_INFO_LOG_LENGTH_ARB))
+      GL20.glGetShaderInfoLog(obj, 1000).trim()
     var shader = 0
     try {
-      shader = ARBShaderObjects.glCreateShaderObjectARB(shaderType)
-
+      shader = GL20.glCreateShader(shaderType)
       if (shader == 0) return 0
 
-      ARBShaderObjects.glShaderSourceARB(shader, readFileAsString(filename))
-      ARBShaderObjects.glCompileShaderARB(shader)
+      GL20.glShaderSource(shader, readFileAsString(filename))
+      GL20.glCompileShader(shader)
 
-      if (ARBShaderObjects.glGetObjectParameteriARB(shader, ARBShaderObjects.GL_OBJECT_COMPILE_STATUS_ARB) == GL11.GL_FALSE)
+      if (GL20.glGetShader(shader, GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE) {
         throw new RuntimeException("Error creating shader: " + getLogInfo(shader))
-
+      }
       return shader
     } catch {
       case ex: Exception => {
-        ARBShaderObjects.glDeleteObjectARB(shader)
+        println("Something went wrong while getting shader " + filename)
+        println(getLogInfo(shader))
         throw ex
       }
     }

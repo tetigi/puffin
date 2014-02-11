@@ -1,11 +1,15 @@
 import org.lwjgl.LWJGLException
 import org.lwjgl.opengl.Display
 import org.lwjgl.opengl.DisplayMode
+import org.lwjgl.opengl.ContextAttribs
+import org.lwjgl.opengl.PixelFormat
 import org.lwjgl.opengl.GL11
+import org.lwjgl.opengl.GL20
 import org.lwjgl.util.vector.Matrix4f
 import org.lwjgl.util.glu.GLU
 import org.lwjgl.opengl.ARBFragmentShader
 import org.lwjgl.opengl.ARBVertexShader
+import org.lwjgl.opengl.ARBGeometryShader4
 import org.lwjgl.opengl.ARBShaderObjects  
 
 import scala.math._
@@ -62,26 +66,32 @@ object QuadGen {
             val dx: Float = (x.toFloat - nx) / 2.0f
             val dy: Float = (y.toFloat - ny) / 2.0f
             val dz: Float = (z.toFloat - nz) / 2.0f
-            
+            /* 
             GL11.glBegin(GL11.GL_QUADS)
             if (dx != 0) { 
+              GL11.glNormal3d(dx * 2, 0, 0)
               GL11.glVertex3f(nx + dx, ny + d, nz - d)
               GL11.glVertex3f(nx + dx, ny + d, nz + d)
               GL11.glVertex3f(nx + dx, ny - d, nz + d)
               GL11.glVertex3f(nx + dx, ny - d, nz - d)
             } else if (dy != 0) {
+              GL11.glNormal3d(0, dy * 2, 0)
               GL11.glVertex3f(nx + d, ny + dy, nz - d)
               GL11.glVertex3f(nx + d, ny + dy, nz + d)
               GL11.glVertex3f(nx - d, ny + dy, nz + d)
               GL11.glVertex3f(nx - d, ny + dy, nz - d)
             } else if (dz != 0) {
+              GL11.glNormal3d(0, 0, dz * 2)
               GL11.glVertex3f(nx + d, ny - d, nz + dz)
               GL11.glVertex3f(nx + d, ny + d, nz + dz)
               GL11.glVertex3f(nx - d, ny + d, nz + dz)
               GL11.glVertex3f(nx - d, ny - d, nz + dz)
             }
             GL11.glEnd()
+            */
           }
+
+
         }
     }
   }
@@ -95,8 +105,9 @@ object Terrain {
 
   def start() = {
     try {
+      val context = new ContextAttribs(3,2).withProfileCore(true)
       Display.setDisplayMode(new DisplayMode(WIDTH, HEIGHT))
-      Display.create()
+      Display.create(new PixelFormat(), context)
     } catch {
       case ex: LWJGLException => {
         ex.printStackTrace()
@@ -107,24 +118,24 @@ object Terrain {
     volume.fillRandom(0.2)
 
     // init OpenGL here
-    val vertShader = createShader("shaders/vert.glsl", ARBVertexShader.GL_VERTEX_SHADER_ARB)
-    val fragShader = createShader("shaders/frag.glsl", ARBFragmentShader.GL_FRAGMENT_SHADER_ARB)
-    val program = ARBShaderObjects.glCreateProgramObjectARB()
-    ARBShaderObjects.glAttachObjectARB(program, vertShader)
-    ARBShaderObjects.glAttachObjectARB(program, fragShader)
+    val vertShader = createShader("shaders/vert.glsl", GL20.GL_VERTEX_SHADER)
+    //val geomShader = createShader("shaders/geom.glsl", ARBGeometryShader4.GL_GEOMETRY_SHADER_ARB)
+    val fragShader = createShader("shaders/frag.glsl", GL20.GL_FRAGMENT_SHADER)
+    val program = GL20.glCreateProgram()
+    GL20.glAttachShader(program, vertShader)
+    //ARBShaderObjects.glAttachObjectARB(program, geomShader)
+    GL20.glAttachShader(program, fragShader)
 
-    ARBShaderObjects.glLinkProgramARB(program)
-    ARBShaderObjects.glValidateProgramARB(program)
-    ARBShaderObjects.glUseProgramObjectARB(program)
+    GL20.glBindAttribLocation(program, 0, "normal")
+    GL20.glBindAttribLocation(program, 1, "position")
+    GL20.glBindAttribLocation(program, 2, "color")
 
-    GL11.glMatrixMode(GL11.GL_PROJECTION)
-    GL11.glLoadIdentity()
-    GLU.gluPerspective(50, WIDTH.toFloat / HEIGHT.toFloat, 0, 100)
+    GL20.glLinkProgram(program)
+    GL20.glValidateProgram(program)
+
+    //GLU.gluPerspective(50, WIDTH.toFloat / HEIGHT.toFloat, 0, 100)
     
-    GL11.glMatrixMode(GL11.GL_MODELVIEW)
-    GL11.glLoadIdentity()
-    GLU.gluLookAt(30, 30, 30, 0, 0, 0, 0, 1, 0)
-    GL11.glClearColor(0.8f, 0.8f, 0.8f, 1.0f)
+    //GLU.gluLookAt(30, 30, 30, 0, 0, 0, 0, 1, 0)
 
     // Clear the screen and depth buffer
     GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT)

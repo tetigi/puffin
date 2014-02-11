@@ -1,4 +1,11 @@
-varying vec4 vertColor;
+#version 410
+
+in Data{
+  vec3 color;
+} gdata;
+
+out vec3 fragment;
+
 void main(){
-  gl_FragColor = vertColor;
+  fragment = gdata.color;
 }
