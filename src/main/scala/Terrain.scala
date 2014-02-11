@@ -4,6 +4,9 @@ import org.lwjgl.opengl.DisplayMode
 import org.lwjgl.opengl.GL11
 import org.lwjgl.util.vector.Matrix4f
 import org.lwjgl.util.glu.GLU
+import org.lwjgl.opengl.ARBFragmentShader
+import org.lwjgl.opengl.ARBVertexShader
+import org.lwjgl.opengl.ARBShaderObjects  
 
 import scala.math._
 import scala.collection.mutable.ListBuffer
@@ -60,7 +63,6 @@ object QuadGen {
             val dy: Float = (y.toFloat - ny) / 2.0f
             val dz: Float = (z.toFloat - nz) / 2.0f
             
-            GL11.glColor3f(0.2f, 0.2f, 0.2f)
             GL11.glBegin(GL11.GL_QUADS)
             if (dx != 0) { 
               GL11.glVertex3f(nx + dx, ny + d, nz - d)
@@ -105,6 +107,16 @@ object Terrain {
     volume.fillRandom(0.2)
 
     // init OpenGL here
+    val vertShader = createShader("shaders/vert.glsl", ARBVertexShader.GL_VERTEX_SHADER_ARB)
+    val fragShader = createShader("shaders/frag.glsl", ARBFragmentShader.GL_FRAGMENT_SHADER_ARB)
+    val program = ARBShaderObjects.glCreateProgramObjectARB()
+    ARBShaderObjects.glAttachObjectARB(program, vertShader)
+    ARBShaderObjects.glAttachObjectARB(program, fragShader)
+
+    ARBShaderObjects.glLinkProgramARB(program)
+    ARBShaderObjects.glValidateProgramARB(program)
+    ARBShaderObjects.glUseProgramObjectARB(program)
+
     GL11.glMatrixMode(GL11.GL_PROJECTION)
     GL11.glLoadIdentity()
     GLU.gluPerspective(50, WIDTH.toFloat / HEIGHT.toFloat, 0, 100)
