@@ -23,6 +23,7 @@ object GLUtils {
 
     GL11.glClearColor(0.8f, 0.8f, 0.8f, 1.0f)
     GL11.glViewport(0, 0, WIDTH, HEIGHT)
+    GL11.glEnable(GL11.GL_DEPTH_TEST)
   }
 
 }

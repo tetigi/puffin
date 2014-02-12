@@ -63,9 +63,9 @@ object Terrain {
 
     matrices = new Matrices(viewMatrix, modelMatrix, projectionMatrix)
 
-    val cameraPos = new Vector3f(0.1f, 0.4f , -1)
-    val modelScale = new Vector3f(0.5f/(SIZE-2), 0.5f/(SIZE-2), 0.5f/(SIZE-2))
-    val modelPos = new Vector3f(-(SIZE-1)/2, -(SIZE-1)/2, 0)
+    val cameraPos = new Vector3f(0, 0 , -1)
+    val modelScale = new Vector3f(1, 1, 1) //new Vector3f(0.5f/(SIZE-2), 0.5f/(SIZE-2), 0.5f/(SIZE-2))
+    val modelPos = new Vector3f(0,0,0)//Vector3f(-(SIZE-1)/2, -(SIZE-1)/2, 0)
     
     tmogs = new Transmogrifiers(cameraPos, modelScale, modelPos)
 
@@ -79,13 +79,14 @@ object Terrain {
     // init OpenGL
     setupOpenGL(WIDTH, HEIGHT)
     setupMatrices() 
-    setupShaders("shaders/vert.glsl", "shaders/frag.glsl")
+    setupShaders("shaders/vert.glsl", "shaders/frag.glsl", "shaders/geom.glsl")
 
     // Start rendering
     // Set all the matrices and shaders
     runShaders(matrices, tmogs)
     storeMatrices(matrix44Buffer, matrices)
 
+    GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT)
     // Get quads and render them
     val quads = volume.getRawQuads()
     renderQuads(quads)

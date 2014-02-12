@@ -1,6 +1,6 @@
 import org.scalatest._
 
-import Common._
+import com.puffin.Common._
 
 class CommonTest extends FlatSpec with Matchers {
   

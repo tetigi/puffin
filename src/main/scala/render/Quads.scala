@@ -1,6 +1,7 @@
 package com.puffin.render
 
 import java.nio.FloatBuffer
+import java.nio.IntBuffer
 
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL11
@@ -10,11 +11,12 @@ import org.lwjgl.opengl.GL30
 
 object QuadUtils {
   def renderQuads(quads: RawQuads) = {
+    println("Rendering quads. There are " + quads.verts.length + " vertices.")
     val vertBuffer = BufferUtils.createFloatBuffer(quads.verts.length)
     vertBuffer.put(quads.verts)
     vertBuffer.flip()
-    val indices = generateIndices(quads.verts.length).map(_.toByte).toArray
-    val indicesBuffer = BufferUtils.createByteBuffer(indices.length)
+    val indices = generateIndices(quads.verts.length).map(_.toShort).toArray
+    val indicesBuffer = BufferUtils.createShortBuffer(indices.length)
     indicesBuffer.put(indices.toArray)
     indicesBuffer.flip()
 
@@ -33,10 +35,9 @@ object QuadUtils {
     GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL15.GL_STATIC_DRAW)
     GL30.glBindVertexArray(0)
       
-    GL11.glClear(GL11.GL_COLOR_BUFFER_BIT)
     GL30.glBindVertexArray(vaoId)
 
-    GL11.glDrawElements(GL11.GL_TRIANGLES, indices.length, GL11.GL_UNSIGNED_BYTE, 0)
+    GL11.glDrawElements(GL11.GL_TRIANGLES, indices.length, GL11.GL_UNSIGNED_SHORT, 0)
   }
 
   def generateIndices(n: Int, start: Int = 0): List[Int] =

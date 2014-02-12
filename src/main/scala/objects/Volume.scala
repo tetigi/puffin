@@ -41,8 +41,8 @@ class Volume(val size: Int) {
   }
 
   def getRawQuads() = {
-    val quadVerts: ListBuffer[Float] = new ListBuffer()
-    val normals: ListBuffer[Float] = new ListBuffer()
+    var quadVerts: ListBuffer[Float] = new ListBuffer()
+    var normals: ListBuffer[Float] = new ListBuffer()
     for {
       x <- 0 until this.size
       y <- 0 until this.size
@@ -59,27 +59,31 @@ class Volume(val size: Int) {
               normals.appendAll(List(dx * 2, 0, 0))
               quadVerts.appendAll(List(
                 nx + dx, ny + d, nz - d,
-                nx + dx, ny + d, nz + d,
+                nx + dx, ny - d, nz - d,
                 nx + dx, ny - d, nz + d,
-                nx + dx, ny - d, nz - d))
+                nx + dx, ny + d, nz + d))
             } else if (dy != 0) {
               normals.appendAll(List(0, dy * 2, 0))
               quadVerts.appendAll(List(
                 nx + d, ny + dy, nz - d,
-                nx + d, ny + dy, nz + d,
+                nx - d, ny + dy, nz - d,
                 nx - d, ny + dy, nz + d,
-                nx - d, ny + dy, nz - d))
+                nx + d, ny + dy, nz + d))
             } else if (dz != 0) {
               normals.appendAll(List(0, 0, dz * 2))
               quadVerts.appendAll(List(
                 nx + d, ny - d, nz + dz,
-                nx + d, ny + d, nz + dz,
+                nx - d, ny - d, nz + dz,
                 nx - d, ny + d, nz + dz,
-                nx - d, ny - d, nz + dz))
+                nx + d, ny + d, nz + dz))
             }
           }
         }
     }
+
+    // Rescale the verts so that they're centered around the origin and 1x1x1
+    quadVerts = quadVerts.map( _ / this.size).map(_ - 0.5f)
+
     new RawQuads(quadVerts.toArray, normals.toArray)
   }
 }
