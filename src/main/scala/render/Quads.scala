@@ -27,17 +27,17 @@ object QuadUtils {
     val vboId = GL15.glGenBuffers()
     GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboId)
     GL15.glBufferData(GL15.GL_ARRAY_BUFFER, vertBuffer, GL15.GL_STATIC_DRAW)
+
+    // Place these in the attributes for the shader
     GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 0, 0)
     GL20.glEnableVertexAttribArray(0)
 
     val vboiId = GL15.glGenBuffers()
     GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboiId)
     GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL15.GL_STATIC_DRAW)
-    GL30.glBindVertexArray(0)
       
-    GL30.glBindVertexArray(vaoId)
-
     GL11.glDrawElements(GL11.GL_TRIANGLES, indices.length, GL11.GL_UNSIGNED_SHORT, 0)
+    GL30.glBindVertexArray(0)
   }
 
   def generateIndices(n: Int, start: Int = 0): List[Int] =

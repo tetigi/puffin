@@ -1,27 +1,16 @@
 #version 410
 
-uniform mat4 mvp;
-            
-in Data{
-  vec3 normal;
-  vec4 position;
-} vdata[3];
-
-out Data{
-  vec3 color;
-} gdata;
+layout (triangles) in;
+layout(triangle_strip, max_vertices = 3) out;
 
 void main(){
-  vec4 middle = (vdata[0].position + vdata[1].position + vdata[2].position)/3;
-  middle.w = 1.0;
-  vec3 normal = normalize((vdata[0].normal + vdata[1].normal + vdata[2].normal)/3);
+  for(int i = 0; i < gl_in.length(); i++)
+  {
+    // copy attributes
+    gl_Position = gl_in[i].gl_Position;
 
-  gl_Position = mvp * middle;
-  gdata.color = vec3(0);
-  EmitVertex();
-                                                                                                                      
-  gl_Position = mvp * (middle + vec4(normal*0.4, 0));
-  gdata.color = normal*0.5+0.5;
-  EmitVertex();
-  EndPrimitive();
+    // done with the vertex
+    EmitVertex();
+    EndPrimitive();
+  }
 }
