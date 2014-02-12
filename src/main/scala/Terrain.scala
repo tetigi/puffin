@@ -59,7 +59,7 @@ class Volume(val size: Int) {
 }
 
 object QuadGen {
-  def tesselateQuads(vol: Volume) = {
+  def getQuadsAndIndices(vol: Volume) = {
     val quadVerts: ListBuffer[Float] = new ListBuffer()
     val indices: ListBuffer[Int] = new ListBuffer()
     var i: Int = 0
@@ -105,19 +105,14 @@ object QuadGen {
           }
         }
     }
-    val vertBuffer = BufferUtils.createFloatBuffer(quadVerts.length)
-    vertBuffer.put(quadVerts.toArray)
-    vertBuffer.flip()
-    val indicesBuffer = BufferUtils.createIntBuffer(indices.length)
-    indicesBuffer.put(indices.toArray)
-    indicesBuffer.flip()
-    (vertBuffer, indicesBuffer, indices.length)
+    (quadVerts.toArray, indices.map(_.toByte).toArray)
   }
 }
 
 object Terrain {
   // The array containing volume data
-  val volume = new Volume(20)
+  val SIZE = 5
+  val volume = new Volume(SIZE)
   val WIDTH = 800
   val HEIGHT = 600
 
@@ -134,7 +129,7 @@ object Terrain {
       }
     }
 
-    GL11.glClearColor(0.4f, 0.6f, 0.9f, 0f)
+    GL11.glClearColor(0.8f, 0.8f, 0.8f, 1.0f)
     GL11.glViewport(0, 0, WIDTH, HEIGHT)
   }
 
@@ -145,7 +140,7 @@ object Terrain {
 
   def setupMatrices() = {
     projectionMatrix = new Matrix4f()
-    val fieldOfView = 60f
+    val fieldOfView = 50f
     val aspectRatio = WIDTH.toFloat / HEIGHT.toFloat
     val nearPlane = 0.1f
     val farPlane = 100f
@@ -168,13 +163,13 @@ object Terrain {
     matrix44Buffer = BufferUtils.createFloatBuffer(16)
   }
 
-  val cameraPos: Vector3f = new Vector3f(0, 0, -1)
-  val modelScale: Vector3f = new Vector3f(0.5f, 0.5f, 0.5f)
-  val modelPos: Vector3f = new Vector3f(0, 0, 0)
+  val cameraPos: Vector3f = new Vector3f(0.1f, 0.4f , -1)
+  val modelScale: Vector3f = new Vector3f(0.5f/(SIZE-2), 0.5f/(SIZE-2), 0.5f/(SIZE-2))
+  val modelPos: Vector3f = new Vector3f(-(SIZE-1)/2, -(SIZE-1)/2, 0)
   
   def start() = {
     
-    volume.fillRandom(1)
+    volume.fillRandom(0.2)
 
 
     // init OpenGL here
@@ -204,7 +199,8 @@ object Terrain {
 
     Matrix4f.scale(modelScale, modelMatrix, modelMatrix)
     Matrix4f.translate(modelPos, modelMatrix, modelMatrix)
-   // Matrix4f.rotate(toRadians(45).toFloat, new Vector3f(1, 0, 0), viewMatrix, viewMatrix)
+    Matrix4f.rotate(toRadians(45).toFloat, new Vector3f(1, 0, 0), modelMatrix, modelMatrix)
+    Matrix4f.rotate(toRadians(-20).toFloat, new Vector3f(0, 1, 0), modelMatrix, modelMatrix)
 
     GL20.glUseProgram(program)
 
@@ -218,6 +214,7 @@ object Terrain {
     matrix44Buffer.flip()
     GL20.glUniformMatrix4(modelMatrixLoc, false, matrix44Buffer)
 
+    /* 
     var verts = Array(
       -0.5f, 0.5f, 0f,    // Left top         ID: 0
       -0.5f, -0.5f, 0f,   // Left bottom      ID: 1
@@ -228,16 +225,16 @@ object Terrain {
       1.1f, -0.5f, 0f,    // Right bottom     ID: 2
       1.1f, 0.5f, 0f      // Right top       ID: 3
       )
+    val indices: Array[Byte] = Array(0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4)
+    val indicesCount = indices.length
+    */ 
+      
+    val (verts, indices) = QuadGen.getQuadsAndIndices(volume)
     val vertBuffer = BufferUtils.createFloatBuffer(verts.length)
     vertBuffer.put(verts)
     vertBuffer.flip()
-      
-    //val (vertBuffer, indicesBuffer, indicesCount) = QuadGen.tesselateQuads(volume)
-    //println(indicesCount)
-    val indices: Array[Byte] = Array(0, 1, 2, 2, 3, 0, 4, 5, 6, 6, 7, 4)
-    val indicesCount = indices.length
-    val indicesBuffer = BufferUtils.createByteBuffer(indicesCount)
-    indicesBuffer.put(indices)
+    val indicesBuffer = BufferUtils.createByteBuffer(indices.length)
+    indicesBuffer.put(indices.toArray)
     indicesBuffer.flip()
 
     // SETUP QUAD
@@ -250,19 +247,18 @@ object Terrain {
     GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 0, 0)
     GL20.glEnableVertexAttribArray(0)
 
-
     val vboiId = GL15.glGenBuffers()
     GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboiId)
     GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL15.GL_STATIC_DRAW)
     GL30.glBindVertexArray(0)
       
-    // LOOP CYCLE
     GL11.glClear(GL11.GL_COLOR_BUFFER_BIT)
     GL30.glBindVertexArray(vaoId)
 
-    GL11.glDrawElements(GL11.GL_TRIANGLES, indicesCount, GL11.GL_UNSIGNED_BYTE, 0)
+    GL11.glDrawElements(GL11.GL_TRIANGLES, indices.length, GL11.GL_UNSIGNED_BYTE, 0)
 
     Display.update()
+
     while (! Display.isCloseRequested()) {
       // do nothing
     }
