@@ -1,5 +1,7 @@
 package com.puffin.shaders
 
+import java.nio.FloatBuffer
+
 import org.lwjgl.opengl.ARBShaderObjects
 import org.lwjgl.opengl.GL20
 import org.lwjgl.opengl.GL11
@@ -11,6 +13,8 @@ import com.puffin.Common.readFileAsString
 
 object ShaderUtils {
   var program = 0
+  var uniformLocs: UniformLocations = null
+
   def createShader(filename: String, shaderType: Int): Int   = {
     def getLogInfo(obj: Int) =
       GL20.glGetShaderInfoLog(obj, 1000).trim()
@@ -65,7 +69,19 @@ object ShaderUtils {
     Matrix4f.rotate(toRadians(-20).toFloat, new Vector3f(0, 1, 0), matrices.modelMatrix, matrices.modelMatrix)
 
     GL20.glUseProgram(program)
-    new UniformLocations(projectionMatrixLoc, viewMatrixLoc, modelMatrixLoc)
+    uniformLocs = new UniformLocations(projectionMatrixLoc, viewMatrixLoc, modelMatrixLoc)
+  }
+
+  def storeMatrices(matrix44Buffer: FloatBuffer, matrices: Matrices) = {
+    matrices.projectionMatrix.store(matrix44Buffer)
+    matrix44Buffer.flip()
+    GL20.glUniformMatrix4(uniformLocs.projectionMatrixLoc, false, matrix44Buffer)
+    matrices.viewMatrix.store(matrix44Buffer)
+    matrix44Buffer.flip()
+    GL20.glUniformMatrix4(uniformLocs.viewMatrixLoc, false, matrix44Buffer)
+    matrices.modelMatrix.store(matrix44Buffer)
+    matrix44Buffer.flip()
+    GL20.glUniformMatrix4(uniformLocs.modelMatrixLoc, false, matrix44Buffer)
   }
 }
 

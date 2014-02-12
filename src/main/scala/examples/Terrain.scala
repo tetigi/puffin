@@ -35,13 +35,12 @@ object Terrain {
   val WIDTH = 800
   val HEIGHT = 600
 
-  var projectionMatrix: Matrix4f = null
-  var viewMatrix: Matrix4f = null
-  var modelMatrix: Matrix4f = null
   var matrix44Buffer: FloatBuffer = null
+  var matrices: Matrices = null
+  var tmogs: Transmogrifiers = null
 
   def setupMatrices() = {
-    projectionMatrix = new Matrix4f()
+    val projectionMatrix = new Matrix4f()
     val fieldOfView = 50f
     val aspectRatio = WIDTH.toFloat / HEIGHT.toFloat
     val nearPlane = 0.1f
@@ -59,48 +58,46 @@ object Terrain {
     projectionMatrix.m23 = -((2 * nearPlane * farPlane) / frustumLength)
     projectionMatrix.m32 = 0
 
-    viewMatrix = new Matrix4f()
-    modelMatrix = new Matrix4f()
+    val viewMatrix = new Matrix4f()
+    val modelMatrix = new Matrix4f()
+
+    matrices = new Matrices(viewMatrix, modelMatrix, projectionMatrix)
+
+    val cameraPos = new Vector3f(0.1f, 0.4f , -1)
+    val modelScale = new Vector3f(0.5f/(SIZE-2), 0.5f/(SIZE-2), 0.5f/(SIZE-2))
+    val modelPos = new Vector3f(-(SIZE-1)/2, -(SIZE-1)/2, 0)
+    
+    tmogs = new Transmogrifiers(cameraPos, modelScale, modelPos)
 
     matrix44Buffer = BufferUtils.createFloatBuffer(16)
   }
 
-  val cameraPos = new Vector3f(0.1f, 0.4f , -1)
-  val modelScale = new Vector3f(0.5f/(SIZE-2), 0.5f/(SIZE-2), 0.5f/(SIZE-2))
-  val modelPos = new Vector3f(-(SIZE-1)/2, -(SIZE-1)/2, 0)
-  val tmogs = new Transmogrifiers(cameraPos, modelScale, modelPos)
-  
   def start() = {
     
     volume.fillRandom(0.2)
 
-    // init OpenGL here
+    // init OpenGL
     setupOpenGL(WIDTH, HEIGHT)
     setupMatrices() 
-    val matrices = new Matrices(viewMatrix, modelMatrix, projectionMatrix)
     setupShaders("shaders/vert.glsl", "shaders/frag.glsl")
-    val uniformLocs = runShaders(matrices, tmogs)
 
-    projectionMatrix.store(matrix44Buffer)
-    matrix44Buffer.flip()
-    GL20.glUniformMatrix4(uniformLocs.projectionMatrixLoc, false, matrix44Buffer)
-    viewMatrix.store(matrix44Buffer)
-    matrix44Buffer.flip()
-    GL20.glUniformMatrix4(uniformLocs.viewMatrixLoc, false, matrix44Buffer)
-    modelMatrix.store(matrix44Buffer)
-    matrix44Buffer.flip()
-    GL20.glUniformMatrix4(uniformLocs.modelMatrixLoc, false, matrix44Buffer)
+    // Start rendering
+    // Set all the matrices and shaders
+    runShaders(matrices, tmogs)
+    storeMatrices(matrix44Buffer, matrices)
 
+    // Get quads and render them
     val quads = volume.getRawQuads()
-    
     renderQuads(quads)
 
+    // Update the changes
     Display.update()
 
     while (! Display.isCloseRequested()) {
       // do nothing
     }
 
+    // Finish
     Display.destroy()
     println("Done!")
   }
