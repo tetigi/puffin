@@ -53,10 +53,6 @@ object ShaderUtils {
     //GL20.glAttachShader(program, geomShader)
     GL20.glAttachShader(program, fragShader)
 
-    //GL20.glBindAttribLocation(program, 0, "normal")
-    //GL20.glBindAttribLocation(program, 1, "position")
-    //GL20.glBindAttribLocation(program, 2, "color")
-
     GL20.glLinkProgram(program)
     GL20.glValidateProgram(program)
   }
@@ -78,6 +74,11 @@ object ShaderUtils {
     Matrix4f.scale(tmogs.modelScale, matrices.modelMatrix, matrices.modelMatrix)
     Matrix4f.translate(tmogs.modelPos, matrices.modelMatrix, matrices.modelMatrix)
 
+    val rotateX: Double = tmogs.modelRotate.x.toDouble
+    val rotateY: Double = tmogs.modelRotate.y.toDouble
+    Matrix4f.rotate(toRadians(rotateX).toFloat, new Vector3f(1, 0, 0), matrices.modelMatrix, matrices.modelMatrix)
+    Matrix4f.rotate(toRadians(rotateY).toFloat, new Vector3f(0, 1, 0), matrices.modelMatrix, matrices.modelMatrix)
+
     val lightDir = new Vector4f(-1, 1, 1, 0)
     Matrix4f.transform(matrices.viewMatrix, lightDir, lightDir)
     lightDir.normalise(lightDir)
@@ -86,11 +87,6 @@ object ShaderUtils {
     lightDirBuffer.flip()
 
     GL41.glProgramUniform3(program, lDirLoc, lightDirBuffer)
-
-    val rotateX: Double = tmogs.modelRotate.x.toDouble
-    val rotateY: Double = tmogs.modelRotate.y.toDouble
-    Matrix4f.rotate(toRadians(rotateX).toFloat, new Vector3f(1, 0, 0), matrices.modelMatrix, matrices.modelMatrix)
-    Matrix4f.rotate(toRadians(rotateY).toFloat, new Vector3f(0, 1, 0), matrices.modelMatrix, matrices.modelMatrix)
 
     GL20.glUseProgram(program)
     uniformLocs = new UniformLocations(pvmLoc, normalMatrixLoc)

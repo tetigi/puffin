@@ -11,11 +11,13 @@ layout(location = 0) in vec4 position;
 layout(location = 1) in vec3 normal;
 
 out vec4 colorV;
+out vec3 normalV;
 
 void main(void){
   //colorV = position;
   vec3 n = normalize(normalMatrix * normal);
   float intensity = max(dot(n, l_dir), 0.0);
   colorV = (intensity * diffuse) + ambient;
+  normalV = n;
   gl_Position = pvm * position;
 }

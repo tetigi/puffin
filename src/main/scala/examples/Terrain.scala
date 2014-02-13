@@ -40,7 +40,7 @@ object Terrain {
 
   def setupMatrices() = {
     val projectionMatrix = new Matrix4f()
-    val fieldOfView = 50f
+    val fieldOfView = 60f
     val aspectRatio = WIDTH.toFloat / HEIGHT.toFloat
     val nearPlane = 0.1f
     val farPlane = 100f
@@ -65,14 +65,14 @@ object Terrain {
     val cameraPos = new Vector3f(0, 0 , -1)
     val modelScale = new Vector3f(0.7f, 0.7f, 0.7f) //new Vector3f(0.5f/(SIZE-2), 0.5f/(SIZE-2), 0.5f/(SIZE-2))
     val modelPos = new Vector3f(0,0.1f,0.5f)//Vector3f(-(SIZE-1)/2, -(SIZE-1)/2, 0)
-    val modelRotate = new Vector3f(45, -20, 0)
+    val modelRotate = new Vector3f(20, -20, 0)
     
     tmogs = new Transmogrifiers(cameraPos, modelScale, modelPos, modelRotate)
   }
 
   def start() = {
     
-    volume.fillRandom(0.2)
+    volume.fillRandom(0.5)
 
     // init OpenGL
     setupOpenGL(WIDTH, HEIGHT)
