@@ -6,6 +6,7 @@ import org.lwjgl.opengl.ARBShaderObjects
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL20
 import org.lwjgl.opengl.GL32
+import org.lwjgl.opengl.GL41
 import org.lwjgl.util.vector.Matrix4f
 import org.lwjgl.util.vector.Vector3f
 import scala.math._
@@ -61,6 +62,8 @@ object ShaderUtils {
     val projectionMatrixLoc = GL20.glGetUniformLocation(program, "projectionMatrix")
     val viewMatrixLoc = GL20.glGetUniformLocation(program, "viewMatrix")
     val modelMatrixLoc = GL20.glGetUniformLocation(program, "modelMatrix")
+    val colorLoc = GL20.glGetUniformLocation(program, "color");
+    GL41.glProgramUniform4f(program, colorLoc, 1, 0, 0, 1);
 
     //reset the view and model matrices
     matrices.viewMatrix.setIdentity()
