@@ -11,11 +11,10 @@ import org.lwjgl.opengl.GL30
 
 object QuadUtils {
   def renderQuads(quads: RawQuads) = {
-    println("Rendering quads. There are " + quads.verts.length + " vertices.")
     val vertBuffer = BufferUtils.createFloatBuffer(quads.verts.length)
     vertBuffer.put(quads.verts)
     vertBuffer.flip()
-    val indices = generateIndices(quads.verts.length).map(_.toShort).toArray
+    val indices = generateIndices(quads.verts.length / 2).map(_.toShort).toArray
     val indicesBuffer = BufferUtils.createShortBuffer(indices.length)
     indicesBuffer.put(indices.toArray)
     indicesBuffer.flip()

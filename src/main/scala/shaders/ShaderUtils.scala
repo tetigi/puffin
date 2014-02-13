@@ -62,12 +62,18 @@ object ShaderUtils {
     val viewMatrixLoc = GL20.glGetUniformLocation(program, "viewMatrix")
     val modelMatrixLoc = GL20.glGetUniformLocation(program, "modelMatrix")
 
+    //reset the view and model matrices
+    matrices.viewMatrix.setIdentity()
+    matrices.modelMatrix.setIdentity()
     Matrix4f.translate(tmogs.cameraPos, matrices.viewMatrix, matrices.viewMatrix)
 
     Matrix4f.scale(tmogs.modelScale, matrices.modelMatrix, matrices.modelMatrix)
     Matrix4f.translate(tmogs.modelPos, matrices.modelMatrix, matrices.modelMatrix)
-    Matrix4f.rotate(toRadians(45).toFloat, new Vector3f(1, 0, 0), matrices.modelMatrix, matrices.modelMatrix)
-    Matrix4f.rotate(toRadians(-20).toFloat, new Vector3f(0, 1, 0), matrices.modelMatrix, matrices.modelMatrix)
+
+    val rotateX: Double = tmogs.modelRotate.x.toDouble
+    val rotateY: Double = tmogs.modelRotate.y.toDouble
+    Matrix4f.rotate(toRadians(rotateX).toFloat, new Vector3f(1, 0, 0), matrices.modelMatrix, matrices.modelMatrix)
+    Matrix4f.rotate(toRadians(rotateY).toFloat, new Vector3f(0, 1, 0), matrices.modelMatrix, matrices.modelMatrix)
 
     GL20.glUseProgram(program)
     uniformLocs = new UniformLocations(projectionMatrixLoc, viewMatrixLoc, modelMatrixLoc)
@@ -92,5 +98,5 @@ class UniformLocations(val projectionMatrixLoc: Int, val viewMatrixLoc: Int, val
 class Matrices(val viewMatrix: Matrix4f, val modelMatrix: Matrix4f, val projectionMatrix: Matrix4f) {
 }
 
-class Transmogrifiers(val cameraPos: Vector3f, val modelScale: Vector3f, val modelPos: Vector3f) {
+class Transmogrifiers(val cameraPos: Vector3f, val modelScale: Vector3f, val modelPos: Vector3f, val modelRotate: Vector3f) {
 }
