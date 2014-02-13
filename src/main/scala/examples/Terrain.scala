@@ -30,7 +30,7 @@ import com.puffin.render.QuadUtils._
 
 object Terrain {
   // The array containing volume data
-  val SIZE = 20
+  val SIZE = 30
   val volume = new Volume(SIZE)
   val WIDTH = 800
   val HEIGHT = 600

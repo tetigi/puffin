@@ -7,14 +7,22 @@ import com.puffin.Common._
 import com.puffin.render.RawQuads
 import com.puffin.simplex.SimplexNoise
 
-class Volume(val size: Int) {
-  val data = new Array[Int](size*size*size)
+class Array3D[T: Manifest] (val size: Int) {
+  val data = new Array[T](size*size*size)
   
   def get(x: Int, y: Int, z: Int) =
     data(clamp(x, size-1) + clamp(y, size-1)*size + clamp(z, size-1)*size*size)
 
-  def put(x: Int, y: Int, z: Int, value: Int) =
+  def put(x: Int, y: Int, z: Int, value: T) =
     data(clamp(x, size-1) + clamp(y, size-1)*size + clamp(z, size-1)*size*size) = value
+}
+
+class Volume(val size: Int) {
+  val data = new Array3D[Int](size)
+  def get(x: Int, y: Int, z: Int) = data.get(x, y, z)
+  def put(x: Int, y: Int, z: Int, v: Int) = data.put(x, y, z, v)
+
+  val cache = new QuadCache()
 
   def fillRandom(p: Double = 0.5) = {
     //Pick random cells to fill
@@ -34,7 +42,10 @@ class Volume(val size: Int) {
         x <- 1 until size -1
         y <- 1 until size -1
         z <- 1 until size -1
-      } yield (x, y, z, SimplexNoise.simplexNoise(1, x.toDouble * 3.0 / size, y.toDouble * 3.0 / size, z.toDouble * 3.0 / size))) filter { _._4 > lim }
+        nx = x.toDouble * 3.0 / size
+        ny = y.toDouble * 3.0 / size
+        nz = z.toDouble * 3.0 / size
+      } yield (x, y, z, SimplexNoise.simplexNoise(1, nx, ny, nz))) filter { _._4 > lim }
     fill map { x => put(x._1, x._2, x._3, 1) }
     ()
   }
@@ -52,7 +63,8 @@ class Volume(val size: Int) {
     ns
   }
 
-  def getRawQuads() = {
+  def getRawQuads(): RawQuads = {
+    if (cache.rawQuads != null) return cache.rawQuads
     var quadVerts: ListBuffer[Float] = new ListBuffer()
     var normals: ListBuffer[Float] = new ListBuffer()
     for {
@@ -105,7 +117,24 @@ class Volume(val size: Int) {
     // Rescale the verts so that they're centered around the origin and 1x1x1
     quadVerts = quadVerts.map( _ / this.size).map(_ - 0.5f)
 
-    new RawQuads(quadVerts.toArray, normals.toArray)
+    cache.rawQuads = new RawQuads(quadVerts.toArray, normals.toArray)
+    cache.rawQuads
+  }
+
+  var occlusions: Array3D[Float] = null
+
+  def getOcclusions(): Array3D[Float] = {
+    if (cache.occlusions != null) return cache.occlusions
+    occlusions = new Array3D[Float](size)
+
+    cache.occlusions = occlusions
+    occlusions
   }
 }
 
+class QuadCache (var rawQuads: RawQuads, var occlusions: Array3D[Float]) {
+  def this() = this(null, null)
+}
+
+class Cell (val left: Float, val right: Float, val top: Float, val bottonm: Float, val front: Float, val back: Float){
+}

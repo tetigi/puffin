@@ -16,8 +16,8 @@ out vec3 normalV;
 void main(void){
   //colorV = position;
   vec3 n = normalize(normalMatrix * normal);
-  float intensity = max(dot(n, l_dir), 0.0);
-  colorV = (intensity * diffuse) + ambient;
+  //float intensity = max(dot(n, l_dir), 0.0);
+  //colorV = (intensity * diffuse) + ambient;
   normalV = n;
   gl_Position = pvm * position;
 }
