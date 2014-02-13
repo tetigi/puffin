@@ -5,6 +5,7 @@ import scala.math._
 
 import com.puffin.Common._
 import com.puffin.render.RawQuads
+import com.puffin.simplex.SimplexNoise
 
 class Volume(val size: Int) {
   val data = new Array[Int](size*size*size)
@@ -23,6 +24,17 @@ class Volume(val size: Int) {
         y <- 1 until size -1
         z <- 1 until size -1
       } yield (x, y, z, random)) filter { _._4 <= clamp(p, 0, 1) }
+    fill map { x => put(x._1, x._2, x._3, 1) }
+    ()
+  }
+
+  def fillSimplexNoise(lim: Double) = {
+    val fill = 
+      (for {
+        x <- 1 until size -1
+        y <- 1 until size -1
+        z <- 1 until size -1
+      } yield (x, y, z, SimplexNoise.simplexNoise(1, x.toDouble * 3.0 / size, y.toDouble * 3.0 / size, z.toDouble * 3.0 / size))) filter { _._4 > lim }
     fill map { x => put(x._1, x._2, x._3, 1) }
     ()
   }
