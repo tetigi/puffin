@@ -57,6 +57,9 @@ class Volume(val size: Int) {
             val dz: Float = (z.toFloat - nz) / 2.0f
             if (dx != 0) { 
               normals.appendAll(List(dx * 2, 0, 0))
+              normals.appendAll(List(dx * 2, 0, 0))
+              normals.appendAll(List(dx * 2, 0, 0))
+              normals.appendAll(List(dx * 2, 0, 0))
               quadVerts.appendAll(List(
                 nx + dx, ny + d, nz - d,
                 nx + dx, ny - d, nz - d,
@@ -64,12 +67,18 @@ class Volume(val size: Int) {
                 nx + dx, ny + d, nz + d))
             } else if (dy != 0) {
               normals.appendAll(List(0, dy * 2, 0))
+              normals.appendAll(List(0, dy * 2, 0))
+              normals.appendAll(List(0, dy * 2, 0))
+              normals.appendAll(List(0, dy * 2, 0))
               quadVerts.appendAll(List(
                 nx + d, ny + dy, nz - d,
                 nx - d, ny + dy, nz - d,
                 nx - d, ny + dy, nz + d,
                 nx + d, ny + dy, nz + d))
             } else if (dz != 0) {
+              normals.appendAll(List(0, 0, dz * 2))
+              normals.appendAll(List(0, 0, dz * 2))
+              normals.appendAll(List(0, 0, dz * 2))
               normals.appendAll(List(0, 0, dz * 2))
               quadVerts.appendAll(List(
                 nx + d, ny - d, nz + dz,

@@ -14,6 +14,9 @@ object QuadUtils {
     val vertBuffer = BufferUtils.createFloatBuffer(quads.verts.length)
     vertBuffer.put(quads.verts)
     vertBuffer.flip()
+    val normalBuffer = BufferUtils.createFloatBuffer(quads.normals.length)
+    normalBuffer.put(quads.normals)
+    normalBuffer.flip()
     val indices = generateIndices(quads.verts.length / 2).map(_.toShort).toArray
     val indicesBuffer = BufferUtils.createShortBuffer(indices.length)
     indicesBuffer.put(indices.toArray)
@@ -31,6 +34,12 @@ object QuadUtils {
     GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 0, 0)
     GL20.glEnableVertexAttribArray(0)
 
+    val vbonId = GL15.glGenBuffers()
+    GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbonId)
+    GL15.glBufferData(GL15.GL_ARRAY_BUFFER, normalBuffer, GL15.GL_STATIC_DRAW)
+    GL20.glVertexAttribPointer(1, 3, GL11.GL_FLOAT, false, 0, 0)
+    GL20.glEnableVertexAttribArray(1)
+
     val vboiId = GL15.glGenBuffers()
     GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboiId)
     GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL15.GL_STATIC_DRAW)
@@ -39,9 +48,9 @@ object QuadUtils {
     GL30.glBindVertexArray(0)
   }
 
-  def generateIndices(n: Int, start: Int = 0): List[Int] =
-    if (n == 0) Nil
-    else start :: (start + 1) :: (start + 2) :: (start + 2) :: (start + 3) :: start :: generateIndices(n - 6, start + 4)
+  def generateIndices(n: Int, start: Int = 0, indices: List[Int] = Nil): List[Int] =
+    if (n == 0) indices.reverse
+    else generateIndices(n - 6, start + 4, start :: (start + 1) :: (start + 2) :: (start + 2) :: (start + 3) :: start :: indices)
 }
 
 class RawQuads (val verts: Array[Float], val normals: Array[Float]) {

@@ -35,7 +35,6 @@ object Terrain {
   val WIDTH = 800
   val HEIGHT = 600
 
-  var matrix44Buffer: FloatBuffer = null
   var matrices: Matrices = null
   var tmogs: Transmogrifiers = null
 
@@ -69,8 +68,6 @@ object Terrain {
     val modelRotate = new Vector3f(45, -20, 0)
     
     tmogs = new Transmogrifiers(cameraPos, modelScale, modelPos, modelRotate)
-
-    matrix44Buffer = BufferUtils.createFloatBuffer(16)
   }
 
   def start() = {
@@ -97,7 +94,7 @@ object Terrain {
     GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT)
     // Set all the matrices and shaders
     runShaders(matrices, tmogs)
-    storeMatrices(matrix44Buffer, matrices)
+    storeMatrices(matrices)
     // Get quads and render them
     val quads = volume.getRawQuads()
     renderQuads(quads)
