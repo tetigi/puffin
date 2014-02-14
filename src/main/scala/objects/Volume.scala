@@ -77,48 +77,65 @@ class Volume(val size: Int) {
     if (cache.rawQuads != null) return cache.rawQuads
     var quadVerts: ListBuffer[Float] = new ListBuffer()
     var normals: ListBuffer[Float] = new ListBuffer()
+    var occlusion: ListBuffer[Float] = new ListBuffer()
+
+    val cells = getOcclusions()
     for {
       x <- 0 until this.size
       y <- 0 until this.size
       z <- 0 until this.size
       } {
         if (this.get(x,y,z) == 0) {
+          val thisCell = cells.get(x, y, z)
           for ((nx,ny,nz) <- this.getNeighbours(x,y,z) if this.get(nx,ny,nz) != 0) {
             // Generate quad
             val d = 0.5f
             val dx: Float = (x.toFloat - nx) / 2.0f
             val dy: Float = (y.toFloat - ny) / 2.0f
             val dz: Float = (z.toFloat - nz) / 2.0f
-            if (dx != 0) { 
+            // negative dx/y/z means neighbour is on the right, top, front
+            if (dx != 0) { // Left or right neighbour 
+              occlusion.append(if (dx < 0) thisCell.right else thisCell.left) 
+              occlusion.append(if (dx < 0) thisCell.right else thisCell.left) 
+              occlusion.append(if (dx < 0) thisCell.right else thisCell.left) 
+              occlusion.append(if (dx < 0) thisCell.right else thisCell.left) 
               normals.appendAll(List(dx * 2, 0, 0))
               normals.appendAll(List(dx * 2, 0, 0))
               normals.appendAll(List(dx * 2, 0, 0))
               normals.appendAll(List(dx * 2, 0, 0))
               quadVerts.appendAll(List(
-                nx + dx, ny + d, nz - d,
-                nx + dx, ny - d, nz - d,
+                nx + dx, ny + d, nz + d,
                 nx + dx, ny - d, nz + d,
-                nx + dx, ny + d, nz + d))
-            } else if (dy != 0) {
+                nx + dx, ny - d, nz - d,
+                nx + dx, ny + d, nz - d))
+            } else if (dy != 0) { // Top or bottom neighbour
+              occlusion.append(if (dy < 0) thisCell.top else thisCell.bottom) 
+              occlusion.append(if (dy < 0) thisCell.top else thisCell.bottom) 
+              occlusion.append(if (dy < 0) thisCell.top else thisCell.bottom) 
+              occlusion.append(if (dy < 0) thisCell.top else thisCell.bottom) 
               normals.appendAll(List(0, dy * 2, 0))
               normals.appendAll(List(0, dy * 2, 0))
               normals.appendAll(List(0, dy * 2, 0))
               normals.appendAll(List(0, dy * 2, 0))
               quadVerts.appendAll(List(
+                nx + d, ny + dy, nz + d,
                 nx + d, ny + dy, nz - d,
                 nx - d, ny + dy, nz - d,
-                nx - d, ny + dy, nz + d,
-                nx + d, ny + dy, nz + d))
-            } else if (dz != 0) {
+                nx - d, ny + dy, nz + d))
+            } else if (dz != 0) { // Front or back neighbour
+              occlusion.append(if (dz < 0) thisCell.front else thisCell.back) 
+              occlusion.append(if (dz < 0) thisCell.front else thisCell.back) 
+              occlusion.append(if (dz < 0) thisCell.front else thisCell.back) 
+              occlusion.append(if (dz < 0) thisCell.front else thisCell.back) 
               normals.appendAll(List(0, 0, dz * 2))
               normals.appendAll(List(0, 0, dz * 2))
               normals.appendAll(List(0, 0, dz * 2))
               normals.appendAll(List(0, 0, dz * 2))
               quadVerts.appendAll(List(
-                nx + d, ny - d, nz + dz,
-                nx - d, ny - d, nz + dz,
+                nx + d, ny + d, nz + dz,
                 nx - d, ny + d, nz + dz,
-                nx + d, ny + d, nz + dz))
+                nx - d, ny - d, nz + dz,
+                nx + d, ny - d, nz + dz))
             }
           }
         }
@@ -127,7 +144,7 @@ class Volume(val size: Int) {
     // Rescale the verts so that they're centered around the origin and 1x1x1
     quadVerts = quadVerts.map( _ / this.size).map(_ - 0.5f)
 
-    cache.rawQuads = new RawQuads(quadVerts.toArray, normals.toArray)
+    cache.rawQuads = new RawQuads(quadVerts.toArray, normals.toArray, occlusion.toArray)
     cache.rawQuads
   }
 
@@ -148,10 +165,12 @@ class Volume(val size: Int) {
           var collided = false
           breakable {
             //TODO Might be dodgy
+            //for (off <- ray.points) {
+            val points = ray.points
             for (off <- ray.points) {
-              val xoff = off.x
-              val yoff = off.y
-              val zoff = off.z
+              val xoff = off.x + x
+              val yoff = off.y + y
+              val zoff = off.z + z
               if (xoff < 0 || xoff >= size) break
               else if (yoff < 0 || yoff >= size) break
               else if (zoff < 0 || zoff >= size) break
@@ -177,7 +196,7 @@ class Sample() {
   var left, right, top, bottom, front, back = 0f
   val rays = List.fill(RAY_COUNT)(new Ray()) 
 
-  def genRays(n: Int) = {
+  def pointsOnSphere(n: Int) = {
     val inc = Pi * (3.0 - sqrt(5))
     val off = 2.0 / n
     for {
@@ -188,8 +207,8 @@ class Sample() {
     } yield ((cos(phi) * r).toFloat, y.toFloat, (sin(phi)*r).toFloat)
   }
 
-  for {
-    (ray, (x, y, z)) <- rays.zip(genRays(rays.length))
+  for { // For every point on the sphere compute a ray
+    (ray, (x, y, z)) <- rays.zip(pointsOnSphere(rays.length))
   } {
     ray.compute(x, y, z)
     left  += ray.left;   right  += ray.right
@@ -204,25 +223,28 @@ class Ray() {
   var left, right, top, bottom, front, back = 0f
   val points: ListBuffer[Offset] = new ListBuffer()
 
+  // Generates a ray in a grid
   def toGrid(x: Float, y: Float, z: Float) = {
-    val (sx, sy, sz) = (x * 0.2, y * 0.2, z * 0.2)
-    var nx, ny, nz = 0.0 
+    // direction to move towards
+    val (scaledX, scaledY, scaledZ) = (x * 0.2, y * 0.2, z * 0.2)
+    var newX, newY, newZ = 0.0 
     var cx, cy, cz = 0
     val points: ListBuffer[(Float, Int, Int, Int)] = new ListBuffer()
     
     while (points.length < POINT_COUNT) {
-      val (ncx, ncy, ncz) = (nx.toInt, ny.toInt, nz.toInt)
+      val (ncx, ncy, ncz) = (newX.toInt, newY.toInt, newZ.toInt)
       if (ncx != cx || ncy != cy || ncz != cz) {
-        val depth = sqrt(nx*nx + ny*ny + nz*nz).toFloat
+        val depth = sqrt(newX*newX + newY*newY + newZ*newZ).toFloat
         cx = ncx; cy = ncy; cz = ncz
         points += ((depth, cx, cy, cz))
       }
-      nx += sx; ny += sy; nz += sz
+      newX += scaledX; newY += scaledY; newZ += scaledZ
     }
 
     points
   }
 
+  // Compute the path of the ray from origin to this point
   def compute(x: Float, y: Float, z: Float) = {
     for ((depth, xoff, yoff, zoff) <- toGrid(x, y, z))
       points += new Offset(depth, xoff, yoff, zoff)
@@ -246,6 +268,7 @@ class QuadCache (var rawQuads: RawQuads, var occlusions: Array3D[Cell]) {
 
 class Cell (var left: Float, var right: Float, var top: Float, var bottom: Float, var front: Float, var back: Float){
   def this() = this(0, 0, 0, 0, 0, 0)
+  //def this() = this(1, 1, 1, 1, 1, 1)
   def addRay(ray: Ray) = {
     left  += ray.left;  right  += ray.right
     top   += ray.top;   bottom += ray.bottom
@@ -260,4 +283,6 @@ class Cell (var left: Float, var right: Float, var top: Float, var bottom: Float
     front = 1 - front / sample.front
     back = 1 - back / sample.back
   }
+  
+  override def toString = s"Left: $left, Right: $right, Top: $top, Bottom: $bottom, Front: $front, Back: $back"
 }

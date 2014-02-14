@@ -21,6 +21,9 @@ object QuadUtils {
     val indicesBuffer = BufferUtils.createShortBuffer(indices.length)
     indicesBuffer.put(indices.toArray)
     indicesBuffer.flip()
+    val occlusionBuffer = BufferUtils.createFloatBuffer(quads.occlusion.length)
+    occlusionBuffer.put(quads.occlusion)
+    occlusionBuffer.flip()
 
     // SETUP QUAD
     val vaoId = GL30.glGenVertexArrays()
@@ -40,6 +43,12 @@ object QuadUtils {
     GL20.glVertexAttribPointer(1, 3, GL11.GL_FLOAT, false, 0, 0)
     GL20.glEnableVertexAttribArray(1)
 
+    val vboOccId = GL15.glGenBuffers()
+    GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboOccId)
+    GL15.glBufferData(GL15.GL_ARRAY_BUFFER, occlusionBuffer, GL15.GL_STATIC_DRAW)
+    GL20.glVertexAttribPointer(2, 1, GL11.GL_FLOAT, false, 0, 0)
+    GL20.glEnableVertexAttribArray(2)
+
     val vboiId = GL15.glGenBuffers()
     GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboiId)
     GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL15.GL_STATIC_DRAW)
@@ -53,5 +62,5 @@ object QuadUtils {
     else generateIndices(n - 6, start + 4, start :: (start + 1) :: (start + 2) :: (start + 2) :: (start + 3) :: start :: indices)
 }
 
-class RawQuads (val verts: Array[Float], val normals: Array[Float]) {
+class RawQuads (val verts: Array[Float], val normals: Array[Float], val occlusion: Array[Float]) {
 }

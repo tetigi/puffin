@@ -73,7 +73,7 @@ object Terrain {
   def start() = {
     
     //volume.fillRandom(0.5)
-    volume.fillSimplexNoise(0.3)
+    volume.fillSimplexNoise(0.2)
 
     // init OpenGL
     setupOpenGL(WIDTH, HEIGHT)

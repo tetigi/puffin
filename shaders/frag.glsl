@@ -4,6 +4,7 @@ uniform mat3 normalMatrix;
 
 in vec4 colorV;
 in vec3 normalV;
+in float occlusionV;
 out vec3 outputColor;
 
 struct SHC{
@@ -72,6 +73,12 @@ vec3 sh_light(vec3 normal, SHC l){
 }
 
 void main(){
-  outputColor = sh_light(normalV, beach) * 0.7;
+  vec3 outside = sh_light(normalV, beach);
+  vec3 inside = sh_light(normalV, groove)*0.004;
+
+  vec3 ambient = mix(outside, inside, occlusionV);
+  outputColor = ambient * vec3(0.7, 0.7, 0.7);
+  //outputColor = sh_light(normalV, beach) * 0.5;
+
   //outputColor = colorV;
 }
