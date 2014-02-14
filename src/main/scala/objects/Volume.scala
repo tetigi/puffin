@@ -133,7 +133,7 @@ class Volume(val size: Int) {
 
   def getOcclusions(): Array3D[Cell] = {
     if (cache.occlusions != null) return cache.occlusions
-    val occlusions = Array3D.initWith(size*size*size, { () => new Cell()})
+    val occlusions = Array3D.initWith(size, { () => new Cell()})
 
     val sample = new Sample()
     for {
@@ -189,8 +189,7 @@ class Sample() {
   }
 
   for {
-    ray <- rays
-    (x, y, z) <- genRays(rays.length)
+    (ray, (x, y, z)) <- rays.zip(genRays(rays.length))
   } {
     ray.compute(x, y, z)
     left  += ray.left;   right  += ray.right
