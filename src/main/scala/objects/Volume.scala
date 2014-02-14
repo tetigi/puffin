@@ -1,5 +1,6 @@
 package com.puffin.objects
 
+import scala.util.control.Breaks._
 import scala.collection.mutable.ListBuffer
 import scala.math._
 
@@ -7,8 +8,17 @@ import com.puffin.Common._
 import com.puffin.render.RawQuads
 import com.puffin.simplex.SimplexNoise
 
+object Array3D {
+  def initWith[T: Manifest](size: Int, constructor: () => T) = {
+    val data = new Array3D[T](size)
+    for (x <- 0 until size; y <- 0 until size; z <- 0 until size)
+      data.put(x, y, z, constructor())
+    data
+  }
+}
 class Array3D[T: Manifest] (val size: Int) {
-  val data = new Array[T](size*size*size)
+  val elems = size * size * size
+  val data = new Array[T](elems)
   
   def get(x: Int, y: Int, z: Int) =
     data(clamp(x, size-1) + clamp(y, size-1)*size + clamp(z, size-1)*size*size)
@@ -121,20 +131,134 @@ class Volume(val size: Int) {
     cache.rawQuads
   }
 
-  var occlusions: Array3D[Float] = null
-
-  def getOcclusions(): Array3D[Float] = {
+  def getOcclusions(): Array3D[Cell] = {
     if (cache.occlusions != null) return cache.occlusions
-    occlusions = new Array3D[Float](size)
+    val occlusions = Array3D.initWith(size*size*size, { () => new Cell()})
 
+    val sample = new Sample()
+    for {
+      x <- 0 until size
+      y <- 0 until size
+      z <- 0 until size
+    } {
+      val value = get(x, y, z)
+      if (value == 0 && !getNeighbours(x, y, z).isEmpty) {
+        val cell = occlusions.get(x, y, z)
+        for (ray <- sample.rays) {
+          var collided = false
+          breakable {
+            //TODO Might be dodgy
+            for (off <- ray.points) {
+              val xoff = off.x
+              val yoff = off.y
+              val zoff = off.z
+              if (xoff < 0 || xoff >= size) break
+              else if (yoff < 0 || yoff >= size) break
+              else if (zoff < 0 || zoff >= size) break
+              else if (get(xoff, yoff, zoff) != 0) {
+                collided = true
+                break
+              }
+            }
+          }
+          if (!collided) cell.addRay(ray)
+        }
+        cell.normalize(sample)
+      }
+    }
+    
     cache.occlusions = occlusions
     occlusions
   }
 }
 
-class QuadCache (var rawQuads: RawQuads, var occlusions: Array3D[Float]) {
+class Sample() {
+  val RAY_COUNT = 1024
+  var left, right, top, bottom, front, back = 0f
+  val rays = List.fill(RAY_COUNT)(new Ray()) 
+
+  def genRays(n: Int) = {
+    val inc = Pi * (3.0 - sqrt(5))
+    val off = 2.0 / n
+    for {
+      k <- 0 until n
+      y = k.toFloat * off - 1.0 + (off / 2.0)
+      r = sqrt(1.0 - y*y)
+      phi = k.toFloat * inc
+    } yield ((cos(phi) * r).toFloat, y.toFloat, (sin(phi)*r).toFloat)
+  }
+
+  for {
+    ray <- rays
+    (x, y, z) <- genRays(rays.length)
+  } {
+    ray.compute(x, y, z)
+    left  += ray.left;   right  += ray.right
+    top   += ray.top;    bottom += ray.bottom
+    front += ray.front; back += ray.back
+  }
+
+}
+
+class Ray() {
+  val POINT_COUNT = 128
+  var left, right, top, bottom, front, back = 0f
+  val points: ListBuffer[Offset] = new ListBuffer()
+
+  def toGrid(x: Float, y: Float, z: Float) = {
+    val (sx, sy, sz) = (x * 0.2, y * 0.2, z * 0.2)
+    var nx, ny, nz = 0.0 
+    var cx, cy, cz = 0
+    val points: ListBuffer[(Float, Int, Int, Int)] = new ListBuffer()
+    
+    while (points.length < POINT_COUNT) {
+      val (ncx, ncy, ncz) = (nx.toInt, ny.toInt, nz.toInt)
+      if (ncx != cx || ncy != cy || ncz != cz) {
+        val depth = sqrt(nx*nx + ny*ny + nz*nz).toFloat
+        cx = ncx; cy = ncy; cz = ncz
+        points += ((depth, cx, cy, cz))
+      }
+      nx += sx; ny += sy; nz += sz
+    }
+
+    points
+  }
+
+  def compute(x: Float, y: Float, z: Float) = {
+    for ((depth, xoff, yoff, zoff) <- toGrid(x, y, z))
+      points += new Offset(depth, xoff, yoff, zoff)
+
+    // Lamberts law per side
+    right  = if (x < 0) -x else 0.0f
+    left   = if (x > 0) x else 0.0f
+    top    = if (y < 0) -y else 0.0f 
+    bottom = if (y > 0) y else 0.0f
+    front  = if (z < 0) -z else 0.0f
+    back   = if (z > 0) z else 0.0f
+  }
+}
+
+class Offset(val depth: Float, val x: Int, val y: Int, val z: Int) {
+}
+
+class QuadCache (var rawQuads: RawQuads, var occlusions: Array3D[Cell]) {
   def this() = this(null, null)
 }
 
-class Cell (val left: Float, val right: Float, val top: Float, val bottonm: Float, val front: Float, val back: Float){
+class Cell (var left: Float, var right: Float, var top: Float, var bottom: Float, var front: Float, var back: Float){
+  def this() = this(0, 0, 0, 0, 0, 0)
+  def addRay(ray: Ray) = {
+    left  += ray.left;  right  += ray.right
+    top   += ray.top;   bottom += ray.bottom
+    front += ray.front; back   += ray.back
+  }
+
+  def normalize(sample: Sample) = {
+    left = 1 - left / sample.left
+    right = 1 - right / sample.right
+    top = 1 - top / sample.top
+    bottom = 1 - bottom / sample.bottom
+    front = 1 - front / sample.front
+    back = 1 - back / sample.back
+  }
 }
