@@ -32,8 +32,8 @@ object Terrain {
   // The array containing volume data
   val SIZE = 30
   val volume = new Volume(SIZE)
-  val WIDTH = 800
-  val HEIGHT = 600
+  val WIDTH = 1024
+  val HEIGHT = 768
 
   var matrices: Matrices = null
   var tmogs: Transmogrifiers = null
@@ -79,6 +79,7 @@ object Terrain {
     setupOpenGL(WIDTH, HEIGHT)
     setupMatrices() 
     setupShaders("shaders/vert.glsl", "shaders/frag.glsl", "shaders/geom.glsl")
+    initBuffIds()
 
     while (! Display.isCloseRequested()) {
       loopCycle()
