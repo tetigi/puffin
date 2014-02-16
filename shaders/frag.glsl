@@ -72,12 +72,16 @@ vec3 sh_light(vec3 normal, SHC l){
     );
 }
 
+vec3 gamma(vec3 color) {
+  return pow(color, vec3(1.0/2.0));
+}
+
 void main(){
   vec3 outside = sh_light(normalV, beach);
   vec3 inside = sh_light(normalV, groove)*0.004;
 
   vec3 ambient = mix(outside, inside, occlusionV);
-  outputColor = ambient * vec3(0.7, 0.7, 0.7);
+  outputColor = gamma(ambient * vec3(0.3, 0.3, 0.3));
   //outputColor = sh_light(normalV, beach) * 0.5;
 
   //outputColor = colorV;

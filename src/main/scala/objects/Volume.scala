@@ -60,6 +60,33 @@ class Volume(val size: Int) {
     ()
   }
 
+  def fillFloatingRock() = {
+    for {
+        x <- 1 until size -1
+        y <- 1 until size -1
+        z <- 1 until size -1
+        xf = x.toFloat / size.toFloat
+        yf = y.toFloat / size.toFloat
+        zf = z.toFloat / size.toFloat
+    } {
+      var plateauFalloff = 0.0
+      if (yf <= 0.8) plateauFalloff = 1.0
+      else if (0.8 < yf && yf < 0.9) plateauFalloff = 1.0 - (yf - 0.8)*10.0
+
+      val centerFalloff = 0.1/(
+        pow((xf-0.5)*1.5, 2) +
+        pow((yf-1.0)*0.8, 2) +
+        pow((zf-0.5)*1.5, 2))
+
+      var density = SimplexNoise.simplexNoise(5, xf, yf*0.5, zf) *
+        centerFalloff * plateauFalloff
+      density *= pow(
+        SimplexNoise.noise((xf+1)*3.0, (yf+1)*3.0, (zf+1)*3.0) + 0.4, 1.8)
+      
+      put(x, y, z, if (density > 3.1) 1 else 0)
+    }
+  }
+
   // Gets adjacent neighbours
   def getNeighbours(x: Int, y: Int, z: Int) = {
     val ns: ListBuffer[(Int,Int,Int)] = new ListBuffer()

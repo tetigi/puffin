@@ -44,7 +44,7 @@ object QuadUtils {
     GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboiId)
     GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, quads.indicesBuffer, GL15.GL_STATIC_DRAW)
       
-    GL11.glDrawElements(GL11.GL_TRIANGLES, quads.indices.length, GL11.GL_UNSIGNED_SHORT, 0)
+    GL11.glDrawElements(GL11.GL_TRIANGLES, quads.indices.length, GL11.GL_UNSIGNED_INT, 0)
     GL30.glBindVertexArray(0)
   }
 
@@ -61,8 +61,8 @@ class RawQuads (val verts: Array[Float], val normals: Array[Float], val occlusio
   val normalBuffer = BufferUtils.createFloatBuffer(normals.length)
   normalBuffer.put(normals)
   normalBuffer.flip()
-  val indices = QuadUtils.generateIndices(verts.length / 2).map(_.toShort).toArray
-  val indicesBuffer = BufferUtils.createShortBuffer(indices.length)
+  val indices = QuadUtils.generateIndices(verts.length / 2)
+  val indicesBuffer = BufferUtils.createIntBuffer(indices.length)
   indicesBuffer.put(indices.toArray)
   indicesBuffer.flip()
   val occlusionBuffer = BufferUtils.createFloatBuffer(occlusion.length)

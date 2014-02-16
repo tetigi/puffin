@@ -32,7 +32,7 @@ import com.puffin.render.Camera
 
 object Terrain {
   // The array containing volume data
-  val SIZE = 30
+  val SIZE = 60
   val volume = new Volume(SIZE)
   val WIDTH = 1024
   val HEIGHT = 768
@@ -69,7 +69,7 @@ object Terrain {
 
     val modelScale = new Vector3f(0.7f, 0.7f, 0.7f) //new Vector3f(0.5f/(SIZE-2), 0.5f/(SIZE-2), 0.5f/(SIZE-2))
     val modelPos = new Vector3f(0,0,0)//Vector3f(-(SIZE-1)/2, -(SIZE-1)/2, 0)
-    val modelRotate = new Vector3f(20, -20, 0)
+    val modelRotate = new Vector3f(10, -10, 0)
     val camera = new Camera()
     
     tmogs = new Transmogrifiers(camera, modelScale, modelPos, modelRotate)
@@ -78,7 +78,8 @@ object Terrain {
   def start() = {
     
     //volume.fillRandom(0.5)
-    volume.fillSimplexNoise(0.2)
+    //volume.fillSimplexNoise(0.2)
+    volume.fillFloatingRock()
 
     // Setup input
     Keyboard.enableRepeatEvents(true)

@@ -213,8 +213,8 @@ public class SimplexNoise {  // Simplex noise in 2D, 3D and 4D
       n3 = t3 * t3 * dot(grad3[gi3], x3, y3, z3);
     }
     // Add contributions from each corner to get the final noise value.
-    // The result is scaled to stay just inside [-1,1]
-    return 32.0*(n0 + n1 + n2 + n3);
+    // The result is scaled to stay just inside [0, 1]
+    return 16.0*(n0 + n1 + n2 + n3) + 1.0;
   }
 
 
