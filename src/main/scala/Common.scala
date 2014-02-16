@@ -1,5 +1,8 @@
 package com.puffin
 
+import org.lwjgl.util.vector.Vector3f
+import org.lwjgl.util.vector.Matrix3f
+
 import scala.math._
 
 object Common {
@@ -19,4 +22,27 @@ object Common {
     lines
   }
 
+  def toRadiansF(degrees: Double) =
+    toRadians(degrees).toFloat
+
+  def scaleVector3f(vec: Vector3f, fac: Float, dest: Vector3f) = {
+    dest.set(vec.x * fac, vec.y * fac, vec.z * fac)
+    dest
+  }
+
+  def rotateY(v: Vector3f, theta: Float) = {
+    val matrix = new Matrix3f()
+    matrix.m00 = cos(theta).toFloat; matrix.m02 = sin(theta).toFloat
+    matrix.m20 = -sin(theta).toFloat; matrix.m22 = cos(theta).toFloat
+
+    Matrix3f.transform(matrix, v, v)
+  }
+  
+  def rotateZ(v: Vector3f, theta: Float) = {
+    val matrix = new Matrix3f()
+    matrix.m00 = cos(theta).toFloat; matrix.m01 = -sin(theta).toFloat
+    matrix.m10 = sin(theta).toFloat; matrix.m11 = cos(theta).toFloat
+
+    Matrix3f.transform(matrix, v, v)
+  }
 }

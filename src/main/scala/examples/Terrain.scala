@@ -3,6 +3,7 @@ package com.puffin.examples
 import java.nio.FloatBuffer
 
 import org.lwjgl.BufferUtils
+import org.lwjgl.input._
 import org.lwjgl.opengl.Display
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL15
@@ -75,6 +76,9 @@ object Terrain {
     //volume.fillRandom(0.5)
     volume.fillSimplexNoise(0.2)
 
+    // Setup input
+    Keyboard.enableRepeatEvents(true)
+
     // init OpenGL
     setupOpenGL(WIDTH, HEIGHT)
     setupMatrices() 
@@ -106,6 +110,17 @@ object Terrain {
     //tmogs.cameraPos.z -= 0.1f
     tmogs.modelRotate.y += 1.0f/6f
     //tmogs.modelPos.z += 0.01f
+    val posDelta = 0.1f
+    while (Keyboard.next()) {
+      if (Keyboard.getEventKeyState()) {
+        Keyboard.getEventKey() match {
+          case Keyboard.KEY_W => tmogs.modelPos.z += posDelta
+          case Keyboard.KEY_A => tmogs.modelPos.x -= posDelta
+          case Keyboard.KEY_S => tmogs.modelPos.z -= posDelta
+          case Keyboard.KEY_D => tmogs.modelPos.x += posDelta
+        }
+      }
+    }
   }
 
   def loopCycle() = {
