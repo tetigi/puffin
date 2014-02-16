@@ -34,6 +34,7 @@ class Camera (val pos: Vector3f, val dir: Vector3f) {
     dir.normalise(dir)
   }
 
+  var lng = 0f
   // Look lng and look lat functions look around the unit sphere around the pos
   def lookLng(phi: Float) = {
     // Rotate around y axis to bring into x/y plane
@@ -43,7 +44,8 @@ class Camera (val pos: Vector3f, val dir: Vector3f) {
     val curPhi = atan2(dir.x, dir.y)
     // Rotate around z to change dir
     if (curPhi - phi > 0 && curPhi - phi < Pi)
-      rotateZ(dir, -phi)
+      rotateZ(dir, phi)
+      lng -= phi
     rotateY(dir, -theta)
   }
   var lat = 0f
@@ -61,6 +63,8 @@ class Camera (val pos: Vector3f, val dir: Vector3f) {
     val rotateYTheta = Vector2f.angle(xzProjDir, xzProjNewDir)
 
     dest.setIdentity()
+
+    dest.rotate(lng, new Vector3f(1, 0, 0))
     dest.rotate(lat, new Vector3f(0, 1, 0))
     dest.translate(pos) // Move to cam position
     //dest.translate(pos)

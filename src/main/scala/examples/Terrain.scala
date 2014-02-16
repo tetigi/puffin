@@ -42,22 +42,25 @@ object Terrain {
 
   def setupMatrices() = {
     val projectionMatrix = new Matrix4f()
-    val fieldOfView = 60f
+    val fieldOfView = 80f
     val aspectRatio = WIDTH.toFloat / HEIGHT.toFloat
     val nearPlane = 0.1f
     val farPlane = 100f
 
     def cotan(x: Double) = 1.0 / tan(x)
-    val yScale = cotan(toRadians((fieldOfView / 2f)).toDouble).toFloat
-    val xScale = yScale / aspectRatio
-    val frustumLength = farPlane - nearPlane
+    val top = nearPlane * tan((Pi / 180) * fieldOfView / 2f).toFloat
+    val bottom = -top
+    val right = top * aspectRatio
+    val left = -right
     
-    projectionMatrix.m00 = xScale
-    projectionMatrix.m11 = yScale
-    projectionMatrix.m22 = -((farPlane + nearPlane) / frustumLength)
+    projectionMatrix.m00 = 2 * nearPlane / (right - left)
+    projectionMatrix.m11 = 2 * nearPlane / (top - bottom)
+    projectionMatrix.m20 = (right + left) / (right - left)
+    projectionMatrix.m21 = (top + bottom) / (top - bottom)
+    projectionMatrix.m22 = - (farPlane + nearPlane) / (farPlane - nearPlane)
     projectionMatrix.m23 = -1
-    projectionMatrix.m23 = -((2 * nearPlane * farPlane) / frustumLength)
-    projectionMatrix.m32 = 0
+    projectionMatrix.m32 = - (2 * farPlane * nearPlane) / (farPlane - nearPlane)
+    projectionMatrix.m33 = 0
 
     val viewMatrix = new Matrix4f()
     val modelMatrix = new Matrix4f()
@@ -122,6 +125,8 @@ object Terrain {
 
           case Keyboard.KEY_LEFT => tmogs.camera.lookLat(toRadiansF(-5))
           case Keyboard.KEY_RIGHT => tmogs.camera.lookLat(toRadiansF(5))
+          case Keyboard.KEY_UP => tmogs.camera.lookLng(toRadiansF(5))
+          case Keyboard.KEY_DOWN => tmogs.camera.lookLng(toRadiansF(-5))
           case _ => ()
         }
       }
