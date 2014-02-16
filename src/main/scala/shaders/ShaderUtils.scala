@@ -15,6 +15,7 @@ import org.lwjgl.util.vector.Vector4f
 import scala.math._
 
 import com.puffin.Common.readFileAsString
+import com.puffin.render.Camera
 
 object ShaderUtils {
   var program = 0
@@ -66,10 +67,12 @@ object ShaderUtils {
     GL41.glProgramUniform4f(program, ambientLoc, 0.2f, 0.2f, 0.2f, 1.0f)
     GL41.glProgramUniform4f(program, diffuseLoc, 0.2f, 0.2f, 0.2f, 1.0f)
 
+    val cam = tmogs.camera
     //reset the view and model matrices
-    matrices.viewMatrix.setIdentity()
+    //matrices.viewMatrix.setIdentity()
     matrices.modelMatrix.setIdentity()
-    Matrix4f.translate(tmogs.cameraPos, matrices.viewMatrix, matrices.viewMatrix)
+    //Matrix4f.translate(tmogs.cameraPos, matrices.viewMatrix, matrices.viewMatrix)
+    cam.putViewMatrix(matrices.viewMatrix)
 
     Matrix4f.scale(tmogs.modelScale, matrices.modelMatrix, matrices.modelMatrix)
     Matrix4f.translate(tmogs.modelPos, matrices.modelMatrix, matrices.modelMatrix)
@@ -79,6 +82,7 @@ object ShaderUtils {
     Matrix4f.rotate(toRadians(rotateX).toFloat, new Vector3f(1, 0, 0), matrices.modelMatrix, matrices.modelMatrix)
     Matrix4f.rotate(toRadians(rotateY).toFloat, new Vector3f(0, 1, 0), matrices.modelMatrix, matrices.modelMatrix)
 
+    /*
     val lightDir = new Vector4f(-1, 1, 1, 0)
     Matrix4f.transform(matrices.viewMatrix, lightDir, lightDir)
     lightDir.normalise(lightDir)
@@ -87,6 +91,7 @@ object ShaderUtils {
     lightDirBuffer.flip()
 
     GL41.glProgramUniform3(program, lDirLoc, lightDirBuffer)
+    */
 
     GL20.glUseProgram(program)
     uniformLocs = new UniformLocations(pvmLoc, normalMatrixLoc)
@@ -125,5 +130,5 @@ class UniformLocations(val pvmLoc: Int, val normalMatrixLoc: Int) {
 class Matrices(val viewMatrix: Matrix4f, val modelMatrix: Matrix4f, val projectionMatrix: Matrix4f) {
 }
 
-class Transmogrifiers(val cameraPos: Vector3f, val modelScale: Vector3f, val modelPos: Vector3f, val modelRotate: Vector3f) {
+class Transmogrifiers(val camera: Camera, val modelScale: Vector3f, val modelPos: Vector3f, val modelRotate: Vector3f) {
 }

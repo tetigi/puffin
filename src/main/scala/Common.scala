@@ -30,18 +30,28 @@ object Common {
     dest
   }
 
-  def rotateY(v: Vector3f, theta: Float) = {
+  def getRotateY(theta: Float) = {
     val matrix = new Matrix3f()
     matrix.m00 = cos(theta).toFloat; matrix.m02 = sin(theta).toFloat
     matrix.m20 = -sin(theta).toFloat; matrix.m22 = cos(theta).toFloat
+    matrix
+  }
+
+  def getRotateZ(theta: Float) = {
+    val matrix = new Matrix3f()
+    matrix.m00 = cos(theta).toFloat; matrix.m01 = -sin(theta).toFloat
+    matrix.m10 = sin(theta).toFloat; matrix.m11 = cos(theta).toFloat
+    matrix
+  }
+
+  def rotateY(v: Vector3f, theta: Float) = {
+    val matrix = getRotateY(theta)
 
     Matrix3f.transform(matrix, v, v)
   }
   
   def rotateZ(v: Vector3f, theta: Float) = {
-    val matrix = new Matrix3f()
-    matrix.m00 = cos(theta).toFloat; matrix.m01 = -sin(theta).toFloat
-    matrix.m10 = sin(theta).toFloat; matrix.m11 = cos(theta).toFloat
+    val matrix = getRotateZ(theta)
 
     Matrix3f.transform(matrix, v, v)
   }

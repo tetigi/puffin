@@ -1,7 +1,9 @@
 package com.puffin.render
 
+import org.lwjgl.util.vector.Vector2f
 import org.lwjgl.util.vector.Vector3f
 import org.lwjgl.util.vector.Matrix3f
+import org.lwjgl.util.vector.Matrix4f
 import scala.math._
 
 import com.puffin.Common._
@@ -25,7 +27,7 @@ class Camera (val pos: Vector3f, val dir: Vector3f) {
     Vector3f.add(pos, scaleVector3f(dir, d, tmp), pos)
 
   def moveLateral(d: Float) = 
-    Vector3f.add(pos, scaleVector3f(getRight(), d, tmp), pos)
+    Vector3f.add(pos, scaleVector3f(getRight(), -d, tmp), pos)
 
   def lookAt(v: Vector3f) = {
     Vector3f.sub(v, pos, dir)
@@ -44,8 +46,25 @@ class Camera (val pos: Vector3f, val dir: Vector3f) {
       rotateZ(dir, -phi)
     rotateY(dir, -theta)
   }
+  var lat = 0f
 
   def lookLat(phi: Float) = {
-    rotateY(dir, -phi)
+    rotateY(dir, phi)
+    lat += phi
+  }
+
+  def putViewMatrix(dest: Matrix4f) = {
+    val defaultDir = new Vector3f(0, 0, 1)
+
+    val xzProjDir = new Vector2f(defaultDir.x, defaultDir.z)
+    val xzProjNewDir = new Vector2f(dir.x, dir.z)
+    val rotateYTheta = Vector2f.angle(xzProjDir, xzProjNewDir)
+
+    dest.setIdentity()
+    dest.rotate(lat, new Vector3f(0, 1, 0))
+    dest.translate(pos) // Move to cam position
+    //dest.translate(pos)
+    //dest.translate(pos)
+    dest
   }
 }

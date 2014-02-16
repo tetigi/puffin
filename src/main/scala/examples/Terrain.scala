@@ -28,6 +28,7 @@ import com.puffin.shaders.Transmogrifiers
 import com.puffin.render.GLUtils._
 import com.puffin.render.RawQuads
 import com.puffin.render.QuadUtils._
+import com.puffin.render.Camera
 
 object Terrain {
   // The array containing volume data
@@ -63,12 +64,12 @@ object Terrain {
 
     matrices = new Matrices(viewMatrix, modelMatrix, projectionMatrix)
 
-    val cameraPos = new Vector3f(0, 0 , -1)
     val modelScale = new Vector3f(0.7f, 0.7f, 0.7f) //new Vector3f(0.5f/(SIZE-2), 0.5f/(SIZE-2), 0.5f/(SIZE-2))
-    val modelPos = new Vector3f(0,0.1f,0.5f)//Vector3f(-(SIZE-1)/2, -(SIZE-1)/2, 0)
+    val modelPos = new Vector3f(0,0,0)//Vector3f(-(SIZE-1)/2, -(SIZE-1)/2, 0)
     val modelRotate = new Vector3f(20, -20, 0)
+    val camera = new Camera()
     
-    tmogs = new Transmogrifiers(cameraPos, modelScale, modelPos, modelRotate)
+    tmogs = new Transmogrifiers(camera, modelScale, modelPos, modelRotate)
   }
 
   def start() = {
@@ -108,16 +109,20 @@ object Terrain {
 
   def logicCycle() = {
     //tmogs.cameraPos.z -= 0.1f
-    tmogs.modelRotate.y += 1.0f/6f
+    //tmogs.modelRotate.y += 1.0f/6f
     //tmogs.modelPos.z += 0.01f
     val posDelta = 0.1f
     while (Keyboard.next()) {
       if (Keyboard.getEventKeyState()) {
         Keyboard.getEventKey() match {
-          case Keyboard.KEY_W => tmogs.modelPos.z += posDelta
-          case Keyboard.KEY_A => tmogs.modelPos.x -= posDelta
-          case Keyboard.KEY_S => tmogs.modelPos.z -= posDelta
-          case Keyboard.KEY_D => tmogs.modelPos.x += posDelta
+          case Keyboard.KEY_W => tmogs.camera.moveForward(posDelta)
+          case Keyboard.KEY_A => tmogs.camera.moveLateral(-posDelta)
+          case Keyboard.KEY_S => tmogs.camera.moveForward(-posDelta)
+          case Keyboard.KEY_D => tmogs.camera.moveLateral(posDelta)
+
+          case Keyboard.KEY_LEFT => tmogs.camera.lookLat(toRadiansF(-5))
+          case Keyboard.KEY_RIGHT => tmogs.camera.lookLat(toRadiansF(5))
+          case _ => ()
         }
       }
     }
