@@ -111,8 +111,8 @@ object Terrain {
   }
 
   def logicCycle() = {
-    //tmogs.cameraPos.z -= 0.1f
-    //tmogs.modelRotate.y += 1.0f/6f
+    //tmogs.cameraPos.z -= 0.05f
+    tmogs.modelRotate.y += 1.0f/12f
     //tmogs.modelPos.z += 0.01f
     val posDelta = 0.1f
     while (Keyboard.next()) {
@@ -130,6 +130,10 @@ object Terrain {
           case _ => ()
         }
       }
+    }
+    if (Mouse.isButtonDown(0)) {
+      tmogs.camera.lookLat(toRadiansF(Mouse.getDX()/6f))
+      tmogs.camera.lookLng(toRadiansF(Mouse.getDY()/6f))
     }
   }
 
