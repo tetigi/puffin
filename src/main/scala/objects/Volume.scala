@@ -61,6 +61,8 @@ class Volume(val size: Int) {
   }
 
   def fillFloatingRock() = {
+    println("Filling with floating rock...")
+    var progress = 0
     for {
         x <- 1 until size -1
         y <- 1 until size -1
@@ -69,6 +71,10 @@ class Volume(val size: Int) {
         yf = y.toFloat / size.toFloat
         zf = z.toFloat / size.toFloat
     } {
+      if (progress % (size*size*size/10) == 0) 
+        println(s"${progress*100/(size*size*size)}% complete...")
+
+      progress += 1
       var plateauFalloff = 0.0
       if (yf <= 0.8) plateauFalloff = 1.0
       else if (0.8 < yf && yf < 0.9) plateauFalloff = 1.0 - (yf - 0.8)*10.0
@@ -85,6 +91,41 @@ class Volume(val size: Int) {
       
       put(x, y, z, if (density > 3.1) 1 else 0)
     }
+    println("...Done!")
+  }
+
+  def fillIsland() = {
+    println("Filling with island...")
+    var progress = 0
+    for {
+        x <- 1 until size -1
+        y <- 1 until size -1
+        z <- 1 until size -1
+        xf = x.toFloat / size.toFloat
+        yf = y.toFloat / size.toFloat
+        zf = z.toFloat / size.toFloat
+    } {
+      if (progress % (size*size*size/10) == 0) 
+        println(s"${progress*100/(size*size*size)}% complete...")
+
+      progress += 1
+      var plateauFalloff = 0.0
+      if (0.4 <= yf && yf <= 0.5) plateauFalloff = 1.0
+      else if (0.5 < yf && yf < 0.6) plateauFalloff = 1.0 - (yf - 0.6)*10.0
+
+      val centerFalloff = 0.1/(
+        pow((xf-0.5)*1.5, 2) +
+        pow((yf-0.5)*1.5, 2) +
+        pow((zf-0.5)*1.5, 2))
+
+      var density = SimplexNoise.simplexNoise(5, xf, yf*0.5, zf) *
+        centerFalloff * plateauFalloff
+      density *= pow(
+        SimplexNoise.noise((xf+1)*3.0, (yf+1)*3.0, (zf+1)*3.0) + 0.4, 1.8)
+      
+      put(x, y, z, if (density > 3.1) 1 else 0)
+    }
+    println("...Done!")
   }
 
   // Gets adjacent neighbours
@@ -100,20 +141,26 @@ class Volume(val size: Int) {
     ns
   }
 
-  def getRawQuads(): RawQuads = {
+  def getRawQuads(occlusionOn: Boolean = true): RawQuads = {
     if (cache.rawQuads != null) return cache.rawQuads
     var quadVerts: ListBuffer[Float] = new ListBuffer()
     var normals: ListBuffer[Float] = new ListBuffer()
     var occlusion: ListBuffer[Float] = new ListBuffer()
 
-    val cells = getOcclusions()
+    val cells = if (occlusionOn) getOcclusions() else Array3D.initWith(size, { () => new Cell(0)})
+    println("Getting raw quads...")
+    var progress = 0
+
     for {
       x <- 0 until this.size
       y <- 0 until this.size
       z <- 0 until this.size
       } {
+        if (progress % (size*size*size/10) == 0) 
+          println(s"${progress*100/(size*size*size)}% complete...")
+        progress += 1
         if (this.get(x,y,z) == 0) {
-          val thisCell = cells.get(x, y, z)
+          val thisCell = cells.get(x, y, z) 
           for ((nx,ny,nz) <- this.getNeighbours(x,y,z) if this.get(nx,ny,nz) != 0) {
             // Generate quad
             val d = 0.5f
@@ -171,6 +218,7 @@ class Volume(val size: Int) {
     // Rescale the verts so that they're centered around the origin and 1x1x1
     quadVerts = quadVerts.map( _ / this.size).map(_ - 0.5f)
 
+    println("...Done!")
     cache.rawQuads = new RawQuads(quadVerts.toArray, normals.toArray, occlusion.toArray)
     cache.rawQuads
   }
@@ -179,12 +227,18 @@ class Volume(val size: Int) {
     if (cache.occlusions != null) return cache.occlusions
     val occlusions = Array3D.initWith(size, { () => new Cell()})
 
+    println("Getting occlusions for faces...")
+    var progress = 0
+
     val sample = new Sample()
     for {
       x <- 0 until size
       y <- 0 until size
       z <- 0 until size
     } {
+      if (progress % (size*size*size/10) == 0) 
+        println(s"${progress*100/(size*size*size)}% complete...")
+      progress += 1
       val value = get(x, y, z)
       if (value == 0 && !getNeighbours(x, y, z).isEmpty) {
         val cell = occlusions.get(x, y, z)
@@ -213,6 +267,7 @@ class Volume(val size: Int) {
       }
     }
     
+    println("...Done!")
     cache.occlusions = occlusions
     occlusions
   }
@@ -295,6 +350,7 @@ class QuadCache (var rawQuads: RawQuads, var occlusions: Array3D[Cell]) {
 
 class Cell (var left: Float, var right: Float, var top: Float, var bottom: Float, var front: Float, var back: Float){
   def this() = this(0, 0, 0, 0, 0, 0)
+  def this(v: Float) = this(v, v, v, v, v, v)
   //def this() = this(1, 1, 1, 1, 1, 1)
   def addRay(ray: Ray) = {
     left  += ray.left;  right  += ray.right

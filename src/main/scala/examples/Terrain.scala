@@ -32,7 +32,7 @@ import com.puffin.render.Camera
 
 object Terrain {
   // The array containing volume data
-  val SIZE = 60
+  val SIZE = 124
   val volume = new Volume(SIZE)
   val WIDTH = 1024
   val HEIGHT = 768
@@ -79,7 +79,8 @@ object Terrain {
     
     //volume.fillRandom(0.5)
     //volume.fillSimplexNoise(0.2)
-    volume.fillFloatingRock()
+    //volume.fillFloatingRock()
+    volume.fillIsland()
 
     // Setup input
     Keyboard.enableRepeatEvents(true)
@@ -107,7 +108,7 @@ object Terrain {
     runShaders(matrices, tmogs)
     storeMatrices(matrices)
     // Get quads and render them
-    val quads = volume.getRawQuads()
+    val quads = volume.getRawQuads(occlusionOn = false)
     renderQuads(quads)
   }
 
