@@ -52,10 +52,10 @@ class Volume(val size: Int) {
         x <- 1 until size -1
         y <- 1 until size -1
         z <- 1 until size -1
-        nx = x.toDouble * 3.0 / size
-        ny = y.toDouble * 3.0 / size
-        nz = z.toDouble * 3.0 / size
-      } yield (x, y, z, SimplexNoise.simplexNoise(1, nx, ny, nz))) filter { _._4 > lim }
+        nx = x.toFloat / size.toFloat
+        ny = y.toFloat / size.toFloat
+        nz = z.toFloat / size.toFloat
+      } yield (x, y, z, SimplexNoise.simplexNoise(1, nx*3, ny*3, nz*3))) filter { _._4 > lim }
     fill map { x => put(x._1, x._2, x._3, 1) }
     ()
   }
