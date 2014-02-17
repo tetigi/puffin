@@ -32,7 +32,7 @@ import com.puffin.render.Camera
 
 object Terrain {
   // The array containing volume data
-  val SIZE = 60
+  val SIZE = 30
   val volume = new Volume(SIZE)
   val WIDTH = 1024
   val HEIGHT = 768
@@ -105,8 +105,7 @@ object Terrain {
   def renderCycle() = {
     GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT)
     // Set all the matrices and shaders
-    runShaders(matrices, tmogs)
-    storeMatrices(matrices)
+    storeMatrices(matrices, tmogs)
     // Get quads and render them
     val quads = volume.getRawQuads(occlusionOn = true)
     renderQuads(quads)
@@ -135,7 +134,7 @@ object Terrain {
     }
     if (Mouse.isButtonDown(0)) {
       tmogs.camera.lookLat(toRadiansF(Mouse.getDX()/6f))
-      tmogs.camera.lookLng(toRadiansF(Mouse.getDY()/6f))
+      tmogs.camera.lookLng(toRadiansF(-Mouse.getDY()/6f))
     }
   }
 

@@ -56,9 +56,7 @@ object ShaderUtils {
 
     GL20.glLinkProgram(program)
     GL20.glValidateProgram(program)
-  }
 
-  def runShaders(matrices: Matrices, tmogs: Transmogrifiers) = {
     val pvmLoc = GL20.glGetUniformLocation(program, "pvm")
     val normalMatrixLoc = GL20.glGetUniformLocation(program, "normalMatrix")
     val diffuseLoc = GL20.glGetUniformLocation(program, "diffuse")
@@ -66,21 +64,6 @@ object ShaderUtils {
     val ambientLoc = GL20.glGetUniformLocation(program, "ambient")
     GL41.glProgramUniform4f(program, ambientLoc, 0.2f, 0.2f, 0.2f, 1.0f)
     GL41.glProgramUniform4f(program, diffuseLoc, 0.2f, 0.2f, 0.2f, 1.0f)
-
-    val cam = tmogs.camera
-    //reset the view and model matrices
-    //matrices.viewMatrix.setIdentity()
-    matrices.modelMatrix.setIdentity()
-    //Matrix4f.translate(tmogs.cameraPos, matrices.viewMatrix, matrices.viewMatrix)
-    cam.putViewMatrix(matrices.viewMatrix)
-
-    Matrix4f.scale(tmogs.modelScale, matrices.modelMatrix, matrices.modelMatrix)
-    Matrix4f.translate(tmogs.modelPos, matrices.modelMatrix, matrices.modelMatrix)
-
-    val rotateX: Double = tmogs.modelRotate.x.toDouble
-    val rotateY: Double = tmogs.modelRotate.y.toDouble
-    Matrix4f.rotate(toRadians(rotateX).toFloat, new Vector3f(1, 0, 0), matrices.modelMatrix, matrices.modelMatrix)
-    Matrix4f.rotate(toRadians(rotateY).toFloat, new Vector3f(0, 1, 0), matrices.modelMatrix, matrices.modelMatrix)
 
     /*
     val lightDir = new Vector4f(-1, 1, 1, 0)
@@ -97,7 +80,20 @@ object ShaderUtils {
     uniformLocs = new UniformLocations(pvmLoc, normalMatrixLoc)
   }
 
-  def storeMatrices(matrices: Matrices) = {
+  def storeMatrices(matrices: Matrices, tmogs: Transmogrifiers) = {
+    val cam = tmogs.camera
+    //reset the view and model matrices
+    matrices.modelMatrix.setIdentity()
+    cam.putViewMatrix(matrices.viewMatrix)
+
+    Matrix4f.scale(tmogs.modelScale, matrices.modelMatrix, matrices.modelMatrix)
+    Matrix4f.translate(tmogs.modelPos, matrices.modelMatrix, matrices.modelMatrix)
+
+    val rotateX: Double = tmogs.modelRotate.x.toDouble
+    val rotateY: Double = tmogs.modelRotate.y.toDouble
+    Matrix4f.rotate(toRadians(rotateX).toFloat, new Vector3f(1, 0, 0), matrices.modelMatrix, matrices.modelMatrix)
+    Matrix4f.rotate(toRadians(rotateY).toFloat, new Vector3f(0, 1, 0), matrices.modelMatrix, matrices.modelMatrix)
+
     val matrix33Buffer = BufferUtils.createFloatBuffer(9)
     val matrix44Buffer = BufferUtils.createFloatBuffer(16)
 

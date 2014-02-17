@@ -44,8 +44,8 @@ class Camera (val pos: Vector3f, val dir: Vector3f) {
     val curPhi = atan2(dir.x, dir.y)
     // Rotate around z to change dir
     if (curPhi - phi > 0 && curPhi - phi < Pi)
-      rotateZ(dir, phi)
-      lng -= phi
+      rotateZ(dir, -phi)
+      lng += phi
     rotateY(dir, -theta)
   }
   var lat = 0f

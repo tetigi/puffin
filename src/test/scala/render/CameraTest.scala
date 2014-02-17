@@ -34,11 +34,11 @@ class CameraTest extends FlatSpec with Matchers {
     expected.set(0, 0, 3)
     cam.pos should equal (expected)
 
-    cam.moveLateral(4.5f)
+    cam.moveLateral(-4.5f)
     expected.set(4.5f, 0, 3)
     cam.pos should equal (expected)
 
-    cam.moveLateral(-0.5f)
+    cam.moveLateral(0.5f)
     expected.set(4, 0, 3)
     cam.pos should equal (expected)
 
@@ -83,7 +83,7 @@ class CameraTest extends FlatSpec with Matchers {
     expected.normalise(expected)
     cam.dir should equal (expected)
 
-    cam.lookLat(toRadiansF(-90))
+    cam.lookLat(toRadiansF(90))
     expected.set(-1, 1, 0)
     expected.normalise(expected)
     cam.dir should equal (expected)
