@@ -28,7 +28,7 @@ trait Quads extends RenderableBase {
   }
 
   def getData: Array3D[Int]
-  def getDimSize: Int
+  def getDims: (Int, Int, Int)
 
   private def createRawQuadData(opts: RenderOptions): RawQuadData = {
     var quadVerts: ListBuffer[Float] = new ListBuffer()
@@ -36,19 +36,19 @@ trait Quads extends RenderableBase {
     var occlusion: ListBuffer[Float] = new ListBuffer()
 
     val data = getData
-    val dimSize = getDimSize
+    val (dimX, dimY, dimZ) = getDims
 
     val cells = 
       if (opts.occlusionEnabled) getOcclusions() 
-      else Array3D.initWith(dimSize, { () => new OccludeCell(0)})
+      else Array3D.initWith(dimX, dimY, dimZ, { () => new OccludeCell(0)})
     println("Getting raw quads...")
     var progress = 0
 
     for {
-      (x, y, z) <- xyzIn(0, dimSize)
+      (x, y, z) <- xyzIn(0, dimX, dimY, dimZ)
       } {
-        if (progress % (dimSize*dimSize*dimSize/10) == 0) 
-          println(s"${progress*100/(dimSize*dimSize*dimSize)}% complete...")
+        if (progress % (dimX*dimY*dimZ/10) == 0) 
+          println(s"${progress*100/(dimX*dimY*dimZ)}% complete...")
         progress += 1
         if (data.get(x,y,z) == 0) {
           val thisCell = cells.get(x, y, z) 
@@ -69,10 +69,10 @@ trait Quads extends RenderableBase {
               normals.appendAll(List(dx * 2, 0, 0))
               normals.appendAll(List(dx * 2, 0, 0))
               quadVerts.appendAll(List(
-                nx + dx, ny + d, nz + d,
-                nx + dx, ny - d, nz + d,
-                nx + dx, ny - d, nz - d,
-                nx + dx, ny + d, nz - d))
+                (nx + dx)/dimX, (ny + d)/dimY, (nz + d)/dimZ,
+                (nx + dx)/dimX, (ny - d)/dimY, (nz + d)/dimZ,
+                (nx + dx)/dimX, (ny - d)/dimY, (nz - d)/dimZ,
+                (nx + dx)/dimX, (ny + d)/dimY, (nz - d)/dimZ))
             } else if (dy != 0) { // Top or bottom neighbour
               occlusion.append(if (dy < 0) thisCell.top else thisCell.bottom) 
               occlusion.append(if (dy < 0) thisCell.top else thisCell.bottom) 
@@ -83,10 +83,10 @@ trait Quads extends RenderableBase {
               normals.appendAll(List(0, dy * 2, 0))
               normals.appendAll(List(0, dy * 2, 0))
               quadVerts.appendAll(List(
-                nx + d, ny + dy, nz + d,
-                nx + d, ny + dy, nz - d,
-                nx - d, ny + dy, nz - d,
-                nx - d, ny + dy, nz + d))
+                (nx + d)/dimX, (ny + dy)/dimY, (nz + d)/dimZ,
+                (nx + d)/dimX, (ny + dy)/dimY, (nz - d)/dimZ,
+                (nx - d)/dimX, (ny + dy)/dimY, (nz - d)/dimZ,
+                (nx - d)/dimX, (ny + dy)/dimY, (nz + d)/dimZ))
             } else if (dz != 0) { // Front or back neighbour
               occlusion.append(if (dz < 0) thisCell.front else thisCell.back) 
               occlusion.append(if (dz < 0) thisCell.front else thisCell.back) 
@@ -97,36 +97,36 @@ trait Quads extends RenderableBase {
               normals.appendAll(List(0, 0, dz * 2))
               normals.appendAll(List(0, 0, dz * 2))
               quadVerts.appendAll(List(
-                nx + d, ny + d, nz + dz,
-                nx - d, ny + d, nz + dz,
-                nx - d, ny - d, nz + dz,
-                nx + d, ny - d, nz + dz))
+                (nx + d)/dimX, (ny + d)/dimY, (nz + dz)/dimZ,
+                (nx - d)/dimX, (ny + d)/dimY, (nz + dz)/dimZ,
+                (nx - d)/dimX, (ny - d)/dimY, (nz + dz)/dimZ,
+                (nx + d)/dimX, (ny - d)/dimY, (nz + dz)/dimZ))
             }
           }
         }
     }
 
     // Rescale the verts so that they're centered around the origin and 1x1x1
-    quadVerts = quadVerts.map( _ / dimSize).map(_ - 0.5f)
+    quadVerts = quadVerts.map(_ - 0.5f)
 
     println("...Done!")
     new RawQuadData(quadVerts.toArray, normals.toArray, occlusion.toArray)
   }
 
   def getOcclusions(): Array3D[OccludeCell] = {
-    val dimSize = getDimSize
+    val (dimX, dimY, dimZ) = getDims
     val data = getData
-    val occlusions = Array3D.initWith(dimSize, { () => new OccludeCell(0)})
+    val occlusions = Array3D.initWith(dimX, dimY, dimZ, { () => new OccludeCell(0)})
 
     println("Getting occlusions for faces...")
     var progress = 0
 
     val sample = new Sample()
     for {
-      (x, y, z) <- xyzIn(0, dimSize)
+      (x, y, z) <- xyzIn(0, dimX, dimY, dimZ)
     } {
-      if (progress % (dimSize*dimSize*dimSize/10) == 0) 
-        println(s"${progress*100/(dimSize*dimSize*dimSize)}% complete...")
+      if (progress % (dimZ*dimY*dimZ/10) == 0) 
+        println(s"${progress*100/(dimX*dimY*dimZ)}% complete...")
       progress += 1
       val value = data.get(x, y, z)
       if (value == 0 && !data.getNeighbours(x, y, z).isEmpty) {
@@ -141,9 +141,9 @@ trait Quads extends RenderableBase {
               val xoff = off.x + x
               val yoff = off.y + y
               val zoff = off.z + z
-              if (xoff < 0 || xoff >= dimSize) break
-              else if (yoff < 0 || yoff >= dimSize) break
-              else if (zoff < 0 || zoff >= dimSize) break
+              if (xoff < 0 || xoff >= dimX) break
+              else if (yoff < 0 || yoff >= dimY) break
+              else if (zoff < 0 || zoff >= dimZ) break
               else if (data.get(xoff, yoff, zoff) != 0) {
                 collided = true
                 break

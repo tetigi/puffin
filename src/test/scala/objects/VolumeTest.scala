@@ -23,9 +23,4 @@ class TerrainTest extends FlatSpec with Matchers {
     vol.get(1, 1, 1) should be (-10)
   }
   
-  it should "retrieve neighbours properly" in {
-    val vol = new Volume(volSize)
-    vol.getNeighbours(0, 0, 0).toSet should be (Set((0,0,1), (0,1,0), (1,0,0)))
-    vol.getNeighbours(1, 1, 1).toSet should be (Set((0,1,1), (1,0,1), (1,1,0),(2,1,1),(1,2,1),(1,1,2)))
-  }
 }

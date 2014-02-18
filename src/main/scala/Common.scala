@@ -4,6 +4,7 @@ import org.lwjgl.util.vector.Vector3f
 import org.lwjgl.util.vector.Matrix3f
 
 import scala.math._
+import scala.collection.immutable.IndexedSeq
 
 object Common {
   type Point = Tuple3[Int, Int, Int]
@@ -17,11 +18,13 @@ object Common {
   def clamp(x: Double, llim: Double, ulim: Double) = 
     max(llim, min(ulim, x))
 
-  def xyzIn(start: Int, end: Int) = {
+  def xyzIn(start: Int, end: Int): IndexedSeq[Tuple3[Int, Int, Int]] = xyzIn(start, end, end, end)
+
+  def xyzIn(start: Int, endX: Int, endY: Int, endZ: Int): IndexedSeq[Tuple3[Int, Int, Int]] = {
     for {
-      x <- start until end
-      y <- start until end
-      z <- start until end
+      x <- start until endX
+      y <- start until endY
+      z <- start until endZ
     } yield (x, y, z)
   }
 

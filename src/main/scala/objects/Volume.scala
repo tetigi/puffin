@@ -12,7 +12,7 @@ class Volume(val dimSize: Int) extends Quads {
   def get(x: Int, y: Int, z: Int) = data.get(x, y, z)
   def put(x: Int, y: Int, z: Int, v: Int) = data.put(x, y, z, v)
 
-  def getDimSize = dimSize
+  def getDims = (dimSize, dimSize, dimSize)
   def getData = data
 
   def fillRandom(p: Double = 0.5) = {
