@@ -9,39 +9,32 @@ import org.lwjgl.opengl.GL15
 import org.lwjgl.opengl.GL20
 import org.lwjgl.opengl.GL30
 
-object QuadUtils {
-  var vaoId, vboId, vbonId, vboOccId, vboiId = 0
+import com.puffin.context._
 
-  def initBuffIds() = {
-    vaoId = GL30.glGenVertexArrays()
-    vboId = GL15.glGenBuffers()
-    vbonId = GL15.glGenBuffers()
-    vboOccId = GL15.glGenBuffers()
-    vboiId = GL15.glGenBuffers()
-  }
+object QuadUtils {
   
   def renderQuads(quads: RawQuads) = {
     // SETUP QUAD
 
-    GL30.glBindVertexArray(vaoId)
-    GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboId)
+    GL30.glBindVertexArray(Context.vaoId)
+    GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, Context.vboVertexId)
     GL15.glBufferData(GL15.GL_ARRAY_BUFFER, quads.vertBuffer, GL15.GL_STATIC_DRAW)
 
     // Place these in the attributes for the shader
     GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 0, 0)
     GL20.glEnableVertexAttribArray(0)
 
-    GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vbonId)
+    GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, Context.vboNormalId)
     GL15.glBufferData(GL15.GL_ARRAY_BUFFER, quads.normalBuffer, GL15.GL_STATIC_DRAW)
     GL20.glVertexAttribPointer(1, 3, GL11.GL_FLOAT, false, 0, 0)
     GL20.glEnableVertexAttribArray(1)
 
-    GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboOccId)
+    GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, Context.vboOcclusionId)
     GL15.glBufferData(GL15.GL_ARRAY_BUFFER, quads.occlusionBuffer, GL15.GL_STATIC_DRAW)
     GL20.glVertexAttribPointer(2, 1, GL11.GL_FLOAT, false, 0, 0)
     GL20.glEnableVertexAttribArray(2)
 
-    GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, vboiId)
+    GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, Context.vboIndicesId)
     GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, quads.indicesBuffer, GL15.GL_STATIC_DRAW)
       
     GL11.glDrawElements(GL11.GL_TRIANGLES, quads.indices.length, GL11.GL_UNSIGNED_INT, 0)

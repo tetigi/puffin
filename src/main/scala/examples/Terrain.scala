@@ -22,14 +22,13 @@ import scala.math._
 import com.puffin.objects.Volume
 import com.puffin.Common._
 import com.puffin.shaders.ShaderUtils._
-import com.puffin.render.GLUtils._
 import com.puffin.render.RawQuads
 import com.puffin.render.QuadUtils._
 import com.puffin.utils._
 
 object Terrain {
   // The array containing volume data
-  val SIZE = 126
+  val SIZE = 40
   val volume = new Volume(SIZE)
   val WIDTH = 1024
   val HEIGHT = 768
@@ -41,8 +40,8 @@ object Terrain {
   def start() = {
     
     //volume.fillRandom(0.5)
-    //volume.fillSimplexNoise(1.1)
-    volume.fillFloatingRock()
+    volume.fillSimplexNoise(1.1)
+    //volume.fillFloatingRock()
     //volume.fillIsland()
 
     // Setup input
@@ -53,7 +52,7 @@ object Terrain {
     var (tmogs, matrices) = setupMatrices(WIDTH, HEIGHT) 
     this.tmogs = tmogs; this.matrices = matrices
     setupShaders("shaders/vert.glsl", "shaders/frag.glsl", "shaders/geom.glsl")
-    initBuffIds()
+    initialiseBuffers()
 
     while (! Display.isCloseRequested()) {
       loopCycle()
@@ -62,7 +61,7 @@ object Terrain {
     }
 
     // Finish
-    Display.destroy()
+    destroyOpenGL()
     println("Done!")
   }
 
@@ -71,7 +70,7 @@ object Terrain {
     // Set all the matrices and shaders
     storeMatrices(matrices, tmogs)
     // Get quads and render them
-    val quads = volume.getRawQuads(occlusionOn = false)
+    val quads = volume.getRawQuads(occlusionOn = true)
     renderQuads(quads)
   }
 

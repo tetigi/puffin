@@ -16,9 +16,9 @@ import scala.math._
 
 import com.puffin.Common.readFileAsString
 import com.puffin.utils._
+import com.puffin.context._
 
 object ShaderUtils {
-  var program = 0
   var uniformLocs: UniformLocations = null
 
   def createShader(filename: String, shaderType: Int): Int   = {
@@ -49,21 +49,21 @@ object ShaderUtils {
     val vertShader = createShader(vShaderFilename, GL20.GL_VERTEX_SHADER)
     //val geomShader = createShader(gShaderFilename, GL32.GL_GEOMETRY_SHADER)
     val fragShader = createShader(fShaderFilename, GL20.GL_FRAGMENT_SHADER)
-    program = GL20.glCreateProgram()
-    GL20.glAttachShader(program, vertShader)
-    //GL20.glAttachShader(program, geomShader)
-    GL20.glAttachShader(program, fragShader)
+    Context.programId = GL20.glCreateProgram()
+    GL20.glAttachShader(Context.programId, vertShader)
+    //GL20.glAttachShader(Context.programId, geomShader)
+    GL20.glAttachShader(Context.programId, fragShader)
 
-    GL20.glLinkProgram(program)
-    GL20.glValidateProgram(program)
+    GL20.glLinkProgram(Context.programId)
+    GL20.glValidateProgram(Context.programId)
 
-    val pvmLoc = GL20.glGetUniformLocation(program, "pvm")
-    val normalMatrixLoc = GL20.glGetUniformLocation(program, "normalMatrix")
-    val diffuseLoc = GL20.glGetUniformLocation(program, "diffuse")
-    val lDirLoc = GL20.glGetUniformLocation(program, "l_dir")
-    val ambientLoc = GL20.glGetUniformLocation(program, "ambient")
-    GL41.glProgramUniform4f(program, ambientLoc, 0.2f, 0.2f, 0.2f, 1.0f)
-    GL41.glProgramUniform4f(program, diffuseLoc, 0.2f, 0.2f, 0.2f, 1.0f)
+    val pvmLoc = GL20.glGetUniformLocation(Context.programId, "pvm")
+    val normalMatrixLoc = GL20.glGetUniformLocation(Context.programId, "normalMatrix")
+    val diffuseLoc = GL20.glGetUniformLocation(Context.programId, "diffuse")
+    val lDirLoc = GL20.glGetUniformLocation(Context.programId, "l_dir")
+    val ambientLoc = GL20.glGetUniformLocation(Context.programId, "ambient")
+    GL41.glProgramUniform4f(Context.programId, ambientLoc, 0.2f, 0.2f, 0.2f, 1.0f)
+    GL41.glProgramUniform4f(Context.programId, diffuseLoc, 0.2f, 0.2f, 0.2f, 1.0f)
 
     /*
     val lightDir = new Vector4f(-1, 1, 1, 0)
@@ -76,7 +76,7 @@ object ShaderUtils {
     GL41.glProgramUniform3(program, lDirLoc, lightDirBuffer)
     */
 
-    GL20.glUseProgram(program)
+    GL20.glUseProgram(Context.programId)
     uniformLocs = new UniformLocations(pvmLoc, normalMatrixLoc)
   }
 

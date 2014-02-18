@@ -2,9 +2,19 @@ package com.puffin
 
 import com.puffin.utils.Camera
 import com.puffin.utils.Model
+import com.puffin.context._
 
+import org.lwjgl.LWJGLException
 import org.lwjgl.util.vector.Matrix4f
 import org.lwjgl.util.vector.Vector3f
+import org.lwjgl.opengl.GL11
+import org.lwjgl.opengl.GL15
+import org.lwjgl.opengl.GL20
+import org.lwjgl.opengl.GL30
+import org.lwjgl.opengl.Display
+import org.lwjgl.opengl.DisplayMode
+import org.lwjgl.opengl.PixelFormat
+import org.lwjgl.opengl.ContextAttribs
 
 import scala.math._
 
@@ -15,6 +25,54 @@ package object utils {
   class Matrices(val viewMatrix: Matrix4f, val modelMatrix: Matrix4f, val projectionMatrix: Matrix4f) {}
 
   class Transmogrifiers(val camera: Camera, val model: Model) {}
+
+  def initialiseBuffers() = {
+    Context.vaoId = GL30.glGenVertexArrays()
+    Context.vboVertexId = GL15.glGenBuffers()
+    Context.vboNormalId = GL15.glGenBuffers() 
+    Context.vboOcclusionId = GL15.glGenBuffers()
+    Context.vboIndicesId = GL15.glGenBuffers()
+  }
+
+  def setupOpenGL(WIDTH: Int, HEIGHT: Int) = {
+    try {
+      val context = new ContextAttribs(3,2).withProfileCore(true).withForwardCompatible(true)
+      Display.setDisplayMode(new DisplayMode(WIDTH, HEIGHT))
+      Display.create(new PixelFormat(), context)
+
+    } catch {
+      case ex: LWJGLException => {
+        ex.printStackTrace()
+        System.exit(0)
+      }
+    }
+
+    GL11.glClearColor(0.8f, 0.8f, 0.8f, 1.0f)
+    GL11.glViewport(0, 0, WIDTH, HEIGHT)
+    GL11.glEnable(GL11.GL_DEPTH_TEST)
+  }
+
+  def destroyOpenGL() = {
+    GL20.glUseProgram(0)
+    GL20.glDeleteProgram(Context.programId)
+
+    GL30.glBindVertexArray(Context.vaoId)
+    GL20.glDisableVertexAttribArray(0) // Vertex
+    GL20.glDisableVertexAttribArray(1) // Normal
+    GL20.glDisableVertexAttribArray(2) // Occlusion
+
+    GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0)
+    GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0)
+    GL15.glDeleteBuffers(Context.vboVertexId)
+    GL15.glDeleteBuffers(Context.vboNormalId)
+    GL15.glDeleteBuffers(Context.vboOcclusionId)
+    GL15.glDeleteBuffers(Context.vboIndicesId)
+
+    GL30.glBindVertexArray(0)
+    GL30.glDeleteVertexArrays(Context.vaoId)
+
+    Display.destroy()
+  }
 
   def setupMatrices(width: Int, height: Int) = {
     val projectionMatrix = new Matrix4f()
