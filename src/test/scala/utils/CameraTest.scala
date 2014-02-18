@@ -7,7 +7,7 @@ import scala.math._
 import org.lwjgl.util.vector.Vector3f
 
 import com.puffin.Common._
-import com.puffin.render.Camera
+import com.puffin.utils.Camera
 
 class CameraTest extends FlatSpec with Matchers {
   val err = 0.001f
