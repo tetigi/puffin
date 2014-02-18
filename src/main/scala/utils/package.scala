@@ -26,7 +26,7 @@ package object utils {
 
   class Transmogrifiers(val camera: Camera, val model: Model) {}
 
-  def initialiseBuffers() = {
+  private def initialiseBuffers() = {
     Context.vaoId = GL30.glGenVertexArrays()
     Context.vboVertexId = GL15.glGenBuffers()
     Context.vboNormalId = GL15.glGenBuffers() 
@@ -50,6 +50,9 @@ package object utils {
     GL11.glClearColor(0.8f, 0.8f, 0.8f, 1.0f)
     GL11.glViewport(0, 0, WIDTH, HEIGHT)
     GL11.glEnable(GL11.GL_DEPTH_TEST)
+
+    initialiseBuffers()
+
   }
 
   def destroyOpenGL() = {

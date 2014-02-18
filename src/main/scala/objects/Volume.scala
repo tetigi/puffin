@@ -5,7 +5,7 @@ import scala.collection.mutable.ListBuffer
 import scala.math._
 
 import com.puffin.Common._
-import com.puffin.render.RawQuads
+import com.puffin.render.Quads
 import com.puffin.simplex.SimplexNoise
 
 object Array3D {
@@ -16,6 +16,7 @@ object Array3D {
     data
   }
 }
+
 class Array3D[T: Manifest] (val size: Int) {
   val elems = size * size * size
   val data = new Array[T](elems)
@@ -27,12 +28,10 @@ class Array3D[T: Manifest] (val size: Int) {
     data(clamp(x, size-1) + clamp(y, size-1)*size + clamp(z, size-1)*size*size) = value
 }
 
-class Volume(val size: Int) {
+class Volume(val size: Int) extends Quads {
   val data = new Array3D[Int](size)
   def get(x: Int, y: Int, z: Int) = data.get(x, y, z)
   def put(x: Int, y: Int, z: Int, v: Int) = data.put(x, y, z, v)
-
-  val cache = new QuadCache()
 
   def fillRandom(p: Double = 0.5) = {
     //Pick random cells to fill
@@ -141,13 +140,12 @@ class Volume(val size: Int) {
     ns
   }
 
-  def getRawQuads(occlusionOn: Boolean = true): RawQuads = {
-    if (cache.rawQuads != null) return cache.rawQuads
+  def createRawQuadData(opts: RenderOptions): RawQuadData = {
     var quadVerts: ListBuffer[Float] = new ListBuffer()
     var normals: ListBuffer[Float] = new ListBuffer()
     var occlusion: ListBuffer[Float] = new ListBuffer()
 
-    val cells = if (occlusionOn) getOcclusions() else Array3D.initWith(size, { () => new Cell(0)})
+    val cells = if (opts.occlusionEnabled) getOcclusions() else Array3D.initWith(size, { () => new Cell(0)})
     println("Getting raw quads...")
     var progress = 0
 
@@ -219,12 +217,10 @@ class Volume(val size: Int) {
     quadVerts = quadVerts.map( _ / this.size).map(_ - 0.5f)
 
     println("...Done!")
-    cache.rawQuads = new RawQuads(quadVerts.toArray, normals.toArray, occlusion.toArray)
-    cache.rawQuads
+    new RawQuadData(quadVerts.toArray, normals.toArray, occlusion.toArray)
   }
 
   def getOcclusions(): Array3D[Cell] = {
-    if (cache.occlusions != null) return cache.occlusions
     val occlusions = Array3D.initWith(size, { () => new Cell()})
 
     println("Getting occlusions for faces...")
@@ -268,7 +264,6 @@ class Volume(val size: Int) {
     }
     
     println("...Done!")
-    cache.occlusions = occlusions
     occlusions
   }
 }
@@ -342,10 +337,6 @@ class Ray() {
 }
 
 class Offset(val depth: Float, val x: Int, val y: Int, val z: Int) {
-}
-
-class QuadCache (var rawQuads: RawQuads, var occlusions: Array3D[Cell]) {
-  def this() = this(null, null)
 }
 
 class Cell (var left: Float, var right: Float, var top: Float, var bottom: Float, var front: Float, var back: Float){

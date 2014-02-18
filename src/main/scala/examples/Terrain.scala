@@ -22,8 +22,6 @@ import scala.math._
 import com.puffin.objects.Volume
 import com.puffin.Common._
 import com.puffin.shaders.ShaderUtils._
-import com.puffin.render.RawQuads
-import com.puffin.render.QuadUtils._
 import com.puffin.utils._
 
 object Terrain {
@@ -52,7 +50,6 @@ object Terrain {
     var (tmogs, matrices) = setupMatrices(WIDTH, HEIGHT) 
     this.tmogs = tmogs; this.matrices = matrices
     setupShaders("shaders/vert.glsl", "shaders/frag.glsl", "shaders/geom.glsl")
-    initialiseBuffers()
 
     while (! Display.isCloseRequested()) {
       loopCycle()
@@ -67,11 +64,10 @@ object Terrain {
 
   def renderCycle() = {
     GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT)
-    // Set all the matrices and shaders
+    // Set all the matrices
     storeMatrices(matrices, tmogs)
     // Get quads and render them
-    val quads = volume.getRawQuads(occlusionOn = true)
-    renderQuads(quads)
+    volume.render()
   }
 
   def logicCycle() = {

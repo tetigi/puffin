@@ -8,4 +8,8 @@ object Context {
   var vboIndicesId = 0
 
   var programId = 0
+
+  val vertexAttribArray = 0
+  val normalAttribArray = 1
+  val occlusionAttribArray = 2
 }

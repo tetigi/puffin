@@ -55,4 +55,12 @@ object Common {
 
     Matrix3f.transform(matrix, v, v)
   }
+
+  class RenderOptions() {
+    var occlusionEnabled = true
+
+    def setOcclusionEnable(b: Boolean) = {
+      occlusionEnabled = b
+    }
+  }
 }
