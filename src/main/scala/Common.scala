@@ -6,6 +6,8 @@ import org.lwjgl.util.vector.Matrix3f
 import scala.math._
 
 object Common {
+  type Point = Tuple3[Int, Int, Int]
+
   def clamp(x: Int, ulim: Int) = 
     min(ulim, x)
 
@@ -14,6 +16,14 @@ object Common {
 
   def clamp(x: Double, llim: Double, ulim: Double) = 
     max(llim, min(ulim, x))
+
+  def xyzIn(start: Int, end: Int) = {
+    for {
+      x <- start until end
+      y <- start until end
+      z <- start until end
+    } yield (x, y, z)
+  }
 
   def readFileAsString(filename: String) = {
     val source = scala.io.Source.fromFile(filename)

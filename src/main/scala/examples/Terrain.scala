@@ -1,27 +1,14 @@
 package com.puffin.examples
 
-import java.nio.FloatBuffer
-
-import org.lwjgl.BufferUtils
 import org.lwjgl.input._
 import org.lwjgl.opengl.Display
 import org.lwjgl.opengl.GL11
-import org.lwjgl.opengl.GL15
-import org.lwjgl.opengl.GL20
-import org.lwjgl.opengl.GL30
-import org.lwjgl.util.vector.Matrix4f
-import org.lwjgl.util.vector.Vector3f
-import org.lwjgl.util.glu.GLU
-import org.lwjgl.opengl.ARBFragmentShader
-import org.lwjgl.opengl.ARBVertexShader
-import org.lwjgl.opengl.ARBGeometryShader4
-import org.lwjgl.opengl.ARBShaderObjects  
 
 import scala.math._
 
 import com.puffin.objects.Volume
 import com.puffin.Common._
-import com.puffin.shaders.ShaderUtils._
+import com.puffin.utils.ShaderUtils._
 import com.puffin.utils._
 
 object Terrain {

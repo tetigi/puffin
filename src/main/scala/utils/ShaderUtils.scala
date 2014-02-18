@@ -1,4 +1,4 @@
-package com.puffin.shaders
+package com.puffin.utils
 
 import java.nio.FloatBuffer
 
