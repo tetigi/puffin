@@ -2,7 +2,7 @@
 
 uniform mat3 normalMatrix;
 
-in vec4 colorV;
+in float intensity;
 in vec3 normalV;
 in float occlusionV;
 out vec3 outputColor;
@@ -79,10 +79,13 @@ vec3 gamma(vec3 color) {
 void main(){
   vec3 outside = sh_light(normalV, beach);
   vec3 inside = sh_light(normalV, groove)*0.004;
+  //vec3 color = vec3(0.1, 0.1, 0.1);
+  //vec3 directColor = vec3(0.3, 0.3, 0.3);
+  //vec3 outside = color;
+  //vec3 inside = color * 0.004;
 
   vec3 ambient = mix(outside, inside, occlusionV);
+  //vec3 direct = directColor * intensity;
   outputColor = gamma(ambient * vec3(0.3, 0.3, 0.3));
-  //outputColor = sh_light(normalV, beach) * 0.5;
-
-  //outputColor = colorV;
+  //outputColor = gamma(ambient + direct);
 }

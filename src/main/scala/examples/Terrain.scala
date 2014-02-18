@@ -21,7 +21,6 @@ object Terrain {
   var matrices: Matrices = null
   var tmogs: Transmogrifiers = null
 
-
   def start() = {
     
     //volume.fillRandom(0.5)
@@ -91,8 +90,8 @@ object Terrain {
     renderCycle()
   }
 
-  def main(args : Array[String]) = {
-    Terrain.start()
-  }
+  //def main(args : Array[String]) = {
+  //  Terrain.start()
+  //}
 }
 

@@ -11,15 +11,14 @@ layout(location = 0) in vec4 position;
 layout(location = 1) in vec3 normal;
 layout(location = 2) in float occlusion;
 
-out vec4 colorV;
+out float intensity;
 out vec3 normalV;
 out float occlusionV;
 
 void main(void){
   //colorV = position;
   vec3 n = normalize(normalMatrix * normal);
-  //float intensity = max(dot(n, l_dir), 0.0);
-  //colorV = (intensity * diffuse) + ambient;
+  intensity = max(dot(n, l_dir), 0.0);
   normalV = n;
   occlusionV = occlusion;
   gl_Position = pvm * position;

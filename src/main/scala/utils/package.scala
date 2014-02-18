@@ -20,7 +20,7 @@ import scala.math._
 
 package object utils { 
 
-  class UniformLocations(val pvmLoc: Int, val normalMatrixLoc: Int) {}
+  class UniformLocations(val pvmLoc: Int, val normalMatrixLoc: Int, val lightDirLoc: Int) {}
 
   class Matrices(val viewMatrix: Matrix4f, val modelMatrix: Matrix4f, val projectionMatrix: Matrix4f) {}
 

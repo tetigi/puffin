@@ -65,19 +65,8 @@ object ShaderUtils {
     GL41.glProgramUniform4f(Context.programId, ambientLoc, 0.2f, 0.2f, 0.2f, 1.0f)
     GL41.glProgramUniform4f(Context.programId, diffuseLoc, 0.2f, 0.2f, 0.2f, 1.0f)
 
-    /*
-    val lightDir = new Vector4f(-1, 1, 1, 0)
-    Matrix4f.transform(matrices.viewMatrix, lightDir, lightDir)
-    lightDir.normalise(lightDir)
-    val lightDirBuffer = BufferUtils.createFloatBuffer(4)
-    lightDir.store(lightDirBuffer)
-    lightDirBuffer.flip()
-
-    GL41.glProgramUniform3(program, lDirLoc, lightDirBuffer)
-    */
-
     GL20.glUseProgram(Context.programId)
-    uniformLocs = new UniformLocations(pvmLoc, normalMatrixLoc)
+    uniformLocs = new UniformLocations(pvmLoc, normalMatrixLoc, lDirLoc)
   }
 
   def storeMatrices(matrices: Matrices, tmogs: Transmogrifiers) = {
@@ -89,26 +78,34 @@ object ShaderUtils {
     cam.putViewMatrix(matrices.viewMatrix)
     val matrix33Buffer = BufferUtils.createFloatBuffer(9)
     val matrix44Buffer = BufferUtils.createFloatBuffer(16)
+    val lightDirBuffer = BufferUtils.createFloatBuffer(4)
 
+    val pv = new Matrix4f()
     val pvm = new Matrix4f()
-    Matrix4f.mul(matrices.projectionMatrix, matrices.viewMatrix, pvm)
-    Matrix4f.mul(pvm, matrices.modelMatrix, pvm)
+    Matrix4f.mul(matrices.projectionMatrix, matrices.viewMatrix, pv)
+    Matrix4f.mul(pv, matrices.modelMatrix, pvm)
     pvm.store(matrix44Buffer)
     matrix44Buffer.flip()
     GL20.glUniformMatrix4(uniformLocs.pvmLoc, false, matrix44Buffer)
 
-    val mv = new Matrix4f()
-    Matrix4f.mul(matrices.modelMatrix, matrices.viewMatrix, mv)
     // Get upper left 3x3
     val mv3 = new Matrix3f()
-    mv3.m00 = mv.m00; mv3.m01 = mv.m01; mv3.m02 = mv.m02
-    mv3.m10 = mv.m10; mv3.m11 = mv.m11; mv3.m12 = mv.m12
-    mv3.m20 = mv.m20; mv3.m21 = mv.m21; mv3.m22 = mv.m22
+    mv3.m00 = pvm.m00; mv3.m01 = pvm.m01; mv3.m02 = pvm.m02
+    mv3.m10 = pvm.m10; mv3.m11 = pvm.m11; mv3.m12 = pvm.m12
+    mv3.m20 = pvm.m20; mv3.m21 = pvm.m21; mv3.m22 = pvm.m22
     mv3.invert()
     mv3.transpose()
     mv3.store(matrix33Buffer)
     matrix33Buffer.flip()    
     GL20.glUniformMatrix3(uniformLocs.normalMatrixLoc, false, matrix33Buffer)
 
+    val v = new Vector4f(1, 0, 0, 0)
+    val lightDir = new Vector3f()
+    Matrix4f.transform(pv, v, v)
+    lightDir.x = v.x; lightDir.y = v.y; lightDir.z = v.z
+    lightDir.normalise(lightDir)
+    lightDir.store(lightDirBuffer)
+    lightDirBuffer.flip()
+    GL41.glProgramUniform3(Context.programId, uniformLocs.lightDirLoc, lightDirBuffer)
   }
 }
