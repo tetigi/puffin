@@ -15,7 +15,7 @@ import org.lwjgl.util.vector.Vector4f
 import scala.math._
 
 import com.puffin.Common.readFileAsString
-import com.puffin.render.Camera
+import com.puffin.utils._
 
 object ShaderUtils {
   var program = 0
@@ -82,18 +82,11 @@ object ShaderUtils {
 
   def storeMatrices(matrices: Matrices, tmogs: Transmogrifiers) = {
     val cam = tmogs.camera
+    val model = tmogs.model
     //reset the view and model matrices
-    matrices.modelMatrix.setIdentity()
+    
+    model.putModelMatrix(matrices.modelMatrix)
     cam.putViewMatrix(matrices.viewMatrix)
-
-    Matrix4f.scale(tmogs.modelScale, matrices.modelMatrix, matrices.modelMatrix)
-    Matrix4f.translate(tmogs.modelPos, matrices.modelMatrix, matrices.modelMatrix)
-
-    val rotateX: Double = tmogs.modelRotate.x.toDouble
-    val rotateY: Double = tmogs.modelRotate.y.toDouble
-    Matrix4f.rotate(toRadians(rotateX).toFloat, new Vector3f(1, 0, 0), matrices.modelMatrix, matrices.modelMatrix)
-    Matrix4f.rotate(toRadians(rotateY).toFloat, new Vector3f(0, 1, 0), matrices.modelMatrix, matrices.modelMatrix)
-
     val matrix33Buffer = BufferUtils.createFloatBuffer(9)
     val matrix44Buffer = BufferUtils.createFloatBuffer(16)
 
@@ -118,13 +111,4 @@ object ShaderUtils {
     GL20.glUniformMatrix3(uniformLocs.normalMatrixLoc, false, matrix33Buffer)
 
   }
-}
-
-class UniformLocations(val pvmLoc: Int, val normalMatrixLoc: Int) {
-}
-
-class Matrices(val viewMatrix: Matrix4f, val modelMatrix: Matrix4f, val projectionMatrix: Matrix4f) {
-}
-
-class Transmogrifiers(val camera: Camera, val modelScale: Vector3f, val modelPos: Vector3f, val modelRotate: Vector3f) {
 }

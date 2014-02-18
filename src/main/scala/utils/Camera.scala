@@ -1,4 +1,4 @@
-package com.puffin.render
+package com.puffin.utils
 
 import org.lwjgl.util.vector.Vector2f
 import org.lwjgl.util.vector.Vector3f
