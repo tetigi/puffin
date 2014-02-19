@@ -28,7 +28,7 @@ object Vegetation {
 
   def start() = {
     
-    volume.fillIsland()
+    //volume.fillIsland()
     plane.position = new Point(-32, -2, -32)
 
     // Setup input

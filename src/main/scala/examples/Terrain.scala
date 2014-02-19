@@ -89,9 +89,10 @@ object Terrain {
     // Update rendered frame
     renderCycle()
   }
-
+  /*
   def main(args : Array[String]) = {
     Terrain.start()
   }
+  */
 }
 
