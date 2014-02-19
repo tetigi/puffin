@@ -7,13 +7,14 @@ import com.puffin.render.Quads
 import com.puffin.simplex.SimplexNoise
 import com.puffin.data.Array3D
 
-class Volume(val dimSize: Int) extends Quads { 
+class Volume(val dimSize: Int) extends SimpleObject { 
   val data = new Array3D[Int](dimSize)
   def get(x: Int, y: Int, z: Int) = data.get(x, y, z)
   def put(x: Int, y: Int, z: Int, v: Int) = data.put(x, y, z, v)
 
   def getDims = (dimSize, dimSize, dimSize)
   def getData = data
+  def getPosition = new Point()
 
   def fillRandom(p: Double = 0.5) = {
     //Pick random cells to fill

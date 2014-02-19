@@ -81,7 +81,7 @@ package object utils {
     val projectionMatrix = new Matrix4f()
     val fieldOfView = 80f
     val aspectRatio = width.toFloat / height.toFloat
-    val nearPlane = 0.1f
+    val nearPlane = 0.001f
     val farPlane = 100f
 
     def cotan(x: Double) = 1.0 / tan(x)

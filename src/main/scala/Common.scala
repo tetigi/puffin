@@ -96,9 +96,14 @@ object Common {
 
   class RenderOptions() {
     var occlusionEnabled = true
+    var worldSize = (100, 100, 100)
 
     def setOcclusionEnable(b: Boolean) = {
       occlusionEnabled = b
+    }
+
+    def setWorldSize(x: Int, y: Int, z: Int) = {
+      worldSize = (x, y, z) 
     }
   }
 }

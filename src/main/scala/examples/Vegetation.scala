@@ -7,6 +7,7 @@ import org.lwjgl.opengl.GL11
 import scala.math._
 
 import com.puffin.objects.Volume
+import com.puffin.objects.Tree
 import com.puffin.Common._
 import com.puffin.utils.ShaderUtils._
 import com.puffin.utils._
@@ -15,6 +16,7 @@ object Vegetation {
   // The array containing volume data
   val SIZE = 40
   val volume = new Volume(SIZE)
+  val tree = new Tree()
   val WIDTH = 1024
   val HEIGHT = 768
 
@@ -24,10 +26,8 @@ object Vegetation {
 
   def start() = {
     
-    //volume.fillRandom(0.5)
-    //volume.fillSimplexNoise(1.1)
-    //volume.fillFloatingRock()
     volume.fillIsland()
+    
 
     // Setup input
     Keyboard.enableRepeatEvents(true)
@@ -54,7 +54,8 @@ object Vegetation {
     // Set all the matrices
     storeMatrices(matrices, tmogs)
     // Get quads and render them
-    volume.render()
+    tree.render()
+    //volume.render()
   }
 
   def logicCycle() = {

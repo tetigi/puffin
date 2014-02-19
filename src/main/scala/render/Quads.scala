@@ -18,6 +18,7 @@ import com.puffin.context._
 import com.puffin.render._
 import com.puffin.Common._
 import com.puffin.data.Array3D
+import com.puffin.utils.Model
 
 trait Quads extends RenderableBase {
   var rawQuadCache: RawQuadData = null
@@ -30,14 +31,18 @@ trait Quads extends RenderableBase {
 
   def getData: Array3D[Int]
   def getDims: (Int, Int, Int)
+  def getPosition: Point
 
   private def createRawQuadData(opts: RenderOptions): RawQuadData = {
     var quadVerts: ListBuffer[Vector3f] = new ListBuffer()
     var normals: ListBuffer[Vector3f] = new ListBuffer()
     var occlusion: ListBuffer[Float] = new ListBuffer()
 
+    val (worldX, worldY, worldZ) = opts.worldSize
+
     val data = getData
     val (dimX, dimY, dimZ) = getDims
+    val position = getPosition
 
     val cells = 
       if (opts.occlusionEnabled) getOcclusions() 
@@ -90,10 +95,12 @@ trait Quads extends RenderableBase {
           }
         }
     }
+    // Move the points to their proper locations
+    quadVerts.map({ v: Vector3f => Vector3f.add(v, position.toVector3f, v)})
 
     // Rescale the verts so that they're centered around the origin and 1x1x1
-    quadVerts.map({ v: Vector3f => flatScaleVector3f(v, new Vector3f(1.0f/dimX, 1.0f/dimY, 1.0f/dimZ), v) })
-    quadVerts.map({ v: Vector3f => Vector3f.add(v, new Vector3f(-0.5f, -0.5f, -0.5f), v)})
+    quadVerts.map({ v: Vector3f => flatScaleVector3f(v, new Vector3f(1.0f/worldX, 1.0f/worldY, 1.0f/worldZ), v) })
+    //quadVerts.map({ v: Vector3f => Vector3f.add(v, new Vector3f(-0.5f, -0.5f, -0.5f), v)})
     val flatQuadVerts = quadVerts.flatMap({ v: Vector3f => List(v.x, v.y, v.z) })
     
 
