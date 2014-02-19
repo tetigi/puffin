@@ -99,8 +99,9 @@ trait Quads extends RenderableBase {
     quadVerts.map({ v: Vector3f => Vector3f.add(v, position.toVector3f, v)})
 
     // Rescale the verts so that they're centered around the origin and 1x1x1
-    quadVerts.map({ v: Vector3f => flatScaleVector3f(v, new Vector3f(1.0f/worldX, 1.0f/worldY, 1.0f/worldZ), v) })
-    //quadVerts.map({ v: Vector3f => Vector3f.add(v, new Vector3f(-0.5f, -0.5f, -0.5f), v)})
+    //quadVerts.map({ v: Vector3f => flatScaleVector3f(v, new Vector3f(1.0f/worldX, 1.0f/worldY, 1.0f/worldZ), v) })
+    quadVerts.map({ v: Vector3f => flatScaleVector3f(v, new Vector3f(1.0f/dimX, 1.0f/dimY, 1.0f/dimZ), v) })
+    quadVerts.map({ v: Vector3f => Vector3f.add(v, new Vector3f(-0.5f, -0.5f, -0.5f), v)})
     val flatQuadVerts = quadVerts.flatMap({ v: Vector3f => List(v.x, v.y, v.z) })
     
 

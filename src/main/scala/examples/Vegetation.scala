@@ -8,6 +8,7 @@ import scala.math._
 
 import com.puffin.objects.Volume
 import com.puffin.objects.Tree
+import com.puffin.objects.Plane
 import com.puffin.Common._
 import com.puffin.utils.ShaderUtils._
 import com.puffin.utils._
@@ -15,6 +16,7 @@ import com.puffin.utils._
 object Vegetation {
   // The array containing volume data
   val SIZE = 40
+  val plane = new Plane(64, 64)
   val volume = new Volume(SIZE)
   val tree = new Tree()
   val WIDTH = 1024
@@ -27,7 +29,7 @@ object Vegetation {
   def start() = {
     
     volume.fillIsland()
-    
+    plane.position = new Point(-32, -2, -32)
 
     // Setup input
     Keyboard.enableRepeatEvents(true)
@@ -55,6 +57,7 @@ object Vegetation {
     storeMatrices(matrices, tmogs)
     // Get quads and render them
     tree.render()
+    plane.render()
     //volume.render()
   }
 

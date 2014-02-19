@@ -90,8 +90,8 @@ object Terrain {
     renderCycle()
   }
 
-  //def main(args : Array[String]) = {
-  //  Terrain.start()
-  //}
+  def main(args : Array[String]) = {
+    Terrain.start()
+  }
 }
 
