@@ -61,6 +61,13 @@ object Common {
     dest
   }
 
+  def flatScaleVector3f(vec: Vector3f, facV: Vector3f, dest: Vector3f) = {
+    dest.x = vec.x * facV.x
+    dest.y = vec.y * facV.y
+    dest.z = vec.z * facV.z
+    dest
+  }
+
   def getRotateY(theta: Float) = {
     val matrix = new Matrix3f()
     matrix.m00 = cos(theta).toFloat; matrix.m02 = sin(theta).toFloat

@@ -8,6 +8,7 @@ import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL15
 import org.lwjgl.opengl.GL20
 import org.lwjgl.opengl.GL30
+import org.lwjgl.util.vector.Vector3f
 
 import scala.math._
 import scala.collection.mutable.ListBuffer
@@ -31,8 +32,8 @@ trait Quads extends RenderableBase {
   def getDims: (Int, Int, Int)
 
   private def createRawQuadData(opts: RenderOptions): RawQuadData = {
-    var quadVerts: ListBuffer[Float] = new ListBuffer()
-    var normals: ListBuffer[Float] = new ListBuffer()
+    var quadVerts: ListBuffer[Vector3f] = new ListBuffer()
+    var normals: ListBuffer[Vector3f] = new ListBuffer()
     var occlusion: ListBuffer[Float] = new ListBuffer()
 
     val data = getData
@@ -62,60 +63,48 @@ trait Quads extends RenderableBase {
             // TODO Convert to list of vectors and then flatmap across them to get the stream
             // This way I can map the transformations nicely
             if (dx != 0) { // Left or right neighbour 
-              occlusion.append(if (dx < 0) thisCell.right else thisCell.left) 
-              occlusion.append(if (dx < 0) thisCell.right else thisCell.left) 
-              occlusion.append(if (dx < 0) thisCell.right else thisCell.left) 
-              occlusion.append(if (dx < 0) thisCell.right else thisCell.left) 
-              normals.appendAll(List(dx * 2, 0, 0))
-              normals.appendAll(List(dx * 2, 0, 0))
-              normals.appendAll(List(dx * 2, 0, 0))
-              normals.appendAll(List(dx * 2, 0, 0))
+              occlusion += (if (dx < 0) thisCell.right else thisCell.left)
+              normals += new Vector3f(dx * 2, 0, 0)
               quadVerts.appendAll(List( // Don't forget to normalize to 1x1x1!
-                (nx + dx)/dimX, (ny + d)/dimY, (nz + d)/dimZ,
-                (nx + dx)/dimX, (ny - d)/dimY, (nz + d)/dimZ,
-                (nx + dx)/dimX, (ny - d)/dimY, (nz - d)/dimZ,
-                (nx + dx)/dimX, (ny + d)/dimY, (nz - d)/dimZ))
+                new Vector3f(nx + dx, ny + d, nz + d),
+                new Vector3f(nx + dx, ny - d, nz + d),
+                new Vector3f(nx + dx, ny - d, nz - d),
+                new Vector3f(nx + dx, ny + d, nz - d)))
             } else if (dy != 0) { // Top or bottom neighbour
-              occlusion.append(if (dy < 0) thisCell.top else thisCell.bottom) 
-              occlusion.append(if (dy < 0) thisCell.top else thisCell.bottom) 
-              occlusion.append(if (dy < 0) thisCell.top else thisCell.bottom) 
-              occlusion.append(if (dy < 0) thisCell.top else thisCell.bottom) 
-              normals.appendAll(List(0, dy * 2, 0))
-              normals.appendAll(List(0, dy * 2, 0))
-              normals.appendAll(List(0, dy * 2, 0))
-              normals.appendAll(List(0, dy * 2, 0))
+              occlusion += (if (dy < 0) thisCell.top else thisCell.bottom)
+              normals += new Vector3f(0, dy * 2, 0)
               quadVerts.appendAll(List(
-                (nx + d)/dimX, (ny + dy)/dimY, (nz + d)/dimZ,
-                (nx + d)/dimX, (ny + dy)/dimY, (nz - d)/dimZ,
-                (nx - d)/dimX, (ny + dy)/dimY, (nz - d)/dimZ,
-                (nx - d)/dimX, (ny + dy)/dimY, (nz + d)/dimZ))
+                new Vector3f(nx + d, ny + dy, nz + d),
+                new Vector3f(nx + d, ny + dy, nz - d),
+                new Vector3f(nx - d, ny + dy, nz - d),
+                new Vector3f(nx - d, ny + dy, nz + d)))
             } else if (dz != 0) { // Front or back neighbour
-              occlusion.append(if (dz < 0) thisCell.front else thisCell.back) 
-              occlusion.append(if (dz < 0) thisCell.front else thisCell.back) 
-              occlusion.append(if (dz < 0) thisCell.front else thisCell.back) 
-              occlusion.append(if (dz < 0) thisCell.front else thisCell.back) 
-              normals.appendAll(List(0, 0, dz * 2))
-              normals.appendAll(List(0, 0, dz * 2))
-              normals.appendAll(List(0, 0, dz * 2))
-              normals.appendAll(List(0, 0, dz * 2))
+              occlusion += (if (dz < 0) thisCell.front else thisCell.back)
+              normals += new Vector3f(0, 0, dz * 2)
               quadVerts.appendAll(List(
-                (nx + d)/dimX, (ny + d)/dimY, (nz + dz)/dimZ,
-                (nx - d)/dimX, (ny + d)/dimY, (nz + dz)/dimZ,
-                (nx - d)/dimX, (ny - d)/dimY, (nz + dz)/dimZ,
-                (nx + d)/dimX, (ny - d)/dimY, (nz + dz)/dimZ))
+                new Vector3f(nx + d, ny + d, nz + dz),
+                new Vector3f(nx - d, ny + d, nz + dz),
+                new Vector3f(nx - d, ny - d, nz + dz),
+                new Vector3f(nx + d, ny - d, nz + dz)))
             }
           }
         }
     }
 
     // Rescale the verts so that they're centered around the origin and 1x1x1
-    quadVerts = quadVerts.map(_ - 0.5f)
+    quadVerts.map({ v: Vector3f => flatScaleVector3f(v, new Vector3f(1.0f/dimX, 1.0f/dimY, 1.0f/dimZ), v) })
+    quadVerts.map({ v: Vector3f => Vector3f.add(v, new Vector3f(-0.5f, -0.5f, -0.5f), v)})
+    val flatQuadVerts = quadVerts.flatMap({ v: Vector3f => List(v.x, v.y, v.z) })
+    
 
-    // Duplicate the occlusion paramaters 3 more times for each vertex
-    occlusion = repeatEachElem(occlusion, 3)
+    // Duplicate and flatten the normal vectors
+    val flatNormals = repeatEachElem(normals, 4).flatMap({ v: Vector3f => List(v.x, v.y, v.z) })
+
+    // Duplicate the occlusion paramaters 4 times for each vertex
+    occlusion = repeatEachElem(occlusion, 4)
 
     println("...Done!")
-    new RawQuadData(quadVerts.toArray, normals.toArray, occlusion.toArray)
+    new RawQuadData(flatQuadVerts.toArray, flatNormals.toArray, occlusion.toArray)
   }
 
   def getOcclusions(): Array3D[OccludeCell] = {
