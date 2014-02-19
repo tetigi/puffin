@@ -3,6 +3,7 @@ import org.lwjgl.util.vector.Vector3f
 import org.scalautils._
 import TripleEquals._
 import Tolerance._
+import scala.collection.mutable.ListBuffer  
 
 import com.puffin.Common._
 
@@ -27,5 +28,19 @@ class CommonTest extends FlatSpec with Matchers {
     clamp(-1, 0, 10) should be (0)
     clamp(5, 0, 10) should be (5)
     clamp(1000, 0, 10) should be (10)
+  }
+
+  val buff: ListBuffer[Int] = new ListBuffer()
+  val expected: ListBuffer[Int] = new ListBuffer()
+  buff.appendAll(List(1,2,3,4))
+
+  "repeatEachElem" should "repeat each element n times" in {
+    expected.appendAll(List(1,1,1,2,2,2,3,3,3,4,4,4))
+    repeatEachElem(buff, 3) should equal (expected)
+  }
+  
+  it should "work for n = 0" in {
+    expected.clear()
+    repeatEachElem(buff, 0) should equal (expected)
   }
 }

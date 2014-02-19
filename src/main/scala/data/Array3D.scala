@@ -30,10 +30,13 @@ class Array3D[T: Manifest] (val dimX: Int, val dimY: Int, val dimZ: Int) extends
   def put(x: Int, y: Int, z: Int, value: T) =
     data(clamp(x, dimX-1) + clamp(y, dimY-1)*dimX + clamp(z, dimZ-1)*dimX*dimY) = value
 
+  def putAll(value: T) =
+    for ((x, y, z) <- xyzIn(0, dimX, dimY, dimZ)) put(x, y, z, value)
+
   def iterator = (for ((x, y, z) <- xyzIn(0, dimX, dimY, dimZ)) yield get(x, y, z)).iterator
 
   def iteratorWithKey[U](f:(Point, T) => U) = 
-    (for ((x, y, z) <- xyzIn(0, dimX, dimY, dimZ)) yield f((x, y, z), get(x, y, z))).iterator
+    (for ((x, y, z) <- xyzIn(0, dimX, dimY, dimZ)) yield f(new Point(x, y, z), get(x, y, z))).iterator
 
   // Gets adjacent neighbours
   def getNeighbours(x: Int, y: Int, z: Int) = {

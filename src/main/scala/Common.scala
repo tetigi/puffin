@@ -4,10 +4,18 @@ import org.lwjgl.util.vector.Vector3f
 import org.lwjgl.util.vector.Matrix3f
 
 import scala.math._
-import scala.collection.immutable.IndexedSeq
+import scala.collection.mutable.ListBuffer
 
 object Common {
-  type Point = Tuple3[Int, Int, Int]
+  class Point(var x: Double, var y: Double, var z: Double) {
+    def this() = this(0, 0, 0)
+    def this(vec: Vector3f) = this(vec.x, vec.y, vec.z)
+    def this(p: Tuple3[Double, Double, Double]) = this(p._1, p._2, p._3)
+
+    def toVector3f = new Vector3f(x.toFloat, y.toFloat, z.toFloat)
+    def toTuple = (x, y, z)
+    def toTupleF = (x.toFloat, y.toFloat, z.toFloat)
+  }
 
   def clamp(x: Int, ulim: Int) = 
     min(ulim, x)
@@ -17,6 +25,16 @@ object Common {
 
   def clamp(x: Double, llim: Double, ulim: Double) = 
     max(llim, min(ulim, x))
+
+  def repeatEachElem[T](elems: ListBuffer[T], times: Int) = 
+    if (elems.isEmpty) elems
+    else {
+      val out: ListBuffer[T] = new ListBuffer()
+      for (i <- 0 until elems.length)
+        for (j <- 0 until times)
+          out += elems(i)
+      out
+    }
 
   def xyzIn(start: Int, end: Int): IndexedSeq[Tuple3[Int, Int, Int]] = xyzIn(start, end, end, end)
 

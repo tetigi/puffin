@@ -59,6 +59,8 @@ trait Quads extends RenderableBase {
             val dy: Float = (y.toFloat - ny) / 2.0f
             val dz: Float = (z.toFloat - nz) / 2.0f
             // negative dx/y/z means neighbour is on the right, top, front
+            // TODO Convert to list of vectors and then flatmap across them to get the stream
+            // This way I can map the transformations nicely
             if (dx != 0) { // Left or right neighbour 
               occlusion.append(if (dx < 0) thisCell.right else thisCell.left) 
               occlusion.append(if (dx < 0) thisCell.right else thisCell.left) 
@@ -68,7 +70,7 @@ trait Quads extends RenderableBase {
               normals.appendAll(List(dx * 2, 0, 0))
               normals.appendAll(List(dx * 2, 0, 0))
               normals.appendAll(List(dx * 2, 0, 0))
-              quadVerts.appendAll(List(
+              quadVerts.appendAll(List( // Don't forget to normalize to 1x1x1!
                 (nx + dx)/dimX, (ny + d)/dimY, (nz + d)/dimZ,
                 (nx + dx)/dimX, (ny - d)/dimY, (nz + d)/dimZ,
                 (nx + dx)/dimX, (ny - d)/dimY, (nz - d)/dimZ,
@@ -108,6 +110,9 @@ trait Quads extends RenderableBase {
 
     // Rescale the verts so that they're centered around the origin and 1x1x1
     quadVerts = quadVerts.map(_ - 0.5f)
+
+    // Duplicate the occlusion paramaters 3 more times for each vertex
+    occlusion = repeatEachElem(occlusion, 3)
 
     println("...Done!")
     new RawQuadData(quadVerts.toArray, normals.toArray, occlusion.toArray)
