@@ -42,7 +42,6 @@ class Tree(x: Int, y: Int, z: Int) extends SimpleObject {
     for (i <- 0 until height)
       data.put(1, i, 1, 1)
     requiresRefresh = true
-    println("New height is " + height)
   }
 
   def spread() = {

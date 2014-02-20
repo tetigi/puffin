@@ -23,15 +23,20 @@ object World {
     }
   }
 
+  def get(x: Int, y: Int, z: Int): Block = blocks.get(x + 50, y + 50, z + 50)
+
   def getRelative(thing: SimpleObject, x: Int, y: Int, z: Int): Block = {
     val p = thing.getPosition
     val (rx, ry, rz) = (p.x + x, p.y + y, p.z + z)  
     //TODO Should probably check for OOB
-    blocks.get(rx + 50, ry + 50, rz + 50)
+    get(rx, ry, rz)
   }
 
   def getOccupiedRelative(thing: SimpleObject, x: Int, y: Int, z: Int): Boolean =
     getRelative(thing, x, y, z).blockType != BlockType.AIR
+  
+  def getOccupied(x: Int, y: Int, z: Int): Boolean =
+    get(x, y, z).blockType != BlockType.AIR
 
   def putObject(x: Int, y: Int, z: Int, obj: SimpleObject) {
     things += obj

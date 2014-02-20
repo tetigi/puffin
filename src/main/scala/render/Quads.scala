@@ -137,6 +137,7 @@ trait Quads extends RenderableBase {
     new RawQuadData(flatQuadVerts.toArray, flatNormals.toArray, occlusion.toArray)
   }
 
+  // TODO Get this working for a specific volume to update RawQuads for this object
   def getOcclusions(): Array3D[OccludeCell] = {
     val (dimX, dimY, dimZ) = getDims
     val data = getData
@@ -144,6 +145,9 @@ trait Quads extends RenderableBase {
 
     println("Getting occlusions for faces...")
     var progress = 0
+    val pos = getPosition
+
+    val range = 20
 
     val sample = new Sample()
     for {
@@ -152,23 +156,21 @@ trait Quads extends RenderableBase {
       if (progress % (dimZ*dimY*dimZ/10) == 0) 
         println(s"${progress*100/(dimX*dimY*dimZ)}% complete...")
       progress += 1
-      val value = data.get(x, y, z)
-      if (value == 0 && !data.getNeighbours(x, y, z).isEmpty) {
+      val occupied = World.getOccupied(pos.x + x, pos.y + y, pos.z + z)
+      if (!occupied && !data.getNeighbours(x, y, z).isEmpty) {
         val cell = occlusions.get(x, y, z)
         for (ray <- sample.rays) {
           var collided = false
           breakable {
-            //TODO Might be dodgy
-            //for (off <- ray.points) {
             val points = ray.points
             for (off <- ray.points) {
               val xoff = off.x + x
               val yoff = off.y + y
               val zoff = off.z + z
-              if (xoff < 0 || xoff >= dimX) break
-              else if (yoff < 0 || yoff >= dimY) break
-              else if (zoff < 0 || zoff >= dimZ) break
-              else if (data.get(xoff, yoff, zoff) != 0) {
+              if (xoff < pos.x - range || xoff >= pos.x + range) break
+              else if (yoff < pos.y - range || yoff >= pos.y + range) break
+              else if (zoff < pos.z - range || zoff >= pos.z + range) break
+              else if (World.getOccupied(pos.x + xoff, pos.y + yoff, pos.z + zoff)) {
                 collided = true
                 break
               }
@@ -238,9 +240,20 @@ object QuadUtils {
 }
 
 class Sample() {
-  val RAY_COUNT = 1024
   var left, right, top, bottom, front, back = 0f
+  val rays = Sample.getRays
+  for (ray <- rays) {
+    left  += ray.left;   right  += ray.right
+    top   += ray.top;    bottom += ray.bottom
+    front += ray.front; back += ray.back
+  }
+}
+
+object Sample {
+  val RAY_COUNT = 1024
   val rays = List.fill(RAY_COUNT)(new Ray()) 
+
+  def getRays = rays.map(_.copy)
 
   def pointsOnSphere(n: Int) = {
     val inc = Pi * (3.0 - sqrt(5))
@@ -253,22 +266,23 @@ class Sample() {
     } yield ((cos(phi) * r).toFloat, y.toFloat, (sin(phi)*r).toFloat)
   }
 
-  for { // For every point on the sphere compute a ray
-    (ray, (x, y, z)) <- rays.zip(pointsOnSphere(rays.length))
-  } {
+  for ((ray, (x, y, z)) <- rays.zip(pointsOnSphere(rays.length)))
     ray.compute(x, y, z)
-    left  += ray.left;   right  += ray.right
-    top   += ray.top;    bottom += ray.bottom
-    front += ray.front; back += ray.back
-  }
-
 }
 
 class Ray() {
   val POINT_COUNT = 128
   var left, right, top, bottom, front, back = 0f
   val points: ListBuffer[Offset] = new ListBuffer()
+  def this(r: Ray) {
+    this()
+    left = r.left; right = r.right
+    top = r.top; bottom = r.bottom
+    front = r.front; back = r.back
+    for (p <- r.points) points += p.copy
+  }
 
+  def copy = new Ray(this)
   // Generates a ray in a grid
   def toGrid(x: Float, y: Float, z: Float) = {
     // direction to move towards
@@ -306,6 +320,7 @@ class Ray() {
 }
 
 class Offset(val depth: Float, val x: Int, val y: Int, val z: Int) {
+  def copy = new Offset(depth, x, y, z)
 }
 
 class OccludeCell (var left: Float, var right: Float, var top: Float, var bottom: Float, var front: Float, var back: Float){

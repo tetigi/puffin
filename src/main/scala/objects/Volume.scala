@@ -14,10 +14,10 @@ class Volume(val dimSize: Int) extends SimpleObject {
   def put(x: Int, y: Int, z: Int, v: Int) = data.put(x, y, z, v)
 
   def getDims = (dimSize, dimSize, dimSize)
-  var usedPoints: ListBuffer[Point] = null
+  var usedPoints: ListBuffer[Point] = new ListBuffer()
   def getUsedPoints = usedPoints
   def getData = data
-  def getPosition = new Point()
+  def getPosition = new Point(-dimSize/2, -dimSize/2, -dimSize/2)
 
   def tick {}
 

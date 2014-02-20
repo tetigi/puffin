@@ -16,7 +16,7 @@ import com.puffin.context.World
 
 object Vegetation {
   // The array containing volume data
-  val SIZE = 40
+  val SIZE = 64
   val plane = new Plane(64, 64)
   val volume = new Volume(SIZE)
   val tree = new Tree()
@@ -30,9 +30,12 @@ object Vegetation {
 
   def start() = {
     
+    //volume.fillSimplexNoise(1.1)
+    //volume.fillFloatingRock()
     //volume.fillIsland()
     World.putThing(plane)
     World.putThing(tree)
+    //World.putThing(volume)
 
     opts.setOcclusionEnabled(false)
 
