@@ -14,6 +14,12 @@ import scala.math._
 import scala.collection.mutable.ListBuffer
 import scala.util.control.Breaks._
 
+import scala.concurrent.duration._
+import scala.concurrent.Await
+import scala.concurrent.Future
+import scala.concurrent.future
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import com.puffin.context._
 import com.puffin.render._
 import com.puffin.Common._
@@ -21,13 +27,25 @@ import com.puffin.data.Array3D
 import com.puffin.utils.Model
 
 trait Quads extends RenderableBase {
-  var rawQuadCache: RawQuadData = null
+  var rawQuadCache: RawQuadData = new RawQuadData()
+
+  var refreshPending = false
+  var futureRender: Option[Future[RawQuadData]] = None
 
   def render(opts: RenderOptions) = {
-    if (requiresRefresh) rawQuadCache = null
-    if (rawQuadCache == null) 
-      rawQuadCache = createRawQuadData(opts)
-      requiresRefresh = false
+    if (requiresRefresh) {
+      if (futureRender.isEmpty) { // Start new refresh job
+        futureRender = Some(future {
+            createRawQuadData(opts)
+          })
+      } else { // Check on current job
+        if (futureRender.get.isCompleted) { // it's done - update our cache
+          rawQuadCache = Await.result(futureRender.get, 1.millis)
+          requiresRefresh = false
+          futureRender = None
+        }
+      }
+    }
     renderQuads(rawQuadCache)
   }
 
@@ -35,6 +53,7 @@ trait Quads extends RenderableBase {
   def getDims: (Int, Int, Int)
   def getPosition: Point
 
+  // I want this method to be spawned as a separate task
   private def createRawQuadData(opts: RenderOptions): RawQuadData = {
     var quadVerts: ListBuffer[Vector3f] = new ListBuffer()
     var normals: ListBuffer[Vector3f] = new ListBuffer()
@@ -193,6 +212,8 @@ trait Quads extends RenderableBase {
 
 
   class RawQuadData (val verts: Array[Float], val normals: Array[Float], val occlusion: Array[Float]) {
+    def this() = this(new Array(0), new Array(0), new Array(0))
+
     val vertBuffer = BufferUtils.createFloatBuffer(verts.length)
     vertBuffer.put(verts)
     vertBuffer.flip()

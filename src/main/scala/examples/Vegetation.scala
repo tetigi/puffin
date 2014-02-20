@@ -51,7 +51,7 @@ object Vegetation {
       Display.sync(60)
       Display.update()
       ticker += 1
-      if (ticker >= 60) {
+      if (ticker >= 300) {
         ticker = 0
         World.tickWorld()
       }

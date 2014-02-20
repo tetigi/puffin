@@ -8,5 +8,5 @@ trait RenderableBase {
   def render(opts: RenderOptions): Unit
   def render(): Unit = render(default) 
 
-  var requiresRefresh = false
+  var requiresRefresh = true
 }
