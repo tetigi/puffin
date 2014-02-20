@@ -16,6 +16,8 @@ class Volume(val dimSize: Int) extends SimpleObject {
   def getData = data
   def getPosition = new Point()
 
+  def tick {}
+
   def fillRandom(p: Double = 0.5) = {
     //Pick random cells to fill
     val fill = 

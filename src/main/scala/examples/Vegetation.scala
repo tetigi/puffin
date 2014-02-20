@@ -12,6 +12,7 @@ import com.puffin.objects.Plane
 import com.puffin.Common._
 import com.puffin.utils.ShaderUtils._
 import com.puffin.utils._
+import com.puffin.context.World
 
 object Vegetation {
   // The array containing volume data
@@ -25,11 +26,15 @@ object Vegetation {
   var matrices: Matrices = null
   var tmogs: Transmogrifiers = null
 
+  val opts = new RenderOptions()
 
   def start() = {
     
     //volume.fillIsland()
-    plane.position = new Point(-32, -2, -32)
+    World.putThing(plane)
+    World.putThing(tree)
+
+    opts.setOcclusionEnabled(false)
 
     // Setup input
     Keyboard.enableRepeatEvents(true)
@@ -40,10 +45,16 @@ object Vegetation {
     this.tmogs = tmogs; this.matrices = matrices
     setupShaders("shaders/vert.glsl", "shaders/frag.glsl", "shaders/geom.glsl")
 
+    var ticker = 0
     while (! Display.isCloseRequested()) {
       loopCycle()
       Display.sync(60)
       Display.update()
+      ticker += 1
+      if (ticker >= 60) {
+        ticker = 0
+        World.tickWorld()
+      }
     }
 
     // Finish
@@ -56,8 +67,9 @@ object Vegetation {
     // Set all the matrices
     storeMatrices(matrices, tmogs)
     // Get quads and render them
-    tree.render()
-    plane.render()
+    World.renderWorld(opts)
+    //tree.render()
+    //plane.render()
     //volume.render()
   }
 

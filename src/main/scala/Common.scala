@@ -7,10 +7,9 @@ import scala.math._
 import scala.collection.mutable.ListBuffer
 
 object Common {
-  class Point(var x: Double, var y: Double, var z: Double) {
+  class Point(var x: Int, var y: Int, var z: Int) {
     def this() = this(0, 0, 0)
-    def this(vec: Vector3f) = this(vec.x, vec.y, vec.z)
-    def this(p: Tuple3[Double, Double, Double]) = this(p._1, p._2, p._3)
+    def this(p: Tuple3[Int, Int, Int]) = this(p._1, p._2, p._3)
 
     def toVector3f = new Vector3f(x.toFloat, y.toFloat, z.toFloat)
     def toTuple = (x, y, z)
@@ -98,7 +97,7 @@ object Common {
     var occlusionEnabled = true
     var worldSize = (100, 100, 100)
 
-    def setOcclusionEnable(b: Boolean) = {
+    def setOcclusionEnabled(b: Boolean) = {
       occlusionEnabled = b
     }
 

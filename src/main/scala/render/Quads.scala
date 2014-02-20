@@ -24,8 +24,10 @@ trait Quads extends RenderableBase {
   var rawQuadCache: RawQuadData = null
 
   def render(opts: RenderOptions) = {
+    if (requiresRefresh) rawQuadCache = null
     if (rawQuadCache == null) 
       rawQuadCache = createRawQuadData(opts)
+      requiresRefresh = false
     renderQuads(rawQuadCache)
   }
 
