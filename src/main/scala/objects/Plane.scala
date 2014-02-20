@@ -9,6 +9,7 @@ class Plane(width: Int, length: Int) extends SimpleObject {
   var position = new Point(-width/2, -2, -length/2)
 
   def getData = data
+  def getUsedPoints = for (x <- 1 to width; z <- 1 to width) yield new Point(x, 1, z) + position
   def getDims = (dimX, dimY, dimZ)
   def getPosition = position
 

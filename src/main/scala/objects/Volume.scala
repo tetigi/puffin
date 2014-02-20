@@ -1,6 +1,7 @@
 package com.puffin.objects
 
 import scala.math._
+import scala.collection.mutable.ListBuffer
 
 import com.puffin.Common._
 import com.puffin.render.Quads
@@ -13,6 +14,8 @@ class Volume(val dimSize: Int) extends SimpleObject {
   def put(x: Int, y: Int, z: Int, v: Int) = data.put(x, y, z, v)
 
   def getDims = (dimSize, dimSize, dimSize)
+  var usedPoints: ListBuffer[Point] = null
+  def getUsedPoints = usedPoints
   def getData = data
   def getPosition = new Point()
 
@@ -23,7 +26,7 @@ class Volume(val dimSize: Int) extends SimpleObject {
     val fill = 
       (for ((x, y, z) <- xyzIn(1, dimSize-1))
         yield (x, y, z, random)) filter { _._4 <= clamp(p, 0, 1) }
-    fill map { x => put(x._1, x._2, x._3, 1) }
+    fill map { x => put(x._1, x._2, x._3, 1); usedPoints += new Point(x._1, x._2, x._3) + getPosition  }
     ()
   }
 
@@ -35,7 +38,7 @@ class Volume(val dimSize: Int) extends SimpleObject {
         ny = y.toFloat / dimSize.toFloat
         nz = z.toFloat / dimSize.toFloat
       } yield (x, y, z, SimplexNoise.simplexNoise(1, nx*3, ny*3, nz*3))) filter { _._4 > lim }
-    fill map { x => put(x._1, x._2, x._3, 1) }
+    fill map { x => put(x._1, x._2, x._3, 1); usedPoints += new Point(x._1, x._2, x._3) + getPosition }
     ()
   }
 
@@ -66,7 +69,8 @@ class Volume(val dimSize: Int) extends SimpleObject {
       density *= pow(
         SimplexNoise.noise((xf+1)*3.0, (yf+1)*3.0, (zf+1)*3.0) + 0.4, 1.8)
       
-      put(x, y, z, if (density > 3.1) 1 else 0)
+      if (density > 3.1) 
+        put(x, y, z, 1); usedPoints += new Point(x, y, z) + getPosition
     }
     println("...Done!")
   }
@@ -98,7 +102,8 @@ class Volume(val dimSize: Int) extends SimpleObject {
       density *= pow(
         SimplexNoise.noise((xf+1)*3.0, (yf+1)*3.0, (zf+1)*3.0) + 0.4, 1.8)
       
-      put(x, y, z, if (density > 3.1) 1 else 0)
+      if (density > 3.1) 
+        put(x, y, z, 1); usedPoints += new Point(x, y, z) + getPosition
     }
     println("...Done!")
   }

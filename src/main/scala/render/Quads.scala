@@ -50,6 +50,7 @@ trait Quads extends RenderableBase {
   }
 
   def getData: Array3D[Int]
+  def getUsedPoints: Iterable[Point]
   def getDims: (Int, Int, Int)
   def getPosition: Point
 
@@ -59,7 +60,7 @@ trait Quads extends RenderableBase {
     var normals: ListBuffer[Vector3f] = new ListBuffer()
     var occlusion: ListBuffer[Float] = new ListBuffer()
 
-    val (worldX, worldY, worldZ) = opts.worldSize
+    val (worldX, worldY, worldZ) = World.size
 
     val data = getData
     val (dimX, dimY, dimZ) = getDims

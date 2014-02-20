@@ -14,6 +14,8 @@ object Common {
     def toVector3f = new Vector3f(x.toFloat, y.toFloat, z.toFloat)
     def toTuple = (x, y, z)
     def toTupleF = (x.toFloat, y.toFloat, z.toFloat)
+    def +(that: Point) =
+      new Point(this.x + that.x, this.y + that.y, this.z + that.z)
   }
 
   def clamp(x: Int, ulim: Int) = 
@@ -95,14 +97,10 @@ object Common {
 
   class RenderOptions() {
     var occlusionEnabled = true
-    var worldSize = (100, 100, 100)
 
     def setOcclusionEnabled(b: Boolean) = {
       occlusionEnabled = b
     }
 
-    def setWorldSize(x: Int, y: Int, z: Int) = {
-      worldSize = (x, y, z) 
-    }
   }
 }
