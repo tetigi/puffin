@@ -12,4 +12,6 @@ object Context {
   val vertexAttribArray = 0
   val normalAttribArray = 1
   val occlusionAttribArray = 2
+
+  var debug = false
 }

@@ -70,13 +70,13 @@ trait Quads extends RenderableBase {
     val cells = 
       if (opts.occlusionEnabled) getOcclusions() 
       else Array3D.initWith(dimX, dimY, dimZ, { () => new OccludeCell(0)})
-    println("Getting raw quads...")
+    if (Context.debug) println("Getting raw quads...")
     var progress = 0
 
     for {
       (x, y, z) <- xyzIn(0, dimX, dimY, dimZ)
       } {
-        if (progress % (dimX*dimY*dimZ/10) == 0) 
+        if (Context.debug && progress % (dimX*dimY*dimZ/10) == 0) 
           println(s"${progress*100/(dimX*dimY*dimZ)}% complete...")
         progress += 1
         if (data.get(x,y,z) == 0) {
@@ -133,7 +133,7 @@ trait Quads extends RenderableBase {
     // Duplicate the occlusion paramaters 4 times for each vertex
     occlusion = repeatEachElem(occlusion, 4)
 
-    println("...Done!")
+    if (Context.debug) println("...Done!")
     new RawQuadData(flatQuadVerts.toArray, flatNormals.toArray, occlusion.toArray)
   }
 
@@ -143,7 +143,7 @@ trait Quads extends RenderableBase {
     val data = getData
     val occlusions = Array3D.initWith(dimX, dimY, dimZ, { () => new OccludeCell(0)})
 
-    println("Getting occlusions for faces...")
+    if (Context.debug) println("Getting occlusions for faces...")
     var progress = 0
     val pos = getPosition
 
@@ -153,7 +153,7 @@ trait Quads extends RenderableBase {
     for {
       (x, y, z) <- xyzIn(0, dimX, dimY, dimZ)
     } {
-      if (progress % (dimZ*dimY*dimZ/10) == 0) 
+      if (Context.debug && progress % (dimZ*dimY*dimZ/10) == 0) 
         println(s"${progress*100/(dimX*dimY*dimZ)}% complete...")
       progress += 1
       val occupied = World.getOccupied(pos.x + x, pos.y + y, pos.z + z)
@@ -182,7 +182,7 @@ trait Quads extends RenderableBase {
       }
     }
     
-    println("...Done!")
+    if (Context.debug) println("...Done!")
     occlusions
   }
 

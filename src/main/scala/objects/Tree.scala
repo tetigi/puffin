@@ -15,7 +15,7 @@ class Tree(x: Int, y: Int, z: Int) extends SimpleObject {
   val pos = new Point(x, y, z)
 
   def getData = data
-  def getUsedPoints = for (i <- 0 until height) yield new Point(1, i, 1) + pos
+  def getUsedPoints = for (i <- 0 until height) yield new Point(0, i, 0) + pos
   def getDims = (dimX, dimY, dimZ)
 
   def getPosition = pos
@@ -46,39 +46,43 @@ class Tree(x: Int, y: Int, z: Int) extends SimpleObject {
 
   def spread() = {
     // place seeds in random circle
-    var seeds = 1
-    val seedProb = 0.2
-    for (i <- -2 to 2) {
+    var seeds = 4
+    val seedProb = 1
+    for (i <- -2 to -2) {
       // -2X    
       // Check there is ground and isn't occupied
-      var isGround = World.getRelative(this, -2, -1, i).blockType == BlockType.GROUND
-      var isNotOccupied = !World.getOccupiedRelative(this, -2, 0, i)
+      var seedSpot = new Point(-2, 0, i)
+      var isGround = World.getRelative(this, seedSpot.x, seedSpot.y - 1, seedSpot.z).blockType == BlockType.GROUND
+      var isNotOccupied = !World.getOccupiedRelative(this, seedSpot.x, seedSpot.y, seedSpot.z)
       if (isGround && isNotOccupied && seeds > 0 && random < seedProb) {
-        World.putObject(-2, 0, i, new Tree(pos.x - 2, 0, pos.z + i))
+        World.putThing(new Tree(pos.x + seedSpot.x, pos.y + seedSpot.y, pos.z + seedSpot.z))
         seeds -= 1
       }
       // -2Z    
       // Check there is ground and isn't occupied
-      isGround = World.getRelative(this, i, -1, -2).blockType == BlockType.GROUND
-      isNotOccupied = World.getOccupiedRelative(this, i, 0, -2)
+      seedSpot = new Point(2, 0, i)
+      isGround = World.getRelative(this, seedSpot.x, seedSpot.y - 1, seedSpot.z).blockType == BlockType.GROUND
+      isNotOccupied = !World.getOccupiedRelative(this, seedSpot.x, seedSpot.y, seedSpot.z)
       if (isGround && isNotOccupied && seeds > 0 && random < seedProb) {
-        World.putObject(i, 0, -2, new Tree(pos.x + i, 0, pos.z - 2))
+        World.putThing(new Tree(pos.x + seedSpot.x, pos.y + seedSpot.y, pos.z + seedSpot.z))
         seeds -= 1
       }
       // +2X    
       // Check there is ground and isn't occupied
-      isGround = World.getRelative(this, 2, -1, i).blockType == BlockType.GROUND
-      isNotOccupied = World.getOccupiedRelative(this, 2, 0, i)
+      seedSpot = new Point(-2, 0, -i)
+      isGround = World.getRelative(this, seedSpot.x, seedSpot.y - 1, seedSpot.z).blockType == BlockType.GROUND
+      isNotOccupied = !World.getOccupiedRelative(this, seedSpot.x, seedSpot.y, seedSpot.z)
       if (isGround && isNotOccupied && seeds > 0 && random < seedProb) {
-        World.putObject(2, 0, i, new Tree(pos.x + 2, 0, pos.z + i))
+        World.putThing(new Tree(pos.x + seedSpot.x, pos.y + seedSpot.y, pos.z + seedSpot.z))
         seeds -= 1
       }
       // +2Z    
       // Check there is ground and isn't occupied
-      isGround = World.getRelative(this, i, -1, 2).blockType == BlockType.GROUND
-      isNotOccupied = World.getOccupiedRelative(this, i, 0, 2)
+      seedSpot = new Point(2, 0, -i)
+      isGround = World.getRelative(this, seedSpot.x, seedSpot.y - 1, seedSpot.z).blockType == BlockType.GROUND
+      isNotOccupied = !World.getOccupiedRelative(this, seedSpot.x, seedSpot.y, seedSpot.z)
       if (isGround && isNotOccupied && seeds > 0 && random < seedProb) {
-        World.putObject(i, 0, 2, new Tree(pos.x + i, 0, pos.z + 2))
+        World.putThing(new Tree(pos.x + seedSpot.x, pos.y + seedSpot.y, pos.z + seedSpot.z))
         seeds -= 1
       }
     }

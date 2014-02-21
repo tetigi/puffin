@@ -20,6 +20,7 @@ object World {
 
   def putThing(thing: SimpleObject) {
     things += thing
+    println("There are " + things.length + " things")
     for (point <- thing.getUsedPoints) {
       val block = get(point.x, point.y, point.z)
       block.blockType = BlockType.GROUND
@@ -43,16 +44,6 @@ object World {
   
   def getOccupied(x: Int, y: Int, z: Int): Boolean =
     get(x, y, z).blockType != BlockType.AIR
-
-  def putObject(x: Int, y: Int, z: Int, obj: SimpleObject) {
-    things += obj
-    for (point <- obj.getUsedPoints) {
-      val block = get(point.x, point.y, point.z)
-      block.blockType = BlockType.GROUND
-      block.setObjectRef(obj)
-      put(point.x, point.y, point.z, block)
-    }
-  }
 
   def renderWorld() {
     things.map(_.render())
