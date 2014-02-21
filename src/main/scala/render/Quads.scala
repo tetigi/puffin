@@ -50,6 +50,7 @@ trait Quads extends RenderableBase {
   }
 
   def getData: Array3D[Int]
+  // Should return the list of *world* points that this object will use
   def getUsedPoints: Iterable[Point]
   def getDims: (Int, Int, Int)
   def getPosition: Point

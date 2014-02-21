@@ -20,7 +20,6 @@ object World {
 
   def putThing(thing: SimpleObject) {
     things += thing
-    println("There are " + things.length + " things")
     for (point <- thing.getUsedPoints) {
       val block = get(point.x, point.y, point.z)
       block.blockType = BlockType.GROUND
