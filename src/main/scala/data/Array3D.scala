@@ -35,8 +35,15 @@ class Array3D[T: Manifest] (val dimX: Int, val dimY: Int, val dimZ: Int) extends
 
   def iterator = (for ((x, y, z) <- xyzIn(0, dimX, dimY, dimZ)) yield get(x, y, z)).iterator
 
-  def iteratorWithKey[U](f:(Point, T) => U) = 
-    (for ((x, y, z) <- xyzIn(0, dimX, dimY, dimZ)) yield f(new Point(x, y, z), get(x, y, z))).iterator
+  def iteratorWithKey = 
+    (for ((x, y, z) <- xyzIn(0, dimX, dimY, dimZ)) yield (new Point(x, y, z), get(x, y, z))).iterator
+
+  // Returns a new Array3D
+  def map[U: Manifest](f: T => U) = {
+    val out: Array3D[U] = new Array3D[U](dimX, dimY, dimZ)
+    for ((p, v) <- iteratorWithKey) out.put(p.x, p.y, p.z, f(v))
+    out
+  }
 
   // Gets adjacent neighbours
   def getNeighbours(x: Int, y: Int, z: Int) = {

@@ -54,7 +54,8 @@ trait Quads extends RenderableBase {
   def getDims: (Int, Int, Int)
   def getPosition: Point
 
-  // I want this method to be spawned as a separate task
+  // TODO Change this to use mappings of points with occlusion data to the data
+  // This will (hopefully) allow specific updates of occlusion values
   private def createRawQuadData(opts: RenderOptions): RawQuadData = {
     var quadVerts: ListBuffer[Vector3f] = new ListBuffer()
     var normals: ListBuffer[Vector3f] = new ListBuffer()
@@ -87,7 +88,6 @@ trait Quads extends RenderableBase {
             val dy: Float = (y.toFloat - ny) / 2.0f
             val dz: Float = (z.toFloat - nz) / 2.0f
             // negative dx/y/z means neighbour is on the right, top, front
-            // TODO Convert to list of vectors and then flatmap across them to get the stream
             // This way I can map the transformations nicely
             if (dx != 0) { // Left or right neighbour 
               occlusion += (if (dx < 0) thisCell.right else thisCell.left)
@@ -321,6 +321,13 @@ class Ray() {
 
 class Offset(val depth: Float, val x: Int, val y: Int, val z: Int) {
   def copy = new Offset(depth, x, y, z)
+}
+
+class VertexCell (val left: List[Vector3f], val right: List[Vector3f], val top: List[Vector3f],
+                  val bottom: List[Vector3f], val front: List[Vector3f], val back: List[Vector3f]){
+}
+
+class NormalCell (val left: Vector3f, val right: Vector3f, val top: Vector3f, val bottom: Vector3f, val front: Vector3f, val back: Vector3f){
 }
 
 class OccludeCell (var left: Float, var right: Float, var top: Float, var bottom: Float, var front: Float, var back: Float){

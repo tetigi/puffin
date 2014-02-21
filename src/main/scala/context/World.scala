@@ -1,29 +1,35 @@
 package com.puffin.context
 
 import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.LinkedList
 
-import com.puffin.Common.RenderOptions
+import com.puffin.Common._
 import com.puffin.objects.SimpleObject
 import com.puffin.data.Array3D
 import com.puffin.context.BlockType.BlockType
+import com.puffin.render.Quads
 
 object World {
-  var size = (100, 100, 100)
+  val size = (100, 100, 100)
+  val offset = (size._1 / 2, size._2 / 2, size._3 / 2) 
   val blocks = Array3D.initWith(size._1, size._2, size._3, { () => new Block(BlockType.AIR) })
 
   val things = new ListBuffer[SimpleObject]()
 
+  //def getData = blocks.map({ b: Block => if (b.blockType == BlockType.AIR) 0 else 1 })
+
   def putThing(thing: SimpleObject) {
     things += thing
     for (point <- thing.getUsedPoints) {
-      val block = blocks.get(point.x + 50, point.y + 50, point.z  + 50)
+      val block = get(point.x, point.y, point.z)
       block.blockType = BlockType.GROUND
       block.setObjectRef(thing)
-      blocks.put(point.x + 50, point.y + 50, point.z + 50, block)
+      put(point.x, point.y, point.z, block)
     }
   }
 
-  def get(x: Int, y: Int, z: Int): Block = blocks.get(x + 50, y + 50, z + 50)
+  def get(x: Int, y: Int, z: Int): Block = blocks.get(x + offset._1, y + offset._2, z + offset._3)
+  def put(x: Int, y: Int, z: Int, b: Block) = blocks.put(x + offset._1, y + offset._2, z + offset._3, b)
 
   def getRelative(thing: SimpleObject, x: Int, y: Int, z: Int): Block = {
     val p = thing.getPosition
@@ -41,10 +47,10 @@ object World {
   def putObject(x: Int, y: Int, z: Int, obj: SimpleObject) {
     things += obj
     for (point <- obj.getUsedPoints) {
-      val block = blocks.get(point.x + 50, point.y + 50, point.z + 50)
+      val block = get(point.x, point.y, point.z)
       block.blockType = BlockType.GROUND
       block.setObjectRef(obj)
-      blocks.put(point.x + 50, point.y + 50, point.z + 50, block)
+      put(point.x, point.y, point.z, block)
     }
   }
 
@@ -57,6 +63,14 @@ object World {
 
   def tickWorld() {
     things.clone().map(_.tick())
+  }
+
+  def occludeBlocks(ps: Iterable[Point]) {
+    for (p <- ps) {
+      // TODO Do the occlusion in world-space then
+      // assign the new occlusion values to the objects responsible
+      // for that block
+    }
   }
 
 }
