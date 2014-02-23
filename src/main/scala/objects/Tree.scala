@@ -47,7 +47,7 @@ class Tree(x: Int, y: Int, z: Int) extends SimpleObject {
   def spread() = {
     // place seeds in random circle
     var seeds = 4
-    val seedProb = 1
+    val seedProb = 0.2
     for (i <- -2 to -2) {
       // -2X    
       // Check there is ground and isn't occupied

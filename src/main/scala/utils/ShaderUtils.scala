@@ -70,7 +70,7 @@ object ShaderUtils {
   }
 
   def storeMatrices(matrices: Matrices, tmogs: Transmogrifiers) = {
-    val cam = tmogs.camera
+    val cam = tmogs.entity
     val model = tmogs.model
     //reset the view and model matrices
     

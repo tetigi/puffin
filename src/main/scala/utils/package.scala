@@ -1,6 +1,7 @@
 package com.puffin
 
 import com.puffin.utils.Camera
+import com.puffin.character.Entity
 import com.puffin.utils.Model
 import com.puffin.context._
 
@@ -24,7 +25,7 @@ package object utils {
 
   class Matrices(val viewMatrix: Matrix4f, val modelMatrix: Matrix4f, val projectionMatrix: Matrix4f) {}
 
-  class Transmogrifiers(val camera: Camera, val model: Model) {}
+  class Transmogrifiers(val model: Model, val entity: Entity) {}
 
   private def initialiseBuffers() = {
     Context.vaoId = GL30.glGenVertexArrays()
@@ -107,10 +108,10 @@ package object utils {
     val modelScale = new Vector3f(0.7f, 0.7f, 0.7f) //new Vector3f(0.5f/(SIZE-2), 0.5f/(SIZE-2), 0.5f/(SIZE-2))
     val modelPos = new Vector3f(0,0,0)//Vector3f(-(SIZE-1)/2, -(SIZE-1)/2, 0)
     val modelRotate = new Vector3f(10, -10, 0)
-    val camera = new Camera()
+    val entity = new Entity()
     val model = new Model(modelPos, modelScale, modelRotate)
 
-    val tmogs = new Transmogrifiers(camera, model)
+    val tmogs = new Transmogrifiers(model, entity)
     (tmogs, matrices)
   }
 }

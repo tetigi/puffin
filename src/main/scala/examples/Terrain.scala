@@ -57,29 +57,29 @@ object Terrain {
   }
 
   def logicCycle() = {
-    //tmogs.cameraPos.z -= 0.05f
+    //tmogs.entityPos.z -= 0.05f
     tmogs.model.rotation.y += 1.0f/12f
     //tmogs.model.position.z += 0.01f
     val posDelta = 0.1f
     while (Keyboard.next()) {
       if (Keyboard.getEventKeyState()) {
         Keyboard.getEventKey() match {
-          case Keyboard.KEY_W => tmogs.camera.moveForward(posDelta)
-          case Keyboard.KEY_A => tmogs.camera.moveLateral(-posDelta)
-          case Keyboard.KEY_S => tmogs.camera.moveForward(-posDelta)
-          case Keyboard.KEY_D => tmogs.camera.moveLateral(posDelta)
+          case Keyboard.KEY_W => tmogs.entity.moveForward(posDelta)
+          case Keyboard.KEY_A => tmogs.entity.moveLateral(-posDelta)
+          case Keyboard.KEY_S => tmogs.entity.moveForward(-posDelta)
+          case Keyboard.KEY_D => tmogs.entity.moveLateral(posDelta)
 
-          case Keyboard.KEY_LEFT => tmogs.camera.lookLat(toRadiansF(-5))
-          case Keyboard.KEY_RIGHT => tmogs.camera.lookLat(toRadiansF(5))
-          case Keyboard.KEY_UP => tmogs.camera.lookLng(toRadiansF(5))
-          case Keyboard.KEY_DOWN => tmogs.camera.lookLng(toRadiansF(-5))
+          case Keyboard.KEY_LEFT => tmogs.entity.lookLat(toRadiansF(-5))
+          case Keyboard.KEY_RIGHT => tmogs.entity.lookLat(toRadiansF(5))
+          case Keyboard.KEY_UP => tmogs.entity.lookLng(toRadiansF(5))
+          case Keyboard.KEY_DOWN => tmogs.entity.lookLng(toRadiansF(-5))
           case _ => ()
         }
       }
     }
     if (Mouse.isButtonDown(0)) {
-      tmogs.camera.lookLat(toRadiansF(Mouse.getDX()/6f))
-      tmogs.camera.lookLng(toRadiansF(-Mouse.getDY()/6f))
+      tmogs.entity.lookLat(toRadiansF(Mouse.getDX()/6f))
+      tmogs.entity.lookLng(toRadiansF(-Mouse.getDY()/6f))
     }
   }
 

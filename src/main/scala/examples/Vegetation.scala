@@ -58,6 +58,7 @@ object Vegetation {
         ticker = 0
         World.tickWorld()
       }
+      tmogs.entity.update(1.0f/60f)
     }
 
     // Finish
@@ -84,22 +85,19 @@ object Vegetation {
     while (Keyboard.next()) {
       if (Keyboard.getEventKeyState()) {
         Keyboard.getEventKey() match {
-          case Keyboard.KEY_W => tmogs.camera.moveForward(posDelta)
-          case Keyboard.KEY_A => tmogs.camera.moveLateral(-posDelta)
-          case Keyboard.KEY_S => tmogs.camera.moveForward(-posDelta)
-          case Keyboard.KEY_D => tmogs.camera.moveLateral(posDelta)
+          case Keyboard.KEY_W => tmogs.entity.goForwards()//moveForward(posDelta)
+          case Keyboard.KEY_A => tmogs.entity.goLeft()//moveLateral(-posDelta)
+          case Keyboard.KEY_S => tmogs.entity.goBackwards()//moveForward(-posDelta)
+          case Keyboard.KEY_D => tmogs.entity.goRight()//moveLateral(posDelta)
+          case Keyboard.KEY_SPACE => tmogs.entity.stop()
 
-          case Keyboard.KEY_LEFT => tmogs.camera.lookLat(toRadiansF(-5))
-          case Keyboard.KEY_RIGHT => tmogs.camera.lookLat(toRadiansF(5))
-          case Keyboard.KEY_UP => tmogs.camera.lookLng(toRadiansF(5))
-          case Keyboard.KEY_DOWN => tmogs.camera.lookLng(toRadiansF(-5))
           case _ => ()
         }
       }
     }
     if (Mouse.isButtonDown(0)) {
-      tmogs.camera.lookLat(toRadiansF(Mouse.getDX()/6f))
-      tmogs.camera.lookLng(toRadiansF(-Mouse.getDY()/6f))
+      tmogs.entity.lookLat(toRadiansF(Mouse.getDX()/6f))
+      tmogs.entity.lookLng(toRadiansF(-Mouse.getDY()/6f))
     }
   }
 
