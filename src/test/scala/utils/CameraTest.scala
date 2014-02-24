@@ -78,18 +78,18 @@ class CameraTest extends FlatSpec with Matchers {
     cam.moveTo(new Vector3f(0, 0, 0))
     cam.lookAt(new Vector3f(0, 0, 1))
 
-    cam.lookLng(toRadiansF(45))
+    cam.lookLng(toRadiansF(-45))
     expected.set(0, 1, 1)
     expected.normalise(expected)
     cam.dir should equal (expected)
 
-    cam.lookLat(toRadiansF(90))
+    cam.lookLat(toRadiansF(-90))
     expected.set(-1, 1, 0)
     expected.normalise(expected)
     cam.dir should equal (expected)
 
     cam.lookLng(toRadiansF(-55))
-    expected.set(-1, tan(toRadians(-10)).toFloat, 0)
+    expected.set(tan(toRadians(10)).toFloat, 1, 0)
     expected.normalise(expected)
     cam.dir should equal (expected)
   }

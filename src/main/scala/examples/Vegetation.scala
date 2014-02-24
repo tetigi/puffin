@@ -13,6 +13,7 @@ import com.puffin.Common._
 import com.puffin.utils.ShaderUtils._
 import com.puffin.utils._
 import com.puffin.context.World
+import com.puffin.character.Entity
 
 object Vegetation {
   // The array containing volume data
@@ -35,6 +36,8 @@ object Vegetation {
     //volume.fillIsland()
     World.putThing(plane)
     World.putThing(tree)
+    val tree2 = new Tree(-5, 0, -5)
+    World.putThing(tree2)
     //World.putThing(volume)
 
     opts.setOcclusionEnabled(false)
@@ -56,7 +59,7 @@ object Vegetation {
       ticker += 1
       if (ticker >= 300) {
         ticker = 0
-        World.tickWorld()
+        //World.tickWorld()
       }
       tmogs.entity.update(1.0f/60f)
     }
@@ -79,26 +82,9 @@ object Vegetation {
 
   def logicCycle() = {
     //tmogs.cameraPos.z -= 0.05f
-    tmogs.model.rotation.y += 1.0f/12f
+    //tmogs.model.rotation.y += 1.0f/12f
     //tmogs.model.position.z += 0.01f
-    val posDelta = 0.1f
-    while (Keyboard.next()) {
-      if (Keyboard.getEventKeyState()) {
-        Keyboard.getEventKey() match {
-          case Keyboard.KEY_W => tmogs.entity.goForwards()//moveForward(posDelta)
-          case Keyboard.KEY_A => tmogs.entity.goLeft()//moveLateral(-posDelta)
-          case Keyboard.KEY_S => tmogs.entity.goBackwards()//moveForward(-posDelta)
-          case Keyboard.KEY_D => tmogs.entity.goRight()//moveLateral(posDelta)
-          case Keyboard.KEY_SPACE => tmogs.entity.stop()
-
-          case _ => ()
-        }
-      }
-    }
-    if (Mouse.isButtonDown(0)) {
-      tmogs.entity.lookLat(toRadiansF(Mouse.getDX()/6f))
-      tmogs.entity.lookLng(toRadiansF(-Mouse.getDY()/6f))
-    }
+    Entity.controlCycle(tmogs.entity)
   }
 
   def loopCycle() = {

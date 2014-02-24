@@ -192,22 +192,22 @@ trait Quads extends RenderableBase {
 
     GL30.glBindVertexArray(Context.vaoId)
     GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, Context.vboVertexId)
-    GL15.glBufferData(GL15.GL_ARRAY_BUFFER, quads.vertBuffer, GL15.GL_STATIC_DRAW)
+    GL15.glBufferData(GL15.GL_ARRAY_BUFFER, quads.vertBuffer, GL15.GL_STREAM_DRAW)
     GL20.glVertexAttribPointer(Context.vertexAttribArray, 3, GL11.GL_FLOAT, false, 0, 0)
     // Place these in the attributes for the shader
 
     GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, Context.vboNormalId)
-    GL15.glBufferData(GL15.GL_ARRAY_BUFFER, quads.normalBuffer, GL15.GL_STATIC_DRAW)
+    GL15.glBufferData(GL15.GL_ARRAY_BUFFER, quads.normalBuffer, GL15.GL_STREAM_DRAW)
     GL20.glVertexAttribPointer(Context.normalAttribArray, 3, GL11.GL_FLOAT, false, 0, 0)
     GL20.glEnableVertexAttribArray(Context.vertexAttribArray)
 
     GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, Context.vboOcclusionId)
-    GL15.glBufferData(GL15.GL_ARRAY_BUFFER, quads.occlusionBuffer, GL15.GL_STATIC_DRAW)
+    GL15.glBufferData(GL15.GL_ARRAY_BUFFER, quads.occlusionBuffer, GL15.GL_STREAM_DRAW)
     GL20.glVertexAttribPointer(Context.occlusionAttribArray, 1, GL11.GL_FLOAT, false, 0, 0)
     GL20.glEnableVertexAttribArray(Context.normalAttribArray)
 
     GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, Context.vboIndicesId)
-    GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, quads.indicesBuffer, GL15.GL_STATIC_DRAW)
+    GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, quads.indicesBuffer, GL15.GL_STREAM_DRAW)
     GL20.glEnableVertexAttribArray(Context.occlusionAttribArray)
       
     GL11.glDrawElements(GL11.GL_TRIANGLES, quads.indices.length, GL11.GL_UNSIGNED_INT, 0)

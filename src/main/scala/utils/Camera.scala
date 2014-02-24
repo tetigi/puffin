@@ -44,23 +44,19 @@ class Camera (val pos: Vector3f, val dir: Vector3f) {
     val curPhi = atan2(dir.x, dir.y)
     // Rotate around z to change dir
     if (curPhi - phi > 0 && curPhi - phi < Pi)
-      rotateZ(dir, -phi)
-      lng += phi
+      rotateZ(dir, phi)
+      lng -= phi
     rotateY(dir, -theta)
   }
   var lat = 0f
 
   def lookLat(phi: Float) = {
-    rotateY(dir, phi)
-    lat += phi
+    rotateY(dir, -phi)
+    lat -= phi
   }
 
   def putViewMatrix(dest: Matrix4f) = {
     val defaultDir = new Vector3f(0, 0, 1)
-
-    val xzProjDir = new Vector2f(defaultDir.x, defaultDir.z)
-    val xzProjNewDir = new Vector2f(dir.x, dir.z)
-    val rotateYTheta = Vector2f.angle(xzProjDir, xzProjNewDir)
 
     dest.setIdentity()
 

@@ -91,10 +91,10 @@ package object utils {
     val right = top * aspectRatio
     val left = -right
 
-    projectionMatrix.m00 = 2 * nearPlane / (right - left)
-    projectionMatrix.m11 = 2 * nearPlane / (top - bottom)
-    projectionMatrix.m20 = (right + left) / (right - left)
-    projectionMatrix.m21 = (top + bottom) / (top - bottom)
+    projectionMatrix.m00 = -2 * nearPlane / (right - left)
+    projectionMatrix.m11 = -2 * nearPlane / (top - bottom)
+    projectionMatrix.m20 = - (right + left) / (right - left)
+    projectionMatrix.m21 = - (top + bottom) / (top - bottom)
     projectionMatrix.m22 = - (farPlane + nearPlane) / (farPlane - nearPlane)
     projectionMatrix.m23 = -1
     projectionMatrix.m32 = - (2 * farPlane * nearPlane) / (farPlane - nearPlane)
@@ -105,9 +105,9 @@ package object utils {
 
     val matrices = new Matrices(viewMatrix, modelMatrix, projectionMatrix)
 
-    val modelScale = new Vector3f(0.7f, 0.7f, 0.7f) //new Vector3f(0.5f/(SIZE-2), 0.5f/(SIZE-2), 0.5f/(SIZE-2))
-    val modelPos = new Vector3f(0,0,0)//Vector3f(-(SIZE-1)/2, -(SIZE-1)/2, 0)
-    val modelRotate = new Vector3f(10, -10, 0)
+    val modelScale = new Vector3f(-0.7f, -0.7f, -0.7f) 
+    val modelPos = new Vector3f(0,0,0)
+    val modelRotate = new Vector3f(0, 0, 0)
     val entity = new Entity()
     val model = new Model(modelPos, modelScale, modelRotate)
 
