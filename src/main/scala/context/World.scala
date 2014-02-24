@@ -9,11 +9,16 @@ import com.puffin.objects.SimpleObject
 import com.puffin.data.Array3D
 import com.puffin.context.BlockType.BlockType
 import com.puffin.render.Quads
+import com.puffin.utils._
+import com.puffin.character.Entity
 
 object World {
   val size = (100, 100, 100)
   val offset = (size._1 / 2, size._2 / 2, size._3 / 2) 
   val blocks = Array3D.initWith(size._1, size._2, size._3, { () => new Block(BlockType.AIR) })
+
+  var model: Model = null
+  var entity: Entity = null
 
   val things = new ListBuffer[SimpleObject]()
 

@@ -25,9 +25,6 @@ object Vegetation {
   val WIDTH = 1024
   val HEIGHT = 768
 
-  var matrices: Matrices = null
-  var tmogs: Transmogrifiers = null
-
   val opts = new RenderOptions()
 
   def start() = {
@@ -48,8 +45,7 @@ object Vegetation {
 
     // init OpenGL
     setupOpenGL(WIDTH, HEIGHT)
-    var (tmogs, matrices) = setupMatrices(WIDTH, HEIGHT) 
-    this.tmogs = tmogs; this.matrices = matrices
+    setupMatrices(WIDTH, HEIGHT) 
     setupShaders("shaders/vert.glsl", "shaders/frag.glsl", "shaders/geom.glsl")
 
     var ticker = 0
@@ -62,7 +58,7 @@ object Vegetation {
         ticker = 0
         //World.tickWorld()
       }
-      tmogs.entity.update(1.0f/60f)
+      World.entity.update(1.0f/60f)
     }
 
     // Finish
@@ -73,7 +69,7 @@ object Vegetation {
   def renderCycle() = {
     GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT)
     // Set all the matrices
-    storeMatrices(matrices, tmogs)
+    storeMatrices()
     // Get quads and render them
     World.renderWorld(opts)
   }
@@ -82,7 +78,7 @@ object Vegetation {
     //tmogs.cameraPos.z -= 0.05f
     //tmogs.model.rotation.y += 1.0f/12f
     //tmogs.model.position.z += 0.01f
-    Entity.controlCycle(tmogs.entity)
+    Entity.controlCycle(World.entity)
   }
 
   def loopCycle() = {

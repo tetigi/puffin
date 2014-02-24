@@ -25,8 +25,6 @@ package object utils {
 
   class Matrices(val viewMatrix: Matrix4f, val modelMatrix: Matrix4f, val projectionMatrix: Matrix4f) {}
 
-  class Transmogrifiers(val model: Model, val entity: Entity) {}
-
   private def initialiseBuffers() = {
     Context.vaoId = GL30.glGenVertexArrays()
     Context.vboVertexId = GL15.glGenBuffers()
@@ -111,7 +109,8 @@ package object utils {
     val entity = new Entity()
     val model = new Model(modelPos, modelScale, modelRotate)
 
-    val tmogs = new Transmogrifiers(model, entity)
-    (tmogs, matrices)
+    World.model = model
+    World.entity = entity
+    Context.matrices = matrices
   }
 }

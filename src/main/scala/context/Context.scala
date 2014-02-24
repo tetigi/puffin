@@ -1,5 +1,7 @@
 package com.puffin.context
 
+import com.puffin.utils.Matrices
+
 object Context {
   var vaoId = 0
   var vboVertexId = 0
@@ -14,4 +16,5 @@ object Context {
   val occlusionAttribArray = 2
 
   var debug = false
+  var matrices: Matrices = null
 }

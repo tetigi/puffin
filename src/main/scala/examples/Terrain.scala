@@ -10,6 +10,7 @@ import com.puffin.objects.Volume
 import com.puffin.Common._
 import com.puffin.utils.ShaderUtils._
 import com.puffin.utils._
+import com.puffin.context.World
 
 object Terrain {
   // The array containing volume data
@@ -17,9 +18,6 @@ object Terrain {
   val volume = new Volume(SIZE)
   val WIDTH = 1024
   val HEIGHT = 768
-
-  var matrices: Matrices = null
-  var tmogs: Transmogrifiers = null
 
   def start() = {
     
@@ -33,8 +31,7 @@ object Terrain {
 
     // init OpenGL
     setupOpenGL(WIDTH, HEIGHT)
-    var (tmogs, matrices) = setupMatrices(WIDTH, HEIGHT) 
-    this.tmogs = tmogs; this.matrices = matrices
+    setupMatrices(WIDTH, HEIGHT) 
     setupShaders("shaders/vert.glsl", "shaders/frag.glsl", "shaders/geom.glsl")
 
     while (! Display.isCloseRequested()) {
@@ -51,35 +48,35 @@ object Terrain {
   def renderCycle() = {
     GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT)
     // Set all the matrices
-    storeMatrices(matrices, tmogs)
+    storeMatrices()
     // Get quads and render them
     volume.render()
   }
 
   def logicCycle() = {
     //tmogs.entityPos.z -= 0.05f
-    tmogs.model.rotation.y += 1.0f/12f
+    World.model.rotation.y += 1.0f/12f
     //tmogs.model.position.z += 0.01f
     val posDelta = 0.1f
     while (Keyboard.next()) {
       if (Keyboard.getEventKeyState()) {
         Keyboard.getEventKey() match {
-          case Keyboard.KEY_W => tmogs.entity.moveForward(posDelta)
-          case Keyboard.KEY_A => tmogs.entity.moveLateral(-posDelta)
-          case Keyboard.KEY_S => tmogs.entity.moveForward(-posDelta)
-          case Keyboard.KEY_D => tmogs.entity.moveLateral(posDelta)
+          case Keyboard.KEY_W => World.entity.moveForward(posDelta)
+          case Keyboard.KEY_A => World.entity.moveLateral(-posDelta)
+          case Keyboard.KEY_S => World.entity.moveForward(-posDelta)
+          case Keyboard.KEY_D => World.entity.moveLateral(posDelta)
 
-          case Keyboard.KEY_LEFT => tmogs.entity.lookLat(toRadiansF(-5))
-          case Keyboard.KEY_RIGHT => tmogs.entity.lookLat(toRadiansF(5))
-          case Keyboard.KEY_UP => tmogs.entity.lookLng(toRadiansF(5))
-          case Keyboard.KEY_DOWN => tmogs.entity.lookLng(toRadiansF(-5))
+          case Keyboard.KEY_LEFT => World.entity.lookLat(toRadiansF(-5))
+          case Keyboard.KEY_RIGHT => World.entity.lookLat(toRadiansF(5))
+          case Keyboard.KEY_UP => World.entity.lookLng(toRadiansF(5))
+          case Keyboard.KEY_DOWN => World.entity.lookLng(toRadiansF(-5))
           case _ => ()
         }
       }
     }
     if (Mouse.isButtonDown(0)) {
-      tmogs.entity.lookLat(toRadiansF(Mouse.getDX()/6f))
-      tmogs.entity.lookLng(toRadiansF(-Mouse.getDY()/6f))
+      World.entity.lookLat(toRadiansF(Mouse.getDX()/6f))
+      World.entity.lookLng(toRadiansF(-Mouse.getDY()/6f))
     }
   }
 

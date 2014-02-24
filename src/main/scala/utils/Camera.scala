@@ -38,6 +38,7 @@ class Camera (val pos: Vector3f, val dir: Vector3f) {
   var lng = 0f
   // Look lng and look lat functions look around the unit sphere around the pos
   def lookLng(phi: Float) = {
+    // TODO Don't let look up further than top or bottom
     // Rotate around y axis to bring into x/y plane
     // Get theta to rotate
     val theta = -atan2(dir.z, dir.x).toFloat

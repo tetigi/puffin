@@ -69,9 +69,10 @@ object ShaderUtils {
     uniformLocs = new UniformLocations(pvmLoc, normalMatrixLoc, lDirLoc)
   }
 
-  def storeMatrices(matrices: Matrices, tmogs: Transmogrifiers) = {
-    val cam = tmogs.entity
-    val model = tmogs.model
+  def storeMatrices() = {
+    val cam = World.entity
+    val model = World.model
+    val matrices = Context.matrices
     //reset the view and model matrices
     
     model.putModelMatrix(matrices.modelMatrix)

@@ -41,13 +41,14 @@ object Entity {
 class Entity extends Camera {
   var noclip = true
   
-  val maxWalkSpeed = 10f // cubes per second?
+  val maxWalkSpeed = 1f // cubes per second?
   val maxFallSpeed = -0.1f
   val gravity = new Vector3f(0, -9.8f, 0)
   val faccel = new Vector3f()
   val laccel = new Vector3f()
   val velocity = new Vector3f()
   val feet = 4
+  val fat = 1
 
   // TODO Need to zero the direction when it's not being pressed independent of others
   def enableNoclip() {
@@ -133,6 +134,13 @@ class Entity extends Camera {
         velocity.y = 0
         println("So new pos is " + World.cam2cell(newPos.x, newPos.y, newPos.z))
       }
+      // Do side check
+      if (World.getOccupied(cx, cy, cz)) {
+        val (newX, _, newZ) = World.cell2cam(cx, cy, cz)
+        newPos.x = pos.x
+        newPos.z = pos.z
+      }
+
     }
     pos.set(newPos)
   }
