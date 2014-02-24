@@ -34,7 +34,6 @@ object Vegetation {
     
     Context.debug = true
     volume.fillSimplexNoise(1.1)
-    //volume.fillFloatingRock()
     //volume.fillIsland()
     //World.putThing(plane)
     //World.putThing(tree)
@@ -76,15 +75,12 @@ object Vegetation {
     // Set all the matrices
     storeMatrices(matrices, tmogs)
     // Get quads and render them
-    //World.renderWorld(opts)
-    //tree.render()
-    //plane.render()
-    volume.render()
+    World.renderWorld(opts)
   }
 
   def logicCycle() = {
     //tmogs.cameraPos.z -= 0.05f
-    tmogs.model.rotation.y += 1.0f/12f
+    //tmogs.model.rotation.y += 1.0f/12f
     //tmogs.model.position.z += 0.01f
     Entity.controlCycle(tmogs.entity)
   }

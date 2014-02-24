@@ -18,7 +18,8 @@ object World {
   val things = new ListBuffer[SimpleObject]()
 
   //def getData = blocks.map({ b: Block => if (b.blockType == BlockType.AIR) 0 else 1 })
-  def cam2cell(x: Float, y: Float, z: Float) = (round(x), round(y), round(z))
+  def cam2cell(x: Float, y: Float, z: Float) = (round(x*size._1), round(y*size._2), round(z*size._3))
+  def cell2cam(x: Int, y: Int, z: Int) = (x.toFloat/size._1, y.toFloat/size._1, z.toFloat/size._1)
 
   def putThing(thing: SimpleObject) {
     things += thing

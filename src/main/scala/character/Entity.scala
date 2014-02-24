@@ -40,19 +40,14 @@ object Entity {
 
 class Entity extends Camera {
   var noclip = true
-  // Need a way to provide the current camera matrix to the renderer
-  // Inherit moveForward etc. from Camera
-  // Which thread should this run in? Main thread? Probably.
-  // How do I add physics for character? In an update func?
-  // I know the dir and position from the camera (pos, dir)
   
   val maxWalkSpeed = 10f // cubes per second?
-  val maxFallSpeed = 50f
+  val maxFallSpeed = -0.1f
   val gravity = new Vector3f(0, -9.8f, 0)
   val faccel = new Vector3f()
   val laccel = new Vector3f()
   val velocity = new Vector3f()
-  val feet = 2
+  val feet = 4
 
   // TODO Need to zero the direction when it's not being pressed independent of others
   def enableNoclip() {
@@ -114,9 +109,13 @@ class Entity extends Camera {
     }
     // update current vel to get new vel
     Vector3f.add(velocity, scaledAccel, velocity)
-    val speed = sqrt(velocity.lengthSquared).toFloat
+    var speed = sqrt(velocity.x*velocity.x + velocity.z*velocity.z).toFloat
     if (speed > maxWalkSpeed) {
       scaleVector3f(velocity, (maxWalkSpeed*maxWalkSpeed)/(speed*speed), velocity)
+    }
+    speed = velocity.y
+    if (speed < maxFallSpeed) {
+      velocity.y = maxFallSpeed
     }
     val scaledVel = new Vector3f()
     scaleVector3f(velocity, step, scaledVel)
@@ -124,12 +123,15 @@ class Entity extends Camera {
     Vector3f.add(pos, scaledVel, newPos)
     if (!noclip) {
       // Do gravity check
-      println("new pos is " + pos) //World.cam2cell(newPos.x, newPos.y, newPos.z))
-      if (World.getOccupiedCamSpace(newPos.x, newPos.y - feet, newPos.z)) {
+      var (cx, cy, cz) = World.cam2cell(newPos.x, newPos.y, newPos.z)
+      println("new pos is " + (cx, cy, cz))
+      if (World.getOccupied(cx, cy - feet, cz)) {
         println("Hit something!")
-        val (_, newY, _) = World.cam2cell(newPos.x, newPos.y - feet, newPos.z)
+        val (_, newY, _) = World.cell2cam(cx, cy, cz)
         // project to cell.f + 0.5
-        newPos.y = newY + 0.5f + feet
+        newPos.y = newY
+        velocity.y = 0
+        println("So new pos is " + World.cam2cell(newPos.x, newPos.y, newPos.z))
       }
     }
     pos.set(newPos)
