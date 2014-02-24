@@ -105,7 +105,7 @@ package object utils {
 
     val matrices = new Matrices(viewMatrix, modelMatrix, projectionMatrix)
 
-    val modelScale = new Vector3f(-0.7f, -0.7f, -0.7f) 
+    val modelScale = new Vector3f(-1, -1, -1) 
     val modelPos = new Vector3f(0,0,0)
     val modelRotate = new Vector3f(0, 0, 0)
     val entity = new Entity()

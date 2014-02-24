@@ -7,6 +7,7 @@ import org.lwjgl.util.vector.Matrix4f
 import scala.math._
 
 import com.puffin.Common._
+import com.puffin.context.World
 
 // Camera class assumes that up is always y
 class Camera (val pos: Vector3f, val dir: Vector3f) {
@@ -62,9 +63,10 @@ class Camera (val pos: Vector3f, val dir: Vector3f) {
 
     dest.rotate(lng, new Vector3f(1, 0, 0))
     dest.rotate(lat, new Vector3f(0, 1, 0))
+    // scale pos to cam coords
+    //val scaledPos = new Vector3f()
+    //scaledPos.set(pos.x / World.size._1, pos.y / World.size._2, pos.z / World.size._3)
     dest.translate(pos) // Move to cam position
-    //dest.translate(pos)
-    //dest.translate(pos)
     dest
   }
 }

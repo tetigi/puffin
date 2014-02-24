@@ -13,11 +13,12 @@ import com.puffin.Common._
 import com.puffin.utils.ShaderUtils._
 import com.puffin.utils._
 import com.puffin.context.World
+import com.puffin.context.Context
 import com.puffin.character.Entity
 
 object Vegetation {
   // The array containing volume data
-  val SIZE = 64
+  val SIZE = 40
   val plane = new Plane(64, 64)
   val volume = new Volume(SIZE)
   val tree = new Tree()
@@ -31,16 +32,17 @@ object Vegetation {
 
   def start() = {
     
-    //volume.fillSimplexNoise(1.1)
+    Context.debug = true
+    volume.fillSimplexNoise(1.1)
     //volume.fillFloatingRock()
     //volume.fillIsland()
-    World.putThing(plane)
-    World.putThing(tree)
-    val tree2 = new Tree(-5, 0, -5)
-    World.putThing(tree2)
-    //World.putThing(volume)
+    //World.putThing(plane)
+    //World.putThing(tree)
+    //val tree2 = new Tree(-5, 0, -5)
+    //World.putThing(tree2)
+    World.putThing(volume)
 
-    opts.setOcclusionEnabled(false)
+    opts.setOcclusionEnabled(true)
 
     // Setup input
     Keyboard.enableRepeatEvents(true)
@@ -74,15 +76,15 @@ object Vegetation {
     // Set all the matrices
     storeMatrices(matrices, tmogs)
     // Get quads and render them
-    World.renderWorld(opts)
+    //World.renderWorld(opts)
     //tree.render()
     //plane.render()
-    //volume.render()
+    volume.render()
   }
 
   def logicCycle() = {
     //tmogs.cameraPos.z -= 0.05f
-    //tmogs.model.rotation.y += 1.0f/12f
+    tmogs.model.rotation.y += 1.0f/12f
     //tmogs.model.position.z += 0.01f
     Entity.controlCycle(tmogs.entity)
   }

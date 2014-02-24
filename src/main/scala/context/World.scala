@@ -2,6 +2,7 @@ package com.puffin.context
 
 import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.LinkedList
+import scala.math.round
 
 import com.puffin.Common._
 import com.puffin.objects.SimpleObject
@@ -17,6 +18,7 @@ object World {
   val things = new ListBuffer[SimpleObject]()
 
   //def getData = blocks.map({ b: Block => if (b.blockType == BlockType.AIR) 0 else 1 })
+  def cam2cell(x: Float, y: Float, z: Float) = (round(x), round(y), round(z))
 
   def putThing(thing: SimpleObject) {
     things += thing
@@ -40,6 +42,11 @@ object World {
 
   def getOccupiedRelative(thing: SimpleObject, x: Int, y: Int, z: Int): Boolean =
     getRelative(thing, x, y, z).blockType != BlockType.AIR
+  
+  def getOccupiedCamSpace(x: Float, y: Float, z: Float): Boolean = {
+    val (cx, cy, cz) = cam2cell(x, y, z)
+    getOccupied(cx, cy, cz)
+  }
   
   def getOccupied(x: Int, y: Int, z: Int): Boolean =
     get(x, y, z).blockType != BlockType.AIR

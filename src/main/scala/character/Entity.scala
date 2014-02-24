@@ -46,13 +46,13 @@ class Entity extends Camera {
   // How do I add physics for character? In an update func?
   // I know the dir and position from the camera (pos, dir)
   
-  val maxWalkSpeed = 0.2f // cubes per second?
-  val maxFallSpeed = 1f
+  val maxWalkSpeed = 10f // cubes per second?
+  val maxFallSpeed = 50f
   val gravity = new Vector3f(0, -9.8f, 0)
   val faccel = new Vector3f()
   val laccel = new Vector3f()
   val velocity = new Vector3f()
-  val feet = new Vector3f(0, -2, 0) // feet are 2 blocks below head
+  val feet = 2
 
   // TODO Need to zero the direction when it's not being pressed independent of others
   def enableNoclip() {
@@ -73,6 +73,7 @@ class Entity extends Camera {
 
   def goForwards() {
     faccel.set(dir.x, dir.y, dir.z)
+    scaleVector3f(faccel, maxWalkSpeed, faccel)
   }
 
   def goLeft() {
@@ -87,6 +88,7 @@ class Entity extends Camera {
 
   def goBackwards() {
     faccel.set(-dir.x, -dir.y, -dir.z)
+    scaleVector3f(faccel, maxWalkSpeed, faccel)
   }
   
   def stop() {
@@ -104,7 +106,6 @@ class Entity extends Camera {
   // step is the number of seconds in a step
   def update(step: Float) {
     val tmp = new Vector3f()
-    println(pos)
     val scaledAccel = new Vector3f()
     scaleVector3f(faccel, step, scaledAccel)
     Vector3f.add(scaleVector3f(laccel, step, tmp), scaledAccel, scaledAccel)
@@ -119,6 +120,18 @@ class Entity extends Camera {
     }
     val scaledVel = new Vector3f()
     scaleVector3f(velocity, step, scaledVel)
-    Vector3f.add(pos, scaledVel, pos)
+    val newPos = new Vector3f()
+    Vector3f.add(pos, scaledVel, newPos)
+    if (!noclip) {
+      // Do gravity check
+      println("new pos is " + pos) //World.cam2cell(newPos.x, newPos.y, newPos.z))
+      if (World.getOccupiedCamSpace(newPos.x, newPos.y - feet, newPos.z)) {
+        println("Hit something!")
+        val (_, newY, _) = World.cam2cell(newPos.x, newPos.y - feet, newPos.z)
+        // project to cell.f + 0.5
+        newPos.y = newY + 0.5f + feet
+      }
+    }
+    pos.set(newPos)
   }
 }
