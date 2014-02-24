@@ -50,13 +50,11 @@ trait Quads extends RenderableBase {
   }
 
   def getData: Array3D[Int]
-  // Should return the list of *world* points that this object will use
   def getUsedPoints: Iterable[Point]
   def getDims: (Int, Int, Int)
   def getPosition: Point
 
-  // TODO Change this to use mappings of points with occlusion data to the data
-  // This will (hopefully) allow specific updates of occlusion values
+  // I want this method to be spawned as a separate task
   private def createRawQuadData(opts: RenderOptions): RawQuadData = {
     var quadVerts: ListBuffer[Vector3f] = new ListBuffer()
     var normals: ListBuffer[Vector3f] = new ListBuffer()
@@ -71,13 +69,13 @@ trait Quads extends RenderableBase {
     val cells = 
       if (opts.occlusionEnabled) getOcclusions() 
       else Array3D.initWith(dimX, dimY, dimZ, { () => new OccludeCell(0)})
-    if (Context.debug) println("Getting raw quads...")
+    println("Getting raw quads...")
     var progress = 0
 
     for {
       (x, y, z) <- xyzIn(0, dimX, dimY, dimZ)
       } {
-        if (Context.debug && progress % (dimX*dimY*dimZ/10) == 0) 
+        if (progress % (dimX*dimY*dimZ/10) == 0) 
           println(s"${progress*100/(dimX*dimY*dimZ)}% complete...")
         progress += 1
         if (data.get(x,y,z) == 0) {
@@ -89,6 +87,7 @@ trait Quads extends RenderableBase {
             val dy: Float = (y.toFloat - ny) / 2.0f
             val dz: Float = (z.toFloat - nz) / 2.0f
             // negative dx/y/z means neighbour is on the right, top, front
+            // TODO Convert to list of vectors and then flatmap across them to get the stream
             // This way I can map the transformations nicely
             if (dx != 0) { // Left or right neighbour 
               occlusion += (if (dx < 0) thisCell.right else thisCell.left)
@@ -134,44 +133,42 @@ trait Quads extends RenderableBase {
     // Duplicate the occlusion paramaters 4 times for each vertex
     occlusion = repeatEachElem(occlusion, 4)
 
-    if (Context.debug) println("...Done!")
+    println("...Done!")
     new RawQuadData(flatQuadVerts.toArray, flatNormals.toArray, occlusion.toArray)
   }
 
-  // TODO Get this working for a specific volume to update RawQuads for this object
   def getOcclusions(): Array3D[OccludeCell] = {
     val (dimX, dimY, dimZ) = getDims
     val data = getData
     val occlusions = Array3D.initWith(dimX, dimY, dimZ, { () => new OccludeCell(0)})
 
-    if (Context.debug) println("Getting occlusions for faces...")
+    println("Getting occlusions for faces...")
     var progress = 0
-    val pos = getPosition
-
-    val range = 20
 
     val sample = new Sample()
     for {
       (x, y, z) <- xyzIn(0, dimX, dimY, dimZ)
     } {
-      if (Context.debug && progress % (dimZ*dimY*dimZ/10) == 0) 
+      if (progress % (dimZ*dimY*dimZ/10) == 0) 
         println(s"${progress*100/(dimX*dimY*dimZ)}% complete...")
       progress += 1
-      val occupied = World.getOccupied(pos.x + x, pos.y + y, pos.z + z)
-      if (!occupied && !data.getNeighbours(x, y, z).isEmpty) {
+      val value = data.get(x, y, z)
+      if (value == 0 && !data.getNeighbours(x, y, z).isEmpty) {
         val cell = occlusions.get(x, y, z)
         for (ray <- sample.rays) {
           var collided = false
           breakable {
+            //TODO Might be dodgy
+            //for (off <- ray.points) {
             val points = ray.points
             for (off <- ray.points) {
               val xoff = off.x + x
               val yoff = off.y + y
               val zoff = off.z + z
-              if (xoff < pos.x - range || xoff >= pos.x + range) break
-              else if (yoff < pos.y - range || yoff >= pos.y + range) break
-              else if (zoff < pos.z - range || zoff >= pos.z + range) break
-              else if (World.getOccupied(pos.x + xoff, pos.y + yoff, pos.z + zoff)) {
+              if (xoff < 0 || xoff >= dimX) break
+              else if (yoff < 0 || yoff >= dimY) break
+              else if (zoff < 0 || zoff >= dimZ) break
+              else if (data.get(xoff, yoff, zoff) != 0) {
                 collided = true
                 break
               }
@@ -183,7 +180,7 @@ trait Quads extends RenderableBase {
       }
     }
     
-    if (Context.debug) println("...Done!")
+    println("...Done!")
     occlusions
   }
 
@@ -192,22 +189,22 @@ trait Quads extends RenderableBase {
 
     GL30.glBindVertexArray(Context.vaoId)
     GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, Context.vboVertexId)
-    GL15.glBufferData(GL15.GL_ARRAY_BUFFER, quads.vertBuffer, GL15.GL_STREAM_DRAW)
+    GL15.glBufferData(GL15.GL_ARRAY_BUFFER, quads.vertBuffer, GL15.GL_STATIC_DRAW)
     GL20.glVertexAttribPointer(Context.vertexAttribArray, 3, GL11.GL_FLOAT, false, 0, 0)
     // Place these in the attributes for the shader
 
     GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, Context.vboNormalId)
-    GL15.glBufferData(GL15.GL_ARRAY_BUFFER, quads.normalBuffer, GL15.GL_STREAM_DRAW)
+    GL15.glBufferData(GL15.GL_ARRAY_BUFFER, quads.normalBuffer, GL15.GL_STATIC_DRAW)
     GL20.glVertexAttribPointer(Context.normalAttribArray, 3, GL11.GL_FLOAT, false, 0, 0)
     GL20.glEnableVertexAttribArray(Context.vertexAttribArray)
 
     GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, Context.vboOcclusionId)
-    GL15.glBufferData(GL15.GL_ARRAY_BUFFER, quads.occlusionBuffer, GL15.GL_STREAM_DRAW)
+    GL15.glBufferData(GL15.GL_ARRAY_BUFFER, quads.occlusionBuffer, GL15.GL_STATIC_DRAW)
     GL20.glVertexAttribPointer(Context.occlusionAttribArray, 1, GL11.GL_FLOAT, false, 0, 0)
     GL20.glEnableVertexAttribArray(Context.normalAttribArray)
 
     GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, Context.vboIndicesId)
-    GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, quads.indicesBuffer, GL15.GL_STREAM_DRAW)
+    GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, quads.indicesBuffer, GL15.GL_STATIC_DRAW)
     GL20.glEnableVertexAttribArray(Context.occlusionAttribArray)
       
     GL11.glDrawElements(GL11.GL_TRIANGLES, quads.indices.length, GL11.GL_UNSIGNED_INT, 0)
@@ -241,20 +238,9 @@ object QuadUtils {
 }
 
 class Sample() {
-  var left, right, top, bottom, front, back = 0f
-  val rays = Sample.getRays
-  for (ray <- rays) {
-    left  += ray.left;   right  += ray.right
-    top   += ray.top;    bottom += ray.bottom
-    front += ray.front; back += ray.back
-  }
-}
-
-object Sample {
   val RAY_COUNT = 1024
+  var left, right, top, bottom, front, back = 0f
   val rays = List.fill(RAY_COUNT)(new Ray()) 
-
-  def getRays = rays.map(_.copy)
 
   def pointsOnSphere(n: Int) = {
     val inc = Pi * (3.0 - sqrt(5))
@@ -267,23 +253,22 @@ object Sample {
     } yield ((cos(phi) * r).toFloat, y.toFloat, (sin(phi)*r).toFloat)
   }
 
-  for ((ray, (x, y, z)) <- rays.zip(pointsOnSphere(rays.length)))
+  for { // For every point on the sphere compute a ray
+    (ray, (x, y, z)) <- rays.zip(pointsOnSphere(rays.length))
+  } {
     ray.compute(x, y, z)
+    left  += ray.left;   right  += ray.right
+    top   += ray.top;    bottom += ray.bottom
+    front += ray.front; back += ray.back
+  }
+
 }
 
 class Ray() {
   val POINT_COUNT = 128
   var left, right, top, bottom, front, back = 0f
   val points: ListBuffer[Offset] = new ListBuffer()
-  def this(r: Ray) {
-    this()
-    left = r.left; right = r.right
-    top = r.top; bottom = r.bottom
-    front = r.front; back = r.back
-    for (p <- r.points) points += p.copy
-  }
 
-  def copy = new Ray(this)
   // Generates a ray in a grid
   def toGrid(x: Float, y: Float, z: Float) = {
     // direction to move towards
@@ -321,14 +306,6 @@ class Ray() {
 }
 
 class Offset(val depth: Float, val x: Int, val y: Int, val z: Int) {
-  def copy = new Offset(depth, x, y, z)
-}
-
-class VertexCell (val left: List[Vector3f], val right: List[Vector3f], val top: List[Vector3f],
-                  val bottom: List[Vector3f], val front: List[Vector3f], val back: List[Vector3f]){
-}
-
-class NormalCell (val left: Vector3f, val right: Vector3f, val top: Vector3f, val bottom: Vector3f, val front: Vector3f, val back: Vector3f){
 }
 
 class OccludeCell (var left: Float, var right: Float, var top: Float, var bottom: Float, var front: Float, var back: Float){
