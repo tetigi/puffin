@@ -243,7 +243,7 @@ object QuadUtils {
 }
 
 class Sample() {
-  val RAY_COUNT = 1024
+  val RAY_COUNT = 128
   var left, right, top, bottom, front, back = 0f
   val rays = List.fill(RAY_COUNT)(new Ray()) 
 
@@ -270,7 +270,7 @@ class Sample() {
 }
 
 class Ray() {
-  val POINT_COUNT = 128
+  val POINT_COUNT = 32
   var left, right, top, bottom, front, back = 0f
   val points: ListBuffer[Offset] = new ListBuffer()
 
