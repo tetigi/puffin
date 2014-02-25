@@ -18,10 +18,8 @@ import com.puffin.character.Entity
 
 object Vegetation {
   // The array containing volume data
-  val SIZE = 40
-  val plane = new Plane(64, 64)
-  val volume = new Volume(SIZE)
-  val tree = new Tree()
+  val SIZE = 128
+  val volume = new Volume(SIZE, 10, SIZE)
   val WIDTH = 1024
   val HEIGHT = 768
 
@@ -30,15 +28,11 @@ object Vegetation {
   def start() = {
     
     Context.debug = true
-    volume.fillSimplexNoise(1.1)
-    //volume.fillIsland()
-    //World.putThing(plane)
-    //World.putThing(tree)
-    //val tree2 = new Tree(-5, 0, -5)
-    //World.putThing(tree2)
+    //volume.fillSimplexNoise(1.1)
+    volume.fillSmallHills()
     World.putThing(volume)
 
-    opts.setOcclusionEnabled(true)
+    opts.setOcclusionEnabled(false)
 
     // Setup input
     Keyboard.enableRepeatEvents(true)
@@ -47,6 +41,9 @@ object Vegetation {
     setupOpenGL(WIDTH, HEIGHT)
     setupMatrices(WIDTH, HEIGHT) 
     setupShaders("shaders/vert.glsl", "shaders/frag.glsl", "shaders/geom.glsl")
+    World.entity.moveToCell(0, 20, -40)
+    World.entity.lookLng(20.toRadians)
+
 
     var ticker = 0
     while (! Display.isCloseRequested()) {
@@ -56,7 +53,7 @@ object Vegetation {
       ticker += 1
       if (ticker >= 300) {
         ticker = 0
-        //World.tickWorld()
+        World.tickWorld()
       }
       World.entity.update(1.0f/60f)
     }
@@ -76,7 +73,7 @@ object Vegetation {
 
   def logicCycle() = {
     //tmogs.cameraPos.z -= 0.05f
-    //tmogs.model.rotation.y += 1.0f/12f
+    World.model.rotation.y += 1.0f/12f
     //tmogs.model.position.z += 0.01f
     Entity.controlCycle(World.entity)
   }

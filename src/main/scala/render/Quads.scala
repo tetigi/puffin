@@ -117,20 +117,27 @@ trait Quads extends RenderableBase {
           }
         }
     }
+    println("Mapping, flattening and resizing...")
+    
     // Move the points to their proper locations
+    println("Moving...")
     quadVerts.map({ v: Vector3f => Vector3f.add(v, position.toVector3f, v)})
 
     // Rescale the verts so that they're centered around the origin and 1x1x1
+    println("Resizing...")
     quadVerts.map({ v: Vector3f => flatScaleVector3f(v, new Vector3f(1.0f/worldX, 1.0f/worldY, 1.0f/worldZ), v) })
     //quadVerts.map({ v: Vector3f => flatScaleVector3f(v, new Vector3f(1.0f/dimX, 1.0f/dimY, 1.0f/dimZ), v) })
     //quadVerts.map({ v: Vector3f => Vector3f.add(v, new Vector3f(-0.5f, -0.5f, -0.5f), v)})
+    println("Flattening verts...")
     val flatQuadVerts = quadVerts.flatMap({ v: Vector3f => List(v.x, v.y, v.z) })
     
 
     // Duplicate and flatten the normal vectors
+    println("Flattening normals...")
     val flatNormals = repeatEachElem(normals, 4).flatMap({ v: Vector3f => List(v.x, v.y, v.z) })
 
     // Duplicate the occlusion paramaters 4 times for each vertex
+    println("Repeating occlusion values...")
     occlusion = repeatEachElem(occlusion, 4)
 
     println("...Done!")

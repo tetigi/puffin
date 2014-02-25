@@ -8,51 +8,62 @@ import com.puffin.render.Quads
 import com.puffin.simplex.SimplexNoise
 import com.puffin.data.Array3D
 
-class Volume(val dimSize: Int) extends SimpleObject { 
-  val data = new Array3D[Int](dimSize)
+class Volume(val dimX: Int, val dimY: Int, val dimZ: Int) extends SimpleObject { 
+  def this(dim: Int) = this(dim, dim, dim)
+  val data = new Array3D[Int](dimX, dimY, dimZ)
   def get(x: Int, y: Int, z: Int) = data.get(x, y, z)
   def put(x: Int, y: Int, z: Int, v: Int) = data.put(x, y, z, v)
 
-  def getDims = (dimSize, dimSize, dimSize)
+  def getDims = (dimX, dimY, dimZ)
   var usedPoints: ListBuffer[Point] = new ListBuffer()
   def getUsedPoints = usedPoints
   def getData = data
-  def getPosition = new Point(-dimSize/2, -dimSize/2, -dimSize/2)
+  def getPosition = new Point(-dimX/2, -dimY/2, -dimZ/2)
 
   def tick {}
 
-  def fillRandom(p: Double = 0.5) = {
+  def fillRandom(p: Double = 0.5) {
     //Pick random cells to fill
     val fill = 
-      (for ((x, y, z) <- xyzIn(1, dimSize-1))
+      (for ((x, y, z) <- xyzIn(1, dimX-1, dimY-1, dimZ-1))
         yield (x, y, z, random)) filter { _._4 <= clamp(p, 0, 1) }
     fill map { x => put(x._1, x._2, x._3, 1); usedPoints += new Point(x._1, x._2, x._3) + getPosition  }
     ()
   }
 
-  def fillSimplexNoise(lim: Double) = {
+  def fillSimplexNoise(lim: Double) {
     val fill = 
       (for {
-        (x, y, z) <- xyzIn(1, dimSize-1)
-        nx = x.toFloat / dimSize.toFloat
-        ny = y.toFloat / dimSize.toFloat
-        nz = z.toFloat / dimSize.toFloat
+        (x, y, z) <- xyzIn(1, dimX-1, dimY-1, dimZ-1)
+        nx = x.toFloat / dimX.toFloat
+        ny = y.toFloat / dimY.toFloat
+        nz = z.toFloat / dimZ.toFloat
       } yield (x, y, z, SimplexNoise.simplexNoise(1, nx*3, ny*3, nz*3))) filter { _._4 > lim }
     fill map { x => put(x._1, x._2, x._3, 1); usedPoints += new Point(x._1, x._2, x._3) + getPosition }
     ()
   }
 
-  def fillFloatingRock() = {
+  def fillSmallHills() {
+    val fill = 
+      (for {
+        (x, z) <- xzIn(1, dimX-1, dimZ-1)
+        nx = x.toFloat / dimX.toFloat
+        nz = z.toFloat / dimZ.toFloat
+      } yield (x, 1 + round(SimplexNoise.simplexNoise(5, nx*3, nz*3)).toInt, z))
+    fill map { x => put(x._1, x._2, x._3, 1); usedPoints += new Point(x._1, x._2, x._3) + getPosition }
+  }
+
+  def fillFloatingRock() {
     println("Filling with floating rock...")
     var progress = 0
     for {
-        (x, y, z) <- xyzIn(1, dimSize-1)
-        xf = x.toFloat / dimSize.toFloat
-        yf = y.toFloat / dimSize.toFloat
-        zf = z.toFloat / dimSize.toFloat
+        (x, y, z) <- xyzIn(1, dimX-1, dimY-1, dimZ-1)
+        xf = x.toFloat / dimX.toFloat
+        yf = y.toFloat / dimY.toFloat
+        zf = z.toFloat / dimZ.toFloat
     } {
-      if (progress % (dimSize*dimSize*dimSize/10) == 0) 
-        println(s"${progress*100/(dimSize*dimSize*dimSize)}% complete...")
+      if (progress % (dimX*dimY*dimZ/10) == 0) 
+        println(s"${progress*100/(dimX*dimY*dimZ)}% complete...")
 
       progress += 1
       var plateauFalloff = 0.0
@@ -79,13 +90,13 @@ class Volume(val dimSize: Int) extends SimpleObject {
     println("Filling with island...")
     var progress = 0
     for {
-        (x, y, z) <- xyzIn(1, dimSize-1)
-        xf = x.toFloat / dimSize.toFloat
-        yf = y.toFloat / dimSize.toFloat
-        zf = z.toFloat / dimSize.toFloat
+        (x, y, z) <- xyzIn(1, dimX-1, dimY-1, dimZ-1)
+        xf = x.toFloat / dimX.toFloat
+        yf = y.toFloat / dimY.toFloat
+        zf = z.toFloat / dimZ.toFloat
     } {
-      if (progress % (dimSize*dimSize*dimSize/10) == 0) 
-        println(s"${progress*100/(dimSize*dimSize*dimSize)}% complete...")
+      if (progress % (dimX*dimY*dimZ/10) == 0) 
+        println(s"${progress*100/(dimX*dimY*dimZ)}% complete...")
 
       progress += 1
       var plateauFalloff = 0.0

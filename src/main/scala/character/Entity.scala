@@ -67,6 +67,11 @@ class Entity extends Camera {
     else enableNoclip()
   }
 
+  def moveToCell(x: Int, y: Int, z: Int) {
+    val (px, py, pz) = World.cell2cam(x, y, z)
+    moveTo(px, py, pz)
+  }
+
   def goForwards() {
     faccel.set(dir.x, dir.y, dir.z)
     scaleVector3f(faccel, maxWalkSpeed, faccel)
@@ -125,14 +130,14 @@ class Entity extends Camera {
     if (!noclip) {
       // Do gravity check
       var (cx, cy, cz) = World.cam2cell(newPos.x, newPos.y, newPos.z)
-      println("new pos is " + (cx, cy, cz))
+      //println("new pos is " + (cx, cy, cz))
       if (World.getOccupied(cx, cy - feet, cz)) {
-        println("Hit something!")
+        //println("Hit something!")
         val (_, newY, _) = World.cell2cam(cx, cy, cz)
         // project to cell.f + 0.5
         newPos.y = newY
         velocity.y = 0
-        println("So new pos is " + World.cam2cell(newPos.x, newPos.y, newPos.z))
+        //println("So new pos is " + World.cam2cell(newPos.x, newPos.y, newPos.z))
       }
       // Do side check
       if (World.getOccupied(cx, cy, cz)) {

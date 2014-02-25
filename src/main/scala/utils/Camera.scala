@@ -24,15 +24,24 @@ class Camera (val pos: Vector3f, val dir: Vector3f) {
   def moveTo(v: Vector3f) =
     pos.set(v)
 
+  def moveTo(x: Float, y: Float, z: Float) =
+    pos.set(x, y, z)
+
   def moveForward(d: Float) =
     Vector3f.add(pos, scaleVector3f(dir, d, tmp), pos)
 
   def moveLateral(d: Float) = 
     Vector3f.add(pos, scaleVector3f(getRight(), -d, tmp), pos)
 
-  def lookAt(v: Vector3f) = {
+  def lookAt(v: Vector3f) {
     Vector3f.sub(v, pos, dir)
     dir.normalise(dir)
+    // move lat lng too
+  }
+
+  def lookAt(x: Float, y: Float, z: Float) {
+    tmp.set(x, y, z)
+    lookAt(tmp)
   }
 
   var lng = 0f
