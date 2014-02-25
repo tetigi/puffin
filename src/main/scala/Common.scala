@@ -27,6 +27,10 @@ object Common {
   def clamp(x: Double, llim: Double, ulim: Double) = 
     max(llim, min(ulim, x))
 
+  def repeat[T](elem: T, n: Int) = {
+    List.iterate(elem, n)({ x => x })
+  }
+
   def repeatEachElem[T](elems: ListBuffer[T], times: Int) = 
     if (elems.isEmpty) elems
     else {

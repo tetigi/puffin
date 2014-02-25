@@ -90,24 +90,24 @@ trait Quads extends RenderableBase {
             // TODO Convert to list of vectors and then flatmap across them to get the stream
             // This way I can map the transformations nicely
             if (dx != 0) { // Left or right neighbour 
-              occlusion += (if (dx < 0) thisCell.right else thisCell.left)
-              normals += new Vector3f(dx * 2, 0, 0)
+              occlusion.appendAll(repeat(if (dx < 0) thisCell.right else thisCell.left, 4))
+              normals.appendAll(repeat(new Vector3f(dx * 2, 0, 0), 4))
               quadVerts.appendAll(List( // Don't forget to normalize to 1x1x1!
                 new Vector3f(nx + dx, ny + d, nz + d),
                 new Vector3f(nx + dx, ny - d, nz + d),
                 new Vector3f(nx + dx, ny - d, nz - d),
                 new Vector3f(nx + dx, ny + d, nz - d)))
             } else if (dy != 0) { // Top or bottom neighbour
-              occlusion += (if (dy < 0) thisCell.top else thisCell.bottom)
-              normals += new Vector3f(0, dy * 2, 0)
+              occlusion.appendAll(repeat(if (dy < 0) thisCell.top else thisCell.bottom, 4))
+              normals.appendAll(repeat(new Vector3f(0, dy * 2, 0), 4))
               quadVerts.appendAll(List(
                 new Vector3f(nx + d, ny + dy, nz + d),
                 new Vector3f(nx + d, ny + dy, nz - d),
                 new Vector3f(nx - d, ny + dy, nz - d),
                 new Vector3f(nx - d, ny + dy, nz + d)))
             } else if (dz != 0) { // Front or back neighbour
-              occlusion += (if (dz < 0) thisCell.front else thisCell.back)
-              normals += new Vector3f(0, 0, dz * 2)
+              occlusion.appendAll(repeat(if (dz < 0) thisCell.front else thisCell.back, 4))
+              normals.appendAll(repeat(new Vector3f(0, 0, dz * 2), 4))
               quadVerts.appendAll(List(
                 new Vector3f(nx + d, ny + d, nz + dz),
                 new Vector3f(nx - d, ny + d, nz + dz),
@@ -134,11 +134,9 @@ trait Quads extends RenderableBase {
 
     // Duplicate and flatten the normal vectors
     println("Flattening normals...")
-    val flatNormals = repeatEachElem(normals, 4).flatMap({ v: Vector3f => List(v.x, v.y, v.z) })
+    val flatNormals = normals.flatMap({ v: Vector3f => List(v.x, v.y, v.z) })
 
     // Duplicate the occlusion paramaters 4 times for each vertex
-    println("Repeating occlusion values...")
-    occlusion = repeatEachElem(occlusion, 4)
 
     println("...Done!")
     new RawQuadData(flatQuadVerts.toArray, flatNormals.toArray, occlusion.toArray)
@@ -203,16 +201,16 @@ trait Quads extends RenderableBase {
     GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, Context.vboNormalId)
     GL15.glBufferData(GL15.GL_ARRAY_BUFFER, quads.normalBuffer, GL15.GL_STATIC_DRAW)
     GL20.glVertexAttribPointer(Context.normalAttribArray, 3, GL11.GL_FLOAT, false, 0, 0)
-    GL20.glEnableVertexAttribArray(Context.vertexAttribArray)
+    GL20.glEnableVertexAttribArray(Context.normalAttribArray)
 
     GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, Context.vboOcclusionId)
     GL15.glBufferData(GL15.GL_ARRAY_BUFFER, quads.occlusionBuffer, GL15.GL_STATIC_DRAW)
     GL20.glVertexAttribPointer(Context.occlusionAttribArray, 1, GL11.GL_FLOAT, false, 0, 0)
-    GL20.glEnableVertexAttribArray(Context.normalAttribArray)
+    GL20.glEnableVertexAttribArray(Context.occlusionAttribArray)
 
     GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, Context.vboIndicesId)
     GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, quads.indicesBuffer, GL15.GL_STATIC_DRAW)
-    GL20.glEnableVertexAttribArray(Context.occlusionAttribArray)
+    GL20.glEnableVertexAttribArray(Context.vertexAttribArray)
       
     GL11.glDrawElements(GL11.GL_TRIANGLES, quads.indices.length, GL11.GL_UNSIGNED_INT, 0)
     GL30.glBindVertexArray(0)
