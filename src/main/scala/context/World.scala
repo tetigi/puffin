@@ -39,6 +39,8 @@ object World {
   def get(x: Int, y: Int, z: Int): Block = blocks.get(x + offset._1, y + offset._2, z + offset._3)
   def put(x: Int, y: Int, z: Int, b: Block) = blocks.put(x + offset._1, y + offset._2, z + offset._3, b)
 
+  def getEntityCell() = cam2cell(entity.pos.x, entity.pos.y, entity.pos.z)
+
   def getRelative(thing: SimpleObject, x: Int, y: Int, z: Int): Block = {
     val p = thing.getPosition
     val (rx, ry, rz) = (p.x + x, p.y + y, p.z + z)  
@@ -46,16 +48,17 @@ object World {
     get(rx, ry, rz)
   }
 
-  def getOccupiedRelative(thing: SimpleObject, x: Int, y: Int, z: Int): Boolean =
-    getRelative(thing, x, y, z).blockType != BlockType.AIR
-  
-  def getOccupiedCamSpace(x: Float, y: Float, z: Float): Boolean = {
-    val (cx, cy, cz) = cam2cell(x, y, z)
-    getOccupied(cx, cy, cz)
+  def getOccupiedRelative(thing: SimpleObject, x: Int, y: Int, z: Int): Boolean = {
+    val p = thing.getPosition
+    val (rx, ry, rz) = (p.x + x, p.y + y, p.z + z)  
+    getRelative(thing, x, y, z).blockType != BlockType.AIR &&
+      (rx, ry, rz) != getEntityCell()
   }
   
-  def getOccupied(x: Int, y: Int, z: Int): Boolean =
-    get(x, y, z).blockType != BlockType.AIR
+  def getOccupied(x: Int, y: Int, z: Int): Boolean = {
+    get(x, y, z).blockType != BlockType.AIR &&
+      (x, y, z) != getEntityCell()
+  }
 
   def renderWorld() {
     things.map(_.render())
