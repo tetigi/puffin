@@ -18,8 +18,8 @@ import com.puffin.character.Entity
 
 object Vegetation {
   // The array containing volume data
-  val SIZE = 128
-  val volume = new Volume(SIZE, 10, SIZE)
+  val SIZE = 64
+  val volume = new Volume(SIZE, 20, SIZE)
   val WIDTH = 1024
   val HEIGHT = 768
 
@@ -32,7 +32,7 @@ object Vegetation {
     volume.fillSmallHills()
     World.putThing(volume)
 
-    opts.setOcclusionEnabled(false)
+    opts.setOcclusionEnabled(true)
 
     // Setup input
     Keyboard.enableRepeatEvents(true)
@@ -73,7 +73,7 @@ object Vegetation {
 
   def logicCycle() = {
     //tmogs.cameraPos.z -= 0.05f
-    World.model.rotation.y += 1.0f/12f
+    //World.model.rotation.y += 1.0f/12f
     //tmogs.model.position.z += 0.01f
     Entity.controlCycle(World.entity)
   }

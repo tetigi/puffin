@@ -31,16 +31,6 @@ object Common {
     List.iterate(elem, n)({ x => x })
   }
 
-  def repeatEachElem[T](elems: ListBuffer[T], times: Int) = 
-    if (elems.isEmpty) elems
-    else {
-      val out: ListBuffer[T] = new ListBuffer()
-      for (i <- 0 until elems.length)
-        for (j <- 0 until times)
-          out += elems(i)
-      out
-    }
-
   def xzIn(start: Int, end: Int): IndexedSeq[Tuple2[Int, Int]] = 
     xzIn(start, end, end)
 
