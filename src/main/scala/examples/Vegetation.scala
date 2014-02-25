@@ -32,6 +32,10 @@ object Vegetation {
     volume.fillSmallHills()
     World.putThing(volume)
 
+    val tree = new Tree(0, 0, 0)
+    tree.adultTree()
+    World.putThing(tree)
+
     opts.setOcclusionEnabled(true)
 
     // Setup input
@@ -53,7 +57,7 @@ object Vegetation {
       ticker += 1
       if (ticker >= 300) {
         ticker = 0
-        World.tickWorld()
+        //World.tickWorld()
       }
       World.entity.update(1.0f/60f)
     }

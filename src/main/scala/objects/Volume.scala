@@ -49,7 +49,7 @@ class Volume(val dimX: Int, val dimY: Int, val dimZ: Int) extends SimpleObject {
         (x, z) <- xzIn(1, dimX-1, dimZ-1)
         nx = x.toFloat / dimX.toFloat
         nz = z.toFloat / dimZ.toFloat
-      } yield (x, 5 + round(SimplexNoise.simplexNoise(3, nx, nz)).toInt, z))
+      } yield (x, dimY/2 + round(SimplexNoise.simplexNoise(3, nx, nz)).toInt, z))
     fill map { x => put(x._1, x._2, x._3, 1); usedPoints += new Point(x._1, x._2, x._3) + getPosition }
   }
 

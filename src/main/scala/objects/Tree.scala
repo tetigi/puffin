@@ -1,6 +1,7 @@
 package com.puffin.objects
 
 import scala.math._
+import scala.collection.mutable.ListBuffer
 
 import com.puffin.data.Array3D
 import com.puffin.Common.Point
@@ -15,7 +16,8 @@ class Tree(x: Int, y: Int, z: Int) extends SimpleObject {
   val pos = new Point(x, y, z)
 
   def getData = data
-  def getUsedPoints = for (i <- 0 until height) yield new Point(0, i, 0) + pos
+  val usedPoints: ListBuffer[Point] = new ListBuffer()
+  def getUsedPoints = usedPoints
   def getDims = (dimX, dimY, dimZ)
 
   def getPosition = pos
@@ -35,12 +37,39 @@ class Tree(x: Int, y: Int, z: Int) extends SimpleObject {
     }
   }
 
-  def update() = {
+  def adultTree() {
+    dimX = 38
+    dimY = 38
+    dimZ = 38
+    data = new Array3D[Int](dimX, dimY, dimZ)
+    // Fill trunk
+    val offset = 16
+    for (i <- 0 until 16) {
+      // fill out a square for the trunk
+      for (j <- offset until (offset + 3)) {
+        for (k <- offset until (offset + 3)) {
+          data.put(j, i, k, 1)
+        }
+      }
+    }
+    // Cube for leaves TODO make not shit
+    for (i <- 16 until 28) {
+      for (j <- offset - 12 until offset + 12) {
+        for (k <- offset - 12 until offset + 12) {
+          if (random < 0.7) data.put(j, i, k, 1)
+        }
+      }
+    }
+  }
+
+  def update() {
+    usedPoints.clear()
     dimY = height + 1
     // Redraw the tree
     data = new Array3D[Int](dimX, dimY, dimZ)
     for (i <- 0 until height)
       data.put(1, i, 1, 1)
+    for (i <- 0 until height) usedPoints += new Point(0, i, 0) + pos
     requiresRefresh = true
   }
 
