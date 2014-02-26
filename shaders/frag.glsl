@@ -89,6 +89,6 @@ void main(){
 
   vec3 ambient = mix(outside, inside, occlusion);
   vec3 color = ambient * vec3(0.3, 0.3, 0.3);
-  vec3 at_observer = fog(color, vec3(0.8), depth, 0.5);
+  vec3 at_observer = fog(color, vec3(0.8), depth, 0.8);
   outputColor = gamma(at_observer);
 }

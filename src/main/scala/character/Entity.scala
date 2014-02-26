@@ -130,13 +130,13 @@ class Entity extends Camera {
     val newPos = new Vector3f()
     Vector3f.add(pos, scaledVel, newPos)
 
+
     if (!noclip) {
       // Get new cell in the world
       var (cx, cy, cz) = World.cam2cell(newPos.x, newPos.y, newPos.z)
 
       // Check for foot collision with that cell (assuming foot is 2 blocks tall)
       if (World.getOccupied(cx, cy - feet, cz) || World.getOccupied(cx, cy - (feet - 1), cz)) {
-        //println("Hit something!")
 
         // Get the coord of that cell
         val (_, newY, _) = if (World.getOccupied(cx, cy - (feet - 1), cz)) World.cell2cam(cx, cy + 1, cz) else World.cell2cam(cx, cy, cz)
@@ -163,6 +163,7 @@ class Entity extends Camera {
         Vector3f.add(scaledAccel, velocity, velocity)
       }
     } else {
+
         val scaledAccel = new Vector3f()
         scaleVector3f(faccel, step, scaledAccel)
         Vector3f.add(scaleVector3f(laccel, step, tmp), scaledAccel, scaledAccel)

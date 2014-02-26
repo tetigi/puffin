@@ -6,16 +6,16 @@ import scala.math.round
 
 import com.puffin.Common._
 import com.puffin.objects.SimpleObject
-import com.puffin.data.Array3D
+import com.puffin.data.Map3D
 import com.puffin.context.BlockType.BlockType
 import com.puffin.render.Quads
 import com.puffin.utils._
 import com.puffin.character.Entity
 
 object World {
+  val air = new Block(BlockType.AIR)
   val size = (200, 200, 200)
-  val offset = (size._1 / 2, size._2 / 2, size._3 / 2) 
-  val blocks = Array3D.initWith(size._1, size._2, size._3, { () => new Block(BlockType.AIR) })
+  val blocks = Map3D.mapWithDefault({ () => air})
 
   var model: Model = null
   var entity: Entity = null
@@ -27,20 +27,18 @@ object World {
   def cell2cam(x: Int, y: Int, z: Int) = (x.toFloat/size._1, y.toFloat/size._1, z.toFloat/size._1)
 
   val halfBlock: Float = 1f/(2*size._1)
-  val quarterBlock: Float = halfBlock / 2
 
   def putThing(thing: SimpleObject) {
     things += thing
     for (point <- thing.getUsedPoints) {
-      val block = get(point.x, point.y, point.z)
-      block.blockType = BlockType.GROUND
+      val block = new Block(BlockType.GROUND)
       block.setObjectRef(thing)
       put(point.x, point.y, point.z, block)
     }
   }
 
-  def get(x: Int, y: Int, z: Int): Block = blocks.get(x + offset._1, y + offset._2, z + offset._3)
-  def put(x: Int, y: Int, z: Int, b: Block) = blocks.put(x + offset._1, y + offset._2, z + offset._3, b)
+  def get(x: Int, y: Int, z: Int): Block = blocks.get(x, y, z)
+  def put(x: Int, y: Int, z: Int, b: Block) = blocks.put(x, y, z, b)
 
   def getEntityCell() = cam2cell(entity.pos.x, entity.pos.y, entity.pos.z)
 
@@ -54,13 +52,13 @@ object World {
   def getOccupiedRelative(thing: SimpleObject, x: Int, y: Int, z: Int): Boolean = {
     val p = thing.getPosition
     val (rx, ry, rz) = (p.x + x, p.y + y, p.z + z)  
-    getRelative(thing, x, y, z).blockType != BlockType.AIR &&
-      (rx, ry, rz) != getEntityCell()
+    getRelative(thing, x, y, z).blockType != BlockType.AIR ||
+      (rx, ry, rz) == getEntityCell()
   }
   
   def getOccupied(x: Int, y: Int, z: Int): Boolean = {
-    get(x, y, z).blockType != BlockType.AIR &&
-      (x, y, z) != getEntityCell()
+    get(x, y, z).blockType != BlockType.AIR ||
+      (x, y, z) == getEntityCell()
   }
 
   def renderWorld() {

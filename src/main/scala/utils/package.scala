@@ -89,8 +89,8 @@ package object utils {
     val right = top * aspectRatio
     val left = -right
 
-    projectionMatrix.m00 = -2 * nearPlane / (right - left)
-    projectionMatrix.m11 = -2 * nearPlane / (top - bottom)
+    projectionMatrix.m00 = - 2 * nearPlane / (right - left)
+    projectionMatrix.m11 = - 2 * nearPlane / (top - bottom)
     projectionMatrix.m20 = - (right + left) / (right - left)
     projectionMatrix.m21 = - (top + bottom) / (top - bottom)
     projectionMatrix.m22 = - (farPlane + nearPlane) / (farPlane - nearPlane)

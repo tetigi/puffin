@@ -18,7 +18,7 @@ import com.puffin.character.Entity
 
 object Vegetation {
   // The array containing volume data
-  val SIZE = 128
+  val SIZE = 256
   val volume = new Volume(SIZE, 20, SIZE)
   val WIDTH = 1024
   val HEIGHT = 768
@@ -28,15 +28,15 @@ object Vegetation {
   def start() = {
     
     Context.debug = true
-    volume.fillSimplexNoise(1.1)
-    //volume.fillSmallHills()
+    //volume.fillSimplexNoise(1.1)
+    volume.fillSmallHills()
     World.putThing(volume)
 
     val tree = new Tree(0, 0, 0)
     tree.adultTree()
-    //World.putThing(tree)
+    World.putThing(tree)
 
-    opts.setOcclusionEnabled(true)
+    opts.setOcclusionEnabled(false)
 
     // Setup input
     Keyboard.enableRepeatEvents(true)
