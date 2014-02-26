@@ -151,40 +151,45 @@ trait Quads extends RenderableBase {
     var progress = 0
 
     val sample = new Sample()
-    for {
-      (x, y, z) <- xyzIn(0, dimX, dimY, dimZ)
-    } {
-      if (progress % (dimZ*dimY*dimZ/10) == 0) 
-        println(s"${progress*100/(dimX*dimY*dimZ)}% complete...")
-      progress += 1
-      val value = data.get(x, y, z)
-      if (value == 0 && !data.getNeighbours(x, y, z).isEmpty) {
-        val cell = occlusions.get(x, y, z)
-        for (ray <- sample.rays) {
-          var collided = false
-          breakable {
-            //TODO Might be dodgy
-            //for (off <- ray.points) {
-            val points = ray.points
-            for (off <- ray.points) {
-              val xoff = off.x + x
-              val yoff = off.y + y
-              val zoff = off.z + z
-              if (xoff < 0 || xoff >= dimX) break
-              else if (yoff < 0 || yoff >= dimY) break
-              else if (zoff < 0 || zoff >= dimZ) break
-              else if (data.get(xoff, yoff, zoff) != 0) {
-                collided = true
-                break
+    var x, y, z = 0
+    while (x < dimX) { y = 0
+      while (y < dimY) { z = 0
+        while (z < dimZ) { 
+          if (progress % (dimZ*dimY*dimZ/10) == 0) 
+            println(s"${progress*100/(dimX*dimY*dimZ)}% complete...")
+          progress += 1
+          val value = data.get(x, y, z)
+          if (value == 0 && data.hasNeighbourEqual(x, y, z, 1)) {
+            val cell = occlusions.get(x, y, z)
+            for (ray <- sample.rays) {
+              var collided = false
+              breakable {
+                //TODO Might be dodgy
+                //for (off <- ray.points) {
+                val points = ray.points
+                for (off <- ray.points) {
+                  val xoff = off.x + x
+                  val yoff = off.y + y
+                  val zoff = off.z + z
+                  if (xoff < 0 || xoff >= dimX) break
+                  else if (yoff < 0 || yoff >= dimY) break
+                  else if (zoff < 0 || zoff >= dimZ) break
+                  else if (data.get(xoff, yoff, zoff) != 0) {
+                    collided = true
+                    break
+                  }
+                }
               }
+              if (!collided) cell.addRay(ray)
             }
+            cell.normalize(sample)
           }
-          if (!collided) cell.addRay(ray)
+          z += 1
         }
-        cell.normalize(sample)
+        y += 1
       }
+      x += 1
     }
-    
     println("...Done!")
     occlusions
   }
@@ -280,14 +285,14 @@ class Ray() {
     val (scaledX, scaledY, scaledZ) = (x * 0.2, y * 0.2, z * 0.2)
     var newX, newY, newZ = 0.0 
     var cx, cy, cz = 0
-    val points: ListBuffer[(Float, Int, Int, Int)] = new ListBuffer()
+    val points: ListBuffer[Offset] = new ListBuffer()
     
     while (points.length < POINT_COUNT) {
       val (ncx, ncy, ncz) = (newX.toInt, newY.toInt, newZ.toInt)
       if (ncx != cx || ncy != cy || ncz != cz) {
         val depth = sqrt(newX*newX + newY*newY + newZ*newZ).toFloat
         cx = ncx; cy = ncy; cz = ncz
-        points += ((depth, cx, cy, cz))
+        points += new Offset(depth, cx, cy, cz)
       }
       newX += scaledX; newY += scaledY; newZ += scaledZ
     }
@@ -297,9 +302,7 @@ class Ray() {
 
   // Compute the path of the ray from origin to this point
   def compute(x: Float, y: Float, z: Float) = {
-    for ((depth, xoff, yoff, zoff) <- toGrid(x, y, z))
-      points += new Offset(depth, xoff, yoff, zoff)
-
+    points.appendAll(toGrid(x, y, z))
     // Lamberts law per side
     right  = if (x < 0) -x else 0.0f
     left   = if (x > 0) x else 0.0f

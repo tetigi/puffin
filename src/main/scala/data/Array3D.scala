@@ -18,7 +18,7 @@ object Array3D {
   }
 }
 
-class Array3D[T: Manifest] (val dimX: Int, val dimY: Int, val dimZ: Int) extends Iterable[T] {
+class Array3D[@specialized(Int) T: Manifest] (val dimX: Int, val dimY: Int, val dimZ: Int) extends Iterable[T] {
   def this(dimSize: Int) = this(dimSize, dimSize, dimSize)
 
   val elems = dimX * dimY * dimZ
@@ -58,4 +58,15 @@ class Array3D[T: Manifest] (val dimX: Int, val dimY: Int, val dimZ: Int) extends
     ns
   }
 
+  def hasNeighbourEqual[T](x: Int, y: Int, z: Int, v: T) = {
+    var has = false
+    if (x > 0) has = has || get(x - 1, y, z) == v
+    if (y > 0) has = has || get(x, y - 1, z) == v
+    if (z > 0) has = has || get(x, y, z - 1) == v
+
+    if (x < dimX - 1) has = has || get(x + 1, y, z) == v
+    if (y < dimY - 1) has = has || get(x, y + 1, z) == v
+    if (z < dimZ - 1) has = has || get(x, y, z + 1) == v
+    has
+  }
 }

@@ -36,7 +36,7 @@ object Vegetation {
     tree.adultTree()
     World.putThing(tree)
 
-    opts.setOcclusionEnabled(false)
+    opts.setOcclusionEnabled(true)
 
     // Setup input
     Keyboard.enableRepeatEvents(true)
