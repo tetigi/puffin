@@ -41,7 +41,7 @@ object Entity {
 class Entity extends Camera {
   var noclip = true
   
-  val maxWalkSpeed = 1f // cubes per second?
+  val maxWalkSpeed = 0.1f // cubes per second?
   val maxFallSpeed = -0.1f
   val gravity = new Vector3f(0, -9.8f, 0)
   val faccel = new Vector3f()
@@ -107,45 +107,68 @@ class Entity extends Camera {
   // step is the number of seconds in a step
   def update(step: Float) {
     val tmp = new Vector3f()
-    val scaledAccel = new Vector3f()
-    scaleVector3f(faccel, step, scaledAccel)
-    Vector3f.add(scaleVector3f(laccel, step, tmp), scaledAccel, scaledAccel)
-    if (!noclip) { // add gravity too
-      Vector3f.add(scaledAccel, scaleVector3f(gravity, step, tmp), scaledAccel)
-    }
-    // update current vel to get new vel
-    Vector3f.add(velocity, scaledAccel, velocity)
+    
+    // work out the 'walking' speed in the xz plane
     var speed = sqrt(velocity.x*velocity.x + velocity.z*velocity.z).toFloat
+
+    // cap the speed as needed
     if (speed > maxWalkSpeed) {
       scaleVector3f(velocity, (maxWalkSpeed*maxWalkSpeed)/(speed*speed), velocity)
     }
+
+    // cap falling speed
     speed = velocity.y
     if (speed < maxFallSpeed) {
       velocity.y = maxFallSpeed
     }
+
+    // work out the new scaled position according to timestep
     val scaledVel = new Vector3f()
     scaleVector3f(velocity, step, scaledVel)
+
+    // work out the new position
     val newPos = new Vector3f()
     Vector3f.add(pos, scaledVel, newPos)
-    if (!noclip) {
-      // Do gravity check
-      var (cx, cy, cz) = World.cam2cell(newPos.x, newPos.y, newPos.z)
-      //println("new pos is " + (cx, cy, cz))
-      if (World.getOccupied(cx, cy - feet, cz)) {
-        //println("Hit something!")
-        val (_, newY, _) = World.cell2cam(cx, cy, cz)
-        // project to cell.f + 0.5
-        newPos.y = newY
-        velocity.y = 0
-        //println("So new pos is " + World.cam2cell(newPos.x, newPos.y, newPos.z))
-      }
-      // Do side check
-      if (World.getOccupied(cx, cy, cz)) {
-        val (newX, _, newZ) = World.cell2cam(cx, cy, cz)
-        newPos.x = pos.x
-        newPos.z = pos.z
-      }
 
+    if (!noclip) {
+      // Get new cell in the world
+      var (cx, cy, cz) = World.cam2cell(newPos.x, newPos.y, newPos.z)
+
+      // Check for foot collision with that cell (assuming foot is 2 blocks tall)
+      if (World.getOccupied(cx, cy - feet, cz) || World.getOccupied(cx, cy - (feet - 1), cz)) {
+        //println("Hit something!")
+
+        // Get the coord of that cell
+        val (_, newY, _) = if (World.getOccupied(cx, cy - (feet - 1), cz)) World.cell2cam(cx, cy + 1, cz) else World.cell2cam(cx, cy, cz)
+
+        // project to cell
+        newPos.y = newY + World.halfBlock
+
+        // Reset downward velocity
+        velocity.y = 0
+        val scaledAccel = new Vector3f()
+        scaleVector3f(faccel, step, scaledAccel)
+        Vector3f.add(scaleVector3f(laccel, step, tmp), scaledAccel, scaledAccel)
+        
+        // Update velocity
+        Vector3f.add(scaledAccel, velocity, velocity)
+      } else {
+        // Nothing was hit, so can keep accelerating downwards
+        val scaledAccel = new Vector3f()
+        scaleVector3f(faccel, step, scaledAccel)
+        Vector3f.add(scaleVector3f(laccel, step, tmp), scaledAccel, scaledAccel)
+        Vector3f.add(scaleVector3f(gravity, step, tmp), scaledAccel, scaledAccel)
+        
+        // Update velocity
+        Vector3f.add(scaledAccel, velocity, velocity)
+      }
+    } else {
+        val scaledAccel = new Vector3f()
+        scaleVector3f(faccel, step, scaledAccel)
+        Vector3f.add(scaleVector3f(laccel, step, tmp), scaledAccel, scaledAccel)
+        
+        // Update velocity
+        Vector3f.add(scaledAccel, velocity, velocity)
     }
     pos.set(newPos)
   }

@@ -26,6 +26,9 @@ object World {
   def cam2cell(x: Float, y: Float, z: Float) = (round(x*size._1), round(y*size._2), round(z*size._3))
   def cell2cam(x: Int, y: Int, z: Int) = (x.toFloat/size._1, y.toFloat/size._1, z.toFloat/size._1)
 
+  val halfBlock: Float = 1f/(2*size._1)
+  val quarterBlock: Float = halfBlock / 2
+
   def putThing(thing: SimpleObject) {
     things += thing
     for (point <- thing.getUsedPoints) {
