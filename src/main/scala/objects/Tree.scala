@@ -54,11 +54,18 @@ class Tree(x: Int, y: Int, z: Int) extends SimpleObject {
     }
     // Cube for leaves TODO make not shit
     for (i <- 16 until 28) {
-      for (j <- offset - 12 until offset + 12) {
-        for (k <- offset - 12 until offset + 12) {
+      for (j <- offset - 12 to offset + 12) {
+        for (k <- offset - 12 to offset + 12) {
           if (random < 0.7) data.put(j, i, k, 1)
         }
       }
+    }
+
+    // Add some vines
+    for (i <- 0 until 3) {
+      data.put(offset-3, i, offset+6, 1)
+      data.put(offset-3, i, offset-3, 1)
+      data.put(offset+3, i, offset+5, 1)
     }
   }
 

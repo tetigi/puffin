@@ -3,8 +3,9 @@
 uniform mat3 normalMatrix;
 
 in float intensity;
-in vec3 normalV;
-in float occlusionV;
+in vec3 normal;
+in float occlusion;
+in float depth;
 out vec3 outputColor;
 
 struct SHC{
@@ -72,20 +73,22 @@ vec3 sh_light(vec3 normal, SHC l){
     );
 }
 
+vec3 fog(vec3 color, vec3 fcolor, float depth, float density){
+  const float e = 2.71828182845904523536028747135266249;
+  float f = pow(e, -pow(depth*density, 2));
+  return mix(fcolor, color, f);
+}   
+
 vec3 gamma(vec3 color) {
   return pow(color, vec3(1.0/2.0));
 }
 
 void main(){
-  vec3 outside = sh_light(normalV, beach);
-  vec3 inside = sh_light(normalV, groove)*0.004;
-  //vec3 color = vec3(0.1, 0.1, 0.1);
-  //vec3 directColor = vec3(0.3, 0.3, 0.3);
-  //vec3 outside = color;
-  //vec3 inside = color * 0.004;
+  vec3 outside = sh_light(normal, beach);
+  vec3 inside = sh_light(normal, groove)*0.004;
 
-  vec3 ambient = mix(outside, inside, occlusionV);
-  //vec3 direct = directColor * intensity;
-  outputColor = gamma(ambient * vec3(0.3, 0.3, 0.3));
-  //outputColor = gamma(ambient + direct);
+  vec3 ambient = mix(outside, inside, occlusion);
+  vec3 color = ambient * vec3(0.3, 0.3, 0.3);
+  vec3 at_observer = fog(color, vec3(0.8), depth, 0.5);
+  outputColor = gamma(at_observer);
 }

@@ -28,13 +28,13 @@ object Vegetation {
   def start() = {
     
     Context.debug = true
-    //volume.fillSimplexNoise(1.1)
-    volume.fillSmallHills()
+    volume.fillSimplexNoise(1.1)
+    //volume.fillSmallHills()
     World.putThing(volume)
 
     val tree = new Tree(0, 0, 0)
     tree.adultTree()
-    World.putThing(tree)
+    //World.putThing(tree)
 
     opts.setOcclusionEnabled(true)
 

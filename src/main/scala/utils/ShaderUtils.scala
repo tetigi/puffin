@@ -57,6 +57,7 @@ object ShaderUtils {
     GL20.glLinkProgram(Context.programId)
     GL20.glValidateProgram(Context.programId)
 
+    val vmLoc = GL20.glGetUniformLocation(Context.programId, "vm")
     val pvmLoc = GL20.glGetUniformLocation(Context.programId, "pvm")
     val normalMatrixLoc = GL20.glGetUniformLocation(Context.programId, "normalMatrix")
     val diffuseLoc = GL20.glGetUniformLocation(Context.programId, "diffuse")
@@ -66,7 +67,7 @@ object ShaderUtils {
     GL41.glProgramUniform4f(Context.programId, diffuseLoc, 0.2f, 0.2f, 0.2f, 1.0f)
 
     GL20.glUseProgram(Context.programId)
-    uniformLocs = new UniformLocations(pvmLoc, normalMatrixLoc, lDirLoc)
+    uniformLocs = new UniformLocations(vmLoc, pvmLoc, normalMatrixLoc, lDirLoc)
   }
 
   def storeMatrices() = {
@@ -81,10 +82,15 @@ object ShaderUtils {
     val matrix44Buffer = BufferUtils.createFloatBuffer(16)
     val lightDirBuffer = BufferUtils.createFloatBuffer(4)
 
-    val pv = new Matrix4f()
+    val vm = new Matrix4f()
     val pvm = new Matrix4f()
-    Matrix4f.mul(matrices.projectionMatrix, matrices.viewMatrix, pv)
-    Matrix4f.mul(pv, matrices.modelMatrix, pvm)
+
+    Matrix4f.mul(matrices.viewMatrix, matrices.modelMatrix, vm)
+    vm.store(matrix44Buffer)
+    matrix44Buffer.flip()
+    GL20.glUniformMatrix4(uniformLocs.vmLoc, false, matrix44Buffer)
+
+    Matrix4f.mul(matrices.projectionMatrix, vm, pvm)
     pvm.store(matrix44Buffer)
     matrix44Buffer.flip()
     GL20.glUniformMatrix4(uniformLocs.pvmLoc, false, matrix44Buffer)
@@ -102,7 +108,7 @@ object ShaderUtils {
 
     val v = new Vector4f(1, 0, 0, 0)
     val lightDir = new Vector3f()
-    Matrix4f.transform(pv, v, v)
+    Matrix4f.transform(vm, v, v)
     lightDir.x = v.x; lightDir.y = v.y; lightDir.z = v.z
     lightDir.normalise(lightDir)
     lightDir.store(lightDirBuffer)
