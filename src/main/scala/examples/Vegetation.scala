@@ -27,9 +27,8 @@ class Vegetation extends PuffinApp {
 }
 
 object Vegetation {
-  def main(args : Array[String]) = {
+  //  Vegetation.start()
     val app = new Vegetation()
     app.start()
-  }
 }
 
