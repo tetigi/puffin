@@ -3,7 +3,6 @@ package com.puffin.examples
 import com.puffin.utils.PuffinApp
 import com.puffin.objects.Volume
 import com.puffin.objects.Tree
-import com.puffin.Common._
 import com.puffin.context.World
 
 class Vegetation extends PuffinApp {
@@ -30,8 +29,6 @@ class Vegetation extends PuffinApp {
 object Vegetation {
   def main(args : Array[String]) = {
     val app = new Vegetation()
-    app.init()
-    app.setupWorld()
     app.start()
   }
 }
