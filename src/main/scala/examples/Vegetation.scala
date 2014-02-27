@@ -13,8 +13,8 @@ class Vegetation extends PuffinApp {
     // Turn off swiveling
     rotateOn = false
 
-    //volume.fillSimplexNoise(1.1)
-    volume.fillSmallHills()
+    volume.fillSimplexNoise(1.1)
+    //volume.fillSmallHills()
     World.putThing(volume)
 
     val tree = new Tree(0, 0, 0)
@@ -27,9 +27,9 @@ class Vegetation extends PuffinApp {
 }
 
 object Vegetation {
-  //def main(args: Array[String]) {
-  //  val app = new Vegetation()
-  //  app.start()
-  //}
+ // def main(args: Array[String]) {
+ //  val app = new Vegetation()
+ //   app.start()
+ // }
 }
 
