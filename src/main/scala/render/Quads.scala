@@ -13,6 +13,7 @@ import org.lwjgl.util.vector.Vector3f
 import scala.math._
 import scala.collection.mutable.ListBuffer
 import scala.util.control.Breaks._
+import scala.annotation.tailrec
 
 import scala.concurrent.duration._
 import scala.concurrent.Await
@@ -175,6 +176,7 @@ trait Quads extends RenderableBase {
                   else if (yoff < 0 || yoff >= dimY) break
                   else if (zoff < 0 || zoff >= dimZ) break
                   else if (data.get(xoff, yoff, zoff) != 0) {
+                  //else if (World.getOccupiedRelative(this, xoff, yoff, zoff)) {
                     collided = true
                     break
                   }
@@ -242,6 +244,7 @@ trait Quads extends RenderableBase {
 }
 
 object QuadUtils {
+  @tailrec
   def generateIndices(n: Int, start: Int = 0, indices: List[Int] = Nil): List[Int] =
     if (n == 0) indices.reverse
     else generateIndices(n - 6, start + 4, start :: (start + 1) :: (start + 2) :: (start + 2) :: (start + 3) :: start :: indices)

@@ -18,7 +18,7 @@ import com.puffin.character.Entity
 
 object Vegetation {
   // The array containing volume data
-  val SIZE = 256
+  val SIZE = 164
   val volume = new Volume(SIZE, 20, SIZE)
   val WIDTH = 1024
   val HEIGHT = 768

@@ -42,14 +42,14 @@ object World {
 
   def getEntityCell() = cam2cell(entity.pos.x, entity.pos.y, entity.pos.z)
 
-  def getRelative(thing: SimpleObject, x: Int, y: Int, z: Int): Block = {
+  def getRelative(thing: Quads, x: Int, y: Int, z: Int): Block = {
     val p = thing.getPosition
     val (rx, ry, rz) = (p.x + x, p.y + y, p.z + z)  
     //TODO Should probably check for OOB
     get(rx, ry, rz)
   }
 
-  def getOccupiedRelative(thing: SimpleObject, x: Int, y: Int, z: Int): Boolean = {
+  def getOccupiedRelative(thing: Quads, x: Int, y: Int, z: Int): Boolean = {
     val p = thing.getPosition
     val (rx, ry, rz) = (p.x + x, p.y + y, p.z + z)  
     getRelative(thing, x, y, z).blockType != BlockType.AIR ||
