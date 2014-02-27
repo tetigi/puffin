@@ -7,11 +7,11 @@ import com.puffin.context.World
 class Generation extends PuffinApp {
   def setupWorld() {
     //val volume = VolumeGenerator.genVolumeFromBitmap("resources/face.bmp")
-    val volume = VolumeGenerator.genVolumeFromBitmap("resources/thing.bmp")
+    //val volume = VolumeGenerator.genVolumeFromBitmap("resources/thing.bmp")
+    val volume = VolumeGenerator.genVolumeFromBitmaps("resources/tv_front.bmp", "resources/tv_left.bmp")
     World.putThing(volume)
 
-    World.entity.moveToCell(0, 10, 20)
-    World.entity.lookLat(180.toRadians)
+    World.entity.moveToCell(0, 10, -20)
     World.entity.lookLng(20.toRadians)
   }
 }

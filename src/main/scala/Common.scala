@@ -37,6 +37,9 @@ object Common {
   def xzIn(start: Int, endX: Int, endZ: Int): IndexedSeq[Tuple2[Int, Int]] =
     for (x <- start until endX; z <- start until endZ) yield (x, z)
 
+  def xzIn(startX: Int, startZ: Int, endX: Int, endZ: Int): IndexedSeq[Tuple2[Int, Int]] = 
+    for (x <- startX until endX; z <- startZ until endZ) yield (x, z)
+
   def xyzIn(start: Int, end: Int): IndexedSeq[Tuple3[Int, Int, Int]] = xyzIn(start, end, end, end)
 
   def xyzIn(start: Int, endX: Int, endY: Int, endZ: Int): IndexedSeq[Tuple3[Int, Int, Int]] = {
