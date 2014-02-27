@@ -12,7 +12,10 @@ class Volume(val dimX: Int, val dimY: Int, val dimZ: Int) extends SimpleObject {
   def this(dim: Int) = this(dim, dim, dim)
   val data = new Array3D[Int](dimX, dimY, dimZ)
   def get(x: Int, y: Int, z: Int) = data.get(x, y, z)
-  def put(x: Int, y: Int, z: Int, v: Int) = data.put(x, y, z, v)
+  def put(x: Int, y: Int, z: Int, v: Int) = {
+    data.put(x, y, z, v)
+    usedPoints += new Point(x, y, z) + getPosition
+  }
 
   def getDims = (dimX, dimY, dimZ)
   var usedPoints: ListBuffer[Point] = new ListBuffer()
