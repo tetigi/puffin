@@ -19,8 +19,6 @@ trait PuffinApp {
   val opts = new RenderOptions()
   var rotateOn = true
 
-  def setupWorld(): Unit
-
   def init() {
     opts.setOcclusionEnabled(true)
 
@@ -32,14 +30,8 @@ trait PuffinApp {
     setupMatrices(WIDTH, HEIGHT) 
     setupShaders("shaders/vert.glsl", "shaders/frag.glsl", "shaders/geom.glsl")
   }
-
-  def start() {
-    init()
-    setupWorld()
-    run()
-  }
   
-  def run() {
+  def start() {
     while (! Display.isCloseRequested()) {
       loopCycle()
       Display.sync(60)
