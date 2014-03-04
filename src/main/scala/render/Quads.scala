@@ -55,6 +55,14 @@ trait Quads extends RenderableBase {
   def getDims: (Int, Int, Int)
   def getPosition: Point
 
+  // Simple wrapper that passes through some functions and handles other special cases
+  private class PaddedArray3D[T: Manifest](val data: Array3D[T]) {
+    def get(x: Int, y: Int, z: Int) =
+      if (x < 0 || y < 0 || z < 0 || x >= data.dimX || y >= data.dimY || z >= data.dimZ) 0 else data.get(x, y, z)
+
+    def getNeighbours(x: Int, y: Int, z: Int) = data.getNeighbours(x, y, z)
+  }
+
   // I want this method to be spawned as a separate task
   private def createRawQuadData(opts: RenderOptions): RawQuadData = {
     var quadVerts: ListBuffer[Vector3f] = new ListBuffer()
@@ -63,8 +71,9 @@ trait Quads extends RenderableBase {
 
     val (worldX, worldY, worldZ) = World.size
 
-    val data = getData
-    val (dimX, dimY, dimZ) = getDims
+    val data = new PaddedArray3D(getData)
+    val (objX, objY, objZ) = getDims
+    val (dimX, dimY, dimZ) = (objX + 1, objY + 1, objZ + 1)
     val position = getPosition
 
     val cells = 
@@ -72,6 +81,9 @@ trait Quads extends RenderableBase {
       else Array3D.initWith(dimX, dimY, dimZ, { () => new OccludeCell(0)})
     println("Getting raw quads...")
     var progress = 0
+    
+    // TODO Have 2 options -> turn it into a padded cube and continue as before,
+    //      or change the logic to account for calls from outside the cube
 
     for {
       (x, y, z) <- xyzIn(0, dimX, dimY, dimZ)
@@ -144,7 +156,8 @@ trait Quads extends RenderableBase {
   }
 
   def getOcclusions(): Array3D[OccludeCell] = {
-    val (dimX, dimY, dimZ) = getDims
+    val (objX, objY, objZ) = getDims
+    val (dimX, dimY, dimZ) = (objX + 1, objY + 1, objZ + 1)
     val data = getData
     val occlusions = Array3D.initWith(dimX, dimY, dimZ, { () => new OccludeCell(0)})
 
