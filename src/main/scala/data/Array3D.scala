@@ -16,6 +16,19 @@ object Array3D {
       data.put(x, y, z, constructor())
     data
   }
+
+  // Gets adjacent neighbours - assumes that x,y,z are in bounds
+  def getNeighbours(x: Int, y: Int, z: Int, dimX: Int, dimY: Int, dimZ: Int) = {
+    val ns: ListBuffer[(Int,Int,Int)] = new ListBuffer()
+    if (x > 0) ns += ((x - 1, y, z))
+    if (y > 0) ns += ((x, y - 1, z))
+    if (z > 0) ns += ((x, y, z - 1))
+
+    if (x < dimX - 1) ns += ((x + 1, y, z))
+    if (y < dimY - 1) ns += ((x, y + 1, z))
+    if (z < dimZ - 1) ns += ((x, y, z + 1))
+    ns 
+  }
 }
 
 class Array3D[@specialized(Int) T: Manifest] (val dimX: Int, val dimY: Int, val dimZ: Int) extends Iterable[T] {
@@ -45,18 +58,8 @@ class Array3D[@specialized(Int) T: Manifest] (val dimX: Int, val dimY: Int, val 
     out
   }
 
-  // Gets adjacent neighbours
-  def getNeighbours(x: Int, y: Int, z: Int) = {
-    val ns: ListBuffer[(Int,Int,Int)] = new ListBuffer()
-    if (x > 0) ns += ((x - 1, y, z))
-    if (y > 0) ns += ((x, y - 1, z))
-    if (z > 0) ns += ((x, y, z - 1))
-
-    if (x < dimX - 1) ns += ((x + 1, y, z))
-    if (y < dimY - 1) ns += ((x, y + 1, z))
-    if (z < dimZ - 1) ns += ((x, y, z + 1))
-    ns
-  }
+  def getNeighbours(x: Int, y: Int, z: Int) = 
+    Array3D.getNeighbours(x, y, z, dimX, dimY, dimZ)
 
   def hasNeighbourEqual[T](x: Int, y: Int, z: Int, v: T) = {
     var has = false
