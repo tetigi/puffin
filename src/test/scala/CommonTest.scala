@@ -30,17 +30,4 @@ class CommonTest extends FlatSpec with Matchers {
     clamp(1000, 0, 10) should be (10)
   }
 
-  val buff: ListBuffer[Int] = new ListBuffer()
-  val expected: ListBuffer[Int] = new ListBuffer()
-  buff.appendAll(List(1,2,3,4))
-
-  "repeatEachElem" should "repeat each element n times" in {
-    expected.appendAll(List(1,1,1,2,2,2,3,3,3,4,4,4))
-    repeatEachElem(buff, 3) should equal (expected)
-  }
-  
-  it should "work for n = 0" in {
-    expected.clear()
-    repeatEachElem(buff, 0) should equal (expected)
-  }
 }
