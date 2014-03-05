@@ -55,14 +55,6 @@ trait Quads extends RenderableBase {
   def getDims: (Int, Int, Int)
   def getPosition: Point
 
-  // Simple wrapper that passes through some functions and handles other special cases
-  private class PaddedArray3D[T: Manifest](val data: Array3D[T]) {
-    def get(x: Int, y: Int, z: Int) =
-      if (x < 0 || y < 0 || z < 0 || x >= data.dimX || y >= data.dimY || z >= data.dimZ) 0 else data.get(x, y, z)
-
-    def getNeighbours(x: Int, y: Int, z: Int) = data.getNeighbours(x, y, z)
-  }
-
   // I want this method to be spawned as a separate task
   private def createRawQuadData(opts: RenderOptions): RawQuadData = {
     var quadVerts: ListBuffer[Vector3f] = new ListBuffer()
@@ -71,9 +63,8 @@ trait Quads extends RenderableBase {
 
     val (worldX, worldY, worldZ) = World.size
 
-    val data = new PaddedArray3D(getData)
-    val (objX, objY, objZ) = getDims
-    val (dimX, dimY, dimZ) = (objX + 1, objY + 1, objZ + 1)
+    val data = Array3D.pad(getData)
+    val (dimX, dimY, dimZ) = data.getDims
     val position = getPosition
 
     val cells = 
@@ -156,9 +147,8 @@ trait Quads extends RenderableBase {
   }
 
   def getOcclusions(): Array3D[OccludeCell] = {
-    val (objX, objY, objZ) = getDims
-    val (dimX, dimY, dimZ) = (objX + 1, objY + 1, objZ + 1)
-    val data = getData
+    val data = Array3D.pad(getData)
+    val (dimX, dimY, dimZ) = data.getDims
     val occlusions = Array3D.initWith(dimX, dimY, dimZ, { () => new OccludeCell(0)})
 
     println("Getting occlusions for faces...")

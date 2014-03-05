@@ -6,6 +6,13 @@ import com.puffin.Common._
 
 object Array3D {
 
+  def pad[T: Manifest](data: Array3D[T]) = {
+    val ret = new Array3D(data.dimX + 2, data.dimY + 2, data.dimZ + 2)
+    for ((p, v) <- data.iteratorWithKey)
+      ret.put(p.x + 1, p.y + 1, p.z + 1, v)
+    ret
+  }
+
   def initWith[T: Manifest](dimSize: Int, constructor: () => T): Array3D[T] = {
     initWith(dimSize, dimSize, dimSize, constructor)
   }
@@ -17,22 +24,30 @@ object Array3D {
     data
   }
 
-  // Gets adjacent neighbours - assumes that x,y,z are in bounds
+  // Gets adjacent neighbours - x y and z can take any value
   def getNeighbours(x: Int, y: Int, z: Int, dimX: Int, dimY: Int, dimZ: Int) = {
     val ns: ListBuffer[(Int,Int,Int)] = new ListBuffer()
-    if (x > 0) ns += ((x - 1, y, z))
-    if (y > 0) ns += ((x, y - 1, z))
-    if (z > 0) ns += ((x, y, z - 1))
+    if (y >= 0 && z >= 0 && y < dimY && z < dimZ) {
+      if (x > 0 && x <= dimX ) ns += ((x - 1, y, z))
+      if (x >= -1 && x < dimX - 1) ns += ((x + 1, y, z))
+    }
 
-    if (x < dimX - 1) ns += ((x + 1, y, z))
-    if (y < dimY - 1) ns += ((x, y + 1, z))
-    if (z < dimZ - 1) ns += ((x, y, z + 1))
-    ns 
+    if (x >= 0 && z >= 0 && x < dimX && z < dimZ) {
+      if (y > 0 && y <= dimY ) ns += ((x, y - 1, z))
+      if (y >= -1 && y < dimY - 1) ns += ((x, y + 1, z))
+    }
+
+    if (y >= 0 && x >= 0 && y < dimY && x < dimX) {
+      if (z > 0 && z <= dimZ ) ns += ((x, y, z - 1))
+      if (z >= -1 && z < dimZ - 1) ns += ((x, y, z + 1))
+    }
+    ns
   }
 }
 
 class Array3D[@specialized(Int) T: Manifest] (val dimX: Int, val dimY: Int, val dimZ: Int) extends Iterable[T] {
   def this(dimSize: Int) = this(dimSize, dimSize, dimSize)
+  def getDims() = (dimX, dimY, dimZ)
 
   val elems = dimX * dimY * dimZ
   val data = new Array[T](elems)
@@ -61,15 +76,23 @@ class Array3D[@specialized(Int) T: Manifest] (val dimX: Int, val dimY: Int, val 
   def getNeighbours(x: Int, y: Int, z: Int) = 
     Array3D.getNeighbours(x, y, z, dimX, dimY, dimZ)
 
+  // x y and z can take any value
   def hasNeighbourEqual[T](x: Int, y: Int, z: Int, v: T) = {
     var has = false
-    if (x > 0) has = has || get(x - 1, y, z) == v
-    if (y > 0) has = has || get(x, y - 1, z) == v
-    if (z > 0) has = has || get(x, y, z - 1) == v
+    if (y >= 0 && z >= 0 && y < dimY && z < dimZ) {
+      if (x > 0 && x <= dimX) has = has || get(x - 1, y, z) == v
+      if (x >= -1 && x < dimX - 1) has = has || get(x + 1, y, z) == v
+    }
 
-    if (x < dimX - 1) has = has || get(x + 1, y, z) == v
-    if (y < dimY - 1) has = has || get(x, y + 1, z) == v
-    if (z < dimZ - 1) has = has || get(x, y, z + 1) == v
+    if (x >= 0 && z >= 0 && x < dimX && z < dimZ) {
+      if (y > 0 && y <= dimY) has = has || get(x, y - 1, z) == v
+      if (y >= -1 && y < dimY - 1) has = has || get(x, y + 1, z) == v
+    }
+
+    if (y >= 0 && x >= 0 && y < dimY && x < dimX) {
+      if (z > 0 && z <= dimZ) has = has || get(x, y, z - 1) == v
+      if (z >= -1 && z < dimZ - 1) has = has || get(x, y, z + 1) == v
+    }
     has
   }
 }

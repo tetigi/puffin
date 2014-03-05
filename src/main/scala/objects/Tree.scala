@@ -11,7 +11,7 @@ import com.puffin.context.BlockType
 
 class Tree(x: Int, y: Int, z: Int) extends SimpleObject {
   def this() = this(0, 0, 0)
-  var (dimX, dimY, dimZ) = (3, 4, 3)
+  var (dimX, dimY, dimZ) = (1, 3, 1)
   var data = new Array3D[Int](dimX, dimY, dimZ)
   val pos = new Point(x, y, z)
 
@@ -71,11 +71,11 @@ class Tree(x: Int, y: Int, z: Int) extends SimpleObject {
 
   def update() {
     usedPoints.clear()
-    dimY = height + 1
+    dimY = height
     // Redraw the tree
     data = new Array3D[Int](dimX, dimY, dimZ)
     for (i <- 0 until height)
-      data.put(1, i, 1, 1)
+      data.put(0, i, 0, 1)
     for (i <- 0 until height) usedPoints += new Point(0, i, 0) + pos
     requiresRefresh = true
   }

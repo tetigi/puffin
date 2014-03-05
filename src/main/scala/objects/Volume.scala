@@ -25,7 +25,7 @@ class Volume(val dimX: Int, val dimY: Int, val dimZ: Int) extends SimpleObject {
   def fillRandom(p: Double = 0.5) {
     //Pick random cells to fill
     val fill = 
-      (for ((x, y, z) <- xyzIn(1, dimX-1, dimY-1, dimZ-1))
+      (for ((x, y, z) <- xyzIn(0, dimX, dimY, dimZ))
         yield (x, y, z, random)) filter { _._4 <= clamp(p, 0, 1) }
     fill map { x => put(x._1, x._2, x._3, 1); usedPoints += new Point(x._1, x._2, x._3) + getPosition  }
     ()
@@ -34,7 +34,7 @@ class Volume(val dimX: Int, val dimY: Int, val dimZ: Int) extends SimpleObject {
   def fillSimplexNoise(lim: Double) {
     val fill = 
       (for {
-        (x, y, z) <- xyzIn(1, dimX-1, dimY-1, dimZ-1)
+        (x, y, z) <- xyzIn(0, dimX, dimY, dimZ)
         nx = x.toFloat / dimX.toFloat
         ny = y.toFloat / dimY.toFloat
         nz = z.toFloat / dimZ.toFloat
@@ -46,7 +46,7 @@ class Volume(val dimX: Int, val dimY: Int, val dimZ: Int) extends SimpleObject {
   def fillSmallHills() {
     val fill = 
       (for {
-        (x, z) <- xzIn(1, dimX-1, dimZ-1)
+        (x, z) <- xzIn(0, dimX, dimZ)
         nx = x.toFloat / dimX.toFloat
         nz = z.toFloat / dimZ.toFloat
       } yield (x, dimY/2 + round(SimplexNoise.simplexNoise(3, nx, nz)).toInt, z))
@@ -57,7 +57,7 @@ class Volume(val dimX: Int, val dimY: Int, val dimZ: Int) extends SimpleObject {
     println("Filling with floating rock...")
     var progress = 0
     for {
-        (x, y, z) <- xyzIn(1, dimX-1, dimY-1, dimZ-1)
+        (x, y, z) <- xyzIn(0, dimX, dimY, dimZ)
         xf = x.toFloat / dimX.toFloat
         yf = y.toFloat / dimY.toFloat
         zf = z.toFloat / dimZ.toFloat
@@ -90,7 +90,7 @@ class Volume(val dimX: Int, val dimY: Int, val dimZ: Int) extends SimpleObject {
     println("Filling with island...")
     var progress = 0
     for {
-        (x, y, z) <- xyzIn(1, dimX-1, dimY-1, dimZ-1)
+        (x, y, z) <- xyzIn(0, dimX, dimY, dimZ)
         xf = x.toFloat / dimX.toFloat
         yf = y.toFloat / dimY.toFloat
         zf = z.toFloat / dimZ.toFloat
@@ -118,5 +118,4 @@ class Volume(val dimX: Int, val dimY: Int, val dimZ: Int) extends SimpleObject {
     }
     println("...Done!")
   }
-
 }
