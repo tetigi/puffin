@@ -25,6 +25,12 @@ object Common {
         this.z == that.z
       case _ => false
     }
+
+    def set(that: Point) {
+      this.x = that.x
+      this.y = that.y
+      this.z = that.z
+    }
   }
 
   def clamp(x: Int, ulim: Int) = 

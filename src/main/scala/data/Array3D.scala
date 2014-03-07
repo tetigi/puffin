@@ -95,4 +95,9 @@ class Array3D[@specialized(Int) T: Manifest] (val dimX: Int, val dimY: Int, val 
     }
     has
   }
+
+  def copy(that: Array3D[T]) {
+    for ((x, y, z) <- xyzIn(0, dimX, dimY, dimZ))
+      this.put(x, y, z, that.get(x, y, z))
+  }
 }

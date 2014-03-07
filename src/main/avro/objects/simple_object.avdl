@@ -1,0 +1,25 @@
+@namespace("com.puffin.avro.objects")
+protocol SimpleObject {
+  enum ObjectType {
+    TREE,
+    VOLUME
+  }
+
+  record SimpleObject {
+    ObjectType type;
+    Position position;
+    array<Point> points;
+  }
+
+  record Point {
+    int x;
+    int y;
+    int z;
+  }
+
+  record Position {
+    float x;
+    float y;
+    float z;
+  }
+}

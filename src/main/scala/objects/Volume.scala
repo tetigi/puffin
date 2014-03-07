@@ -2,12 +2,32 @@ package com.puffin.objects
 
 import scala.math._
 import scala.collection.mutable.ListBuffer
-import scala.collection.mutable.HashSet
+import scala.collection.mutable.{ HashSet, HashMap}
 
 import com.puffin.Common._
 import com.puffin.render.Quads
 import com.puffin.simplex.SimplexNoise
 import com.puffin.data.Array3D
+import com.puffin.avro.objects.InflateableSimpleObject
+
+object Volume extends InflateableSimpleObject[Volume] {
+  def deflate(obj: Volume): com.puffin.avro.objects.SimpleObject = {
+    val metadata = new HashMap[String, String]()
+
+    com.puffin.avro.objects.SimpleObject(
+      com.puffin.avro.objects.ObjectType.VOLUME,
+      obj.getPosition,
+      obj.getUsedPoints.toSeq,
+      metadata.toMap)
+  }
+  def inflate(obj: com.puffin.avro.objects.SimpleObject): Volume = {
+    val data = rebuildData(obj.points)
+    val volume = new Volume(data.dimX, data.dimY, data.dimZ)
+    volume.data.copy(data)
+    volume.usedPoints ++= obj.points
+    volume
+  }
+}
 
 class Volume(val dimX: Int, val dimY: Int, val dimZ: Int) extends SimpleObject { 
   def this(dim: Int) = this(dim, dim, dim)
@@ -22,7 +42,7 @@ class Volume(val dimX: Int, val dimY: Int, val dimZ: Int) extends SimpleObject {
   }
 
   def getDims = (dimX, dimY, dimZ)
-  var usedPoints: HashSet[Point] = new HashSet()
+  val usedPoints: HashSet[Point] = new HashSet()
   def getUsedPoints = usedPoints
   def getData = data
   def getPosition = new Point(-dimX/2, -dimY/2, -dimZ/2)

@@ -2,12 +2,36 @@ package com.puffin.objects
 
 import scala.math._
 import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.HashMap
 
 import com.puffin.data.Array3D
 import com.puffin.Common.Point
 import com.puffin.render.Quads
 import com.puffin.context.World
 import com.puffin.context.BlockType
+import com.puffin.avro.objects.InflateableSimpleObject
+
+object Tree extends InflateableSimpleObject[Tree] {
+  def deflate(obj: Tree): com.puffin.avro.objects.SimpleObject = {
+    val metadata = new HashMap[String, String]()
+    metadata.put("height", obj.height.toString)
+
+    com.puffin.avro.objects.SimpleObject(
+      com.puffin.avro.objects.ObjectType.TREE,
+      obj.getPosition,
+      obj.getUsedPoints,
+      metadata.toMap)
+  }
+
+  def inflate(obj: com.puffin.avro.objects.SimpleObject): Tree = {
+    val data = rebuildData(obj.points)
+    val tree = new Tree()
+    tree.data.copy(data)
+    tree.pos.set(obj.position)
+    tree.usedPoints ++= obj.points
+    tree
+  }
+}
 
 class Tree(x: Int, y: Int, z: Int) extends SimpleObject {
   def this() = this(0, 0, 0)
