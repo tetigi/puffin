@@ -7,7 +7,7 @@ import scala.math._
 import scala.collection.mutable.ListBuffer
 
 object Common {
-  class Point(var x: Int, var y: Int, var z: Int) {
+  case class Point(var x: Int, var y: Int, var z: Int) {
     def this() = this(0, 0, 0)
     def this(p: Tuple3[Int, Int, Int]) = this(p._1, p._2, p._3)
 

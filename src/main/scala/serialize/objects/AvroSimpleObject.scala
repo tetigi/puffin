@@ -31,10 +31,19 @@ object SimpleObjectInflater {
   def inflateFile(filename: String): com.puffin.objects.SimpleObject = {
     val input = new java.io.FileInputStream(filename)
     val readObject = io read input
-    readObject match {
+    val out = readObject match {
       case Success(obj) => readSimpleObject(obj)
       case _ => throw new java.io.IOException("Could not read object from " + filename)
     }
+    input.close()
+    out
+  }
+
+  def deflateObj[T <: com.puffin.objects.SimpleObject](obj: T, deflater: InflateableSimpleObject[T], outfile: String) {
+    val output = new java.io.FileOutputStream(outfile)
+    io.write(deflater.deflate(obj), output)
+    output.flush()
+    output.close()
   }
 
   def readSimpleObject(obj: SimpleObject): com.puffin.objects.SimpleObject = {
@@ -52,10 +61,10 @@ trait InflateableSimpleObject[T <: com.puffin.objects.SimpleObject] {
   def rebuildData(points: Seq[Point]): Array3D[Int] = {
     val (minX, minY, minZ) = (points.map(_.x).min, points.map(_.y).min, points.map(_.z).min)
     val (maxX, maxY, maxZ) = (points.map(_.x).max, points.map(_.y).max, points.map(_.z).max)
-    val (dimX, dimY, dimZ) = (maxX - minX, maxY - minY, maxZ - minZ)
+    val (dimX, dimY, dimZ) = (maxX - minX + 1, maxY - minY + 1, maxZ - minZ + 1)
     val data = new Array3D[Int](dimX, dimY, dimZ)
     for (p <- points)
-      data.put(p.x + minX, p.y + minY, p.z + minZ, 1)
+      data.put(p.x - minX, p.y - minY, p.z - minZ, 1)
     data
   }
 }
