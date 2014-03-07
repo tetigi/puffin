@@ -18,13 +18,10 @@ class Generation extends PuffinApp {
     //val volume = VolumeGenerator.genVolumeFromBitmaps("resources/sphere.bmp", "resources/sphere.bmp")
     val faces = 
       new HashMap() ++ 
-        List("front" -> "resources/sphere.bmp", 
-             "back" -> "resources/sphere.bmp",
-             "left" -> "resources/sphere.bmp", 
-             "right" -> "resources/sphere.bmp", 
-             "top" -> "resources/sphere.bmp", 
-             "bottom" -> "resources/sphere.bmp")
-    val volume = VolumeGenerator.genVolumeFromBitmaps2(faces)
+        List("front" -> "resources/thing_front.bmp", 
+             "left" -> "resources/thing_left.bmp", 
+             "top" -> "resources/thing_top.bmp")
+    val volume = VolumeGenerator.genVolumeFromBitmaps(faces)
     World.putThing(volume)
 
     World.entity.moveToCell(0, 10, 20)
