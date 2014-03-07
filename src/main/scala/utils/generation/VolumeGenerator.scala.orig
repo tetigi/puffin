@@ -1,27 +1,31 @@
 package com.puffin.utils.generation
 
+<<<<<<< HEAD
+=======
 import scala.collection.mutable.HashMap
 
 import java.io.IOException
 
+>>>>>>> Trying a new method of volume generation
 import com.puffin.Common._
 import com.puffin.objects.Volume
 
 object VolumeGenerator {
-  val RGB_WHITE = -1
-
   def genVolumeFromBitmap(filename: String): Volume = {
     val bmp = BitmapReader.readBitmapFile(filename)
     // Going to pad the volume by 1 on each side so the whole thing renders
     val (sizeX, sizeY, sizeZ) = (bmp.getWidth(), bmp.getHeight(), 1)
     val vol = new Volume(sizeX + 2, sizeY + 2, sizeZ + 2)
 
+    val RGB_WHITE = -1
 
     // Bitmap starts from topleft, whereas volume starts from bottom right, so need to account for that
     for ((x,y) <- xzIn(0, sizeX, sizeY) if (bmp.getRGB(x, y) != RGB_WHITE)) vol.put(sizeX - x, sizeY - y, 1, 1)
       
     vol
   }
+<<<<<<< HEAD
+=======
 
   def genVolumeFromBitmaps(frontFile: String, leftFile: String): Volume = {
     val front = BitmapReader.readBitmapFile(frontFile)
@@ -81,7 +85,7 @@ object VolumeGenerator {
     vol
   }
 
-  // Going for an 'errosion' approach
+  // Going for an 'erosion' approach
   def genVolumeFromBitmaps2(faces: Map[String, String]): Volume = {
     if (!List("front", "back", "left", "right", "top", "bottom")
         .map(faces.contains(_))
@@ -106,20 +110,10 @@ object VolumeGenerator {
     for ((x, y) <- xzIn(0, sizeX, sizeY))
       if (front.getRGB(x, y) == RGB_WHITE)
         for (z <- 0 until sizeZ)
-          vol.put(x, y, z, 0)
-
-    // Carve out the left
-    for ((z, y) <- xzIn(0, sizeZ, sizeY))
-      if (left.getRGB(z, y) == RGB_WHITE)
-        for (x <- 0 until sizeX)
-          vol.put(x, y, z, 0)
-
-    // Carve out the top
-    for ((x, z) <- xzIn(0, sizeX, sizeZ))
-      if (top.getRGB(x, z) == RGB_WHITE)
-        for (y <- 0 until sizeY)
-          vol.put(x, y, z, 0)
+          //vol.put(x, y, z, 0)
+          println("haha")
 
     vol
   }
+>>>>>>> Trying a new method of volume generation
 }
