@@ -6,6 +6,8 @@ scalaVersion := "2.10.3"
 
 unmanagedResourceDirectories in Compile += baseDirectory.value / "src/main/shaders"
 
+unmanagedResourceDirectories in Compile += baseDirectory.value / "resources"
+
 libraryDependencies += "org.lwjgl.lwjgl" % "lwjgl" % "2.9.1"
 
 libraryDependencies += "org.lwjgl.lwjgl" % "lwjgl_util" % "2.9.0"

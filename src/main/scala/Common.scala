@@ -16,6 +16,15 @@ object Common {
     def toTupleF = (x.toFloat, y.toFloat, z.toFloat)
     def +(that: Point) =
       new Point(this.x + that.x, this.y + that.y, this.z + that.z)
+
+    override def hashCode = 41 * (41 * (41 + x) + y) + z
+    override def equals(other : Any) : Boolean = other match {
+      case that : Point => 
+        this.x == that.x &&
+        this.y == that.y &&
+        this.z == that.z
+      case _ => false
+    }
   }
 
   def clamp(x: Int, ulim: Int) = 
@@ -36,6 +45,9 @@ object Common {
 
   def xzIn(start: Int, endX: Int, endZ: Int): IndexedSeq[Tuple2[Int, Int]] =
     for (x <- start until endX; z <- start until endZ) yield (x, z)
+
+  def xzIn(startX: Int, startZ: Int, endX: Int, endZ: Int): IndexedSeq[Tuple2[Int, Int]] = 
+    for (x <- startX until endX; z <- startZ until endZ) yield (x, z)
 
   def xyzIn(start: Int, end: Int): IndexedSeq[Tuple3[Int, Int, Int]] = xyzIn(start, end, end, end)
 
