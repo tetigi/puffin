@@ -16,6 +16,15 @@ object Common {
     def toTupleF = (x.toFloat, y.toFloat, z.toFloat)
     def +(that: Point) =
       new Point(this.x + that.x, this.y + that.y, this.z + that.z)
+
+    override def hashCode = 41 * (41 * (41 + x) + y) + z
+    override def equals(other : Any) : Boolean = other match {
+      case that : Point => 
+        this.x == that.x &&
+        this.y == that.y &&
+        this.z == that.z
+      case _ => false
+    }
   }
 
   def clamp(x: Int, ulim: Int) = 
