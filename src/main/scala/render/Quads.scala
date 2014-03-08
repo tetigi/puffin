@@ -79,7 +79,7 @@ trait Quads extends RenderableBase {
     for {
       (x, y, z) <- xyzIn(0, dimX, dimY, dimZ)
       } {
-        if (progress % (dimX*dimY*dimZ/10) == 0) 
+        if (progress % max(1, dimX*dimY*dimZ/10) == 0) 
           println(s"${progress*100/(dimX*dimY*dimZ)}% complete...")
         progress += 1
         if (data.get(x,y,z) == 0) {
@@ -149,6 +149,7 @@ trait Quads extends RenderableBase {
   def getOcclusions(): Array3D[OccludeCell] = {
     val data = Array3D.pad(getData)
     val (dimX, dimY, dimZ) = data.getDims
+    println(data.getDims)
     val occlusions = Array3D.initWith(dimX, dimY, dimZ, { () => new OccludeCell(0)})
 
     println("Getting occlusions for faces...")
@@ -159,7 +160,7 @@ trait Quads extends RenderableBase {
     while (x < dimX) { y = 0
       while (y < dimY) { z = 0
         while (z < dimZ) { 
-          if (progress % (dimZ*dimY*dimZ/10) == 0) 
+          if (progress % max(1, dimZ*dimY*dimZ/10) == 0) 
             println(s"${progress*100/(dimX*dimY*dimZ)}% complete...")
           progress += 1
           val value = data.get(x, y, z)
@@ -178,8 +179,8 @@ trait Quads extends RenderableBase {
                   if (xoff < 0 || xoff >= dimX) break
                   else if (yoff < 0 || yoff >= dimY) break
                   else if (zoff < 0 || zoff >= dimZ) break
-                  else if (data.get(xoff, yoff, zoff) != 0) {
-                  //else if (World.getOccupiedRelative(this, xoff, yoff, zoff)) {
+                  //else if (data.get(xoff, yoff, zoff) != 0) {
+                  else if (World.getOccupiedRelative(this, xoff - 1, yoff - 1, zoff - 1)) {
                     collided = true
                     break
                   }
@@ -254,7 +255,7 @@ object QuadUtils {
 }
 
 class Sample() {
-  val RAY_COUNT = 2056
+  val RAY_COUNT = 128
   var left, right, top, bottom, front, back = 0f
   val rays = List.fill(RAY_COUNT)(new Ray()) 
 
@@ -281,7 +282,7 @@ class Sample() {
 }
 
 class Ray() {
-  val POINT_COUNT = 256
+  val POINT_COUNT = 32
   var left, right, top, bottom, front, back = 0f
   val points: ListBuffer[Offset] = new ListBuffer()
 

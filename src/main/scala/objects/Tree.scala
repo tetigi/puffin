@@ -19,7 +19,7 @@ object Tree extends InflateableSimpleObject[Tree] {
     com.puffin.avro.objects.SimpleObject(
       com.puffin.avro.objects.ObjectType.TREE,
       obj.getPosition,
-      obj.getUsedPoints,
+      obj.getUsedPoints.toSeq,
       metadata.toMap)
   }
 
@@ -41,7 +41,7 @@ class Tree(x: Int, y: Int, z: Int) extends SimpleObject {
 
   def getData = data
   val usedPoints: ListBuffer[Point] = new ListBuffer()
-  def getUsedPoints = usedPoints
+  def getUsedPoints = usedPoints map (_ + getPosition)
   def getDims = (dimX, dimY, dimZ)
 
   def getPosition = pos
@@ -66,6 +66,7 @@ class Tree(x: Int, y: Int, z: Int) extends SimpleObject {
     dimY = 38
     dimZ = 38
     data = new Array3D[Int](dimX, dimY, dimZ)
+    usedPoints.clear()
     // Fill trunk
     val offset = 16
     for (i <- 0 until 16) {
@@ -73,6 +74,7 @@ class Tree(x: Int, y: Int, z: Int) extends SimpleObject {
       for (j <- offset until (offset + 3)) {
         for (k <- offset until (offset + 3)) {
           data.put(j, i, k, 1)
+          usedPoints += Point(j, i, k)
         }
       }
     }
@@ -80,7 +82,10 @@ class Tree(x: Int, y: Int, z: Int) extends SimpleObject {
     for (i <- 16 until 28) {
       for (j <- offset - 12 to offset + 12) {
         for (k <- offset - 12 to offset + 12) {
-          if (random < 0.7) data.put(j, i, k, 1)
+          if (random < 0.7) {
+            data.put(j, i, k, 1)
+            usedPoints += Point(j, i, k)
+          }
         }
       }
     }
@@ -90,6 +95,9 @@ class Tree(x: Int, y: Int, z: Int) extends SimpleObject {
       data.put(offset-3, i, offset+6, 1)
       data.put(offset-3, i, offset-3, 1)
       data.put(offset+3, i, offset+5, 1)
+      usedPoints += Point(offset-3, i, offset+6)
+      usedPoints += Point(offset-3, i, offset-3)
+      usedPoints += Point(offset+3, i, offset+5)
     }
   }
 
@@ -100,7 +108,7 @@ class Tree(x: Int, y: Int, z: Int) extends SimpleObject {
     data = new Array3D[Int](dimX, dimY, dimZ)
     for (i <- 0 until height)
       data.put(0, i, 0, 1)
-    for (i <- 0 until height) usedPoints += new Point(0, i, 0) + pos
+    for (i <- 0 until height) usedPoints += new Point(0, i, 0)
     requiresRefresh = true
   }
 

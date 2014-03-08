@@ -8,7 +8,7 @@ object Map3D {
   }
 }
 
-class Map3D[T: Manifest] (val default: () => T) {
+class Map3D[@specialized(Int) T: Manifest] (val default: () => T) {
   def this() = this(null)
   val data: HashMap[Tuple3[Int, Int, Int], T] = new HashMap()
 

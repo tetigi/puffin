@@ -7,6 +7,7 @@ import scala.math.round
 import com.puffin.Common._
 import com.puffin.objects.SimpleObject
 import com.puffin.data.Map3D
+import com.puffin.data.Set3D
 import com.puffin.context.BlockType.BlockType
 import com.puffin.render.Quads
 import com.puffin.utils._
@@ -16,6 +17,7 @@ object World {
   val air = new Block(BlockType.AIR)
   val size = (200, 200, 200)
   val blocks = Map3D.mapWithDefault({ () => air})
+  val occupied = new Set3D()
 
   var model: Model = null
   var entity: Entity = null
@@ -23,7 +25,9 @@ object World {
   val things = new ListBuffer[SimpleObject]()
 
   //def getData = blocks.map({ b: Block => if (b.blockType == BlockType.AIR) 0 else 1 })
+  @inline
   def cam2cell(x: Float, y: Float, z: Float) = (round(x*size._1), round(y*size._2), round(z*size._3))
+  @inline
   def cell2cam(x: Int, y: Int, z: Int) = (x.toFloat/size._1, y.toFloat/size._1, z.toFloat/size._1)
 
   val halfBlock: Float = 1f/(2*size._1)
@@ -38,7 +42,11 @@ object World {
   }
 
   def get(x: Int, y: Int, z: Int): Block = blocks.get(x, y, z)
-  def put(x: Int, y: Int, z: Int, b: Block) = blocks.put(x, y, z, b)
+  def put(x: Int, y: Int, z: Int, b: Block) {
+    blocks.put(x, y, z, b)
+    if (b.blockType != BlockType.AIR) 
+      occupied.add(x, y, z)
+  }
 
   def getEntityCell() = cam2cell(entity.pos.x, entity.pos.y, entity.pos.z)
 
@@ -52,13 +60,12 @@ object World {
   def getOccupiedRelative(thing: Quads, x: Int, y: Int, z: Int): Boolean = {
     val p = thing.getPosition
     val (rx, ry, rz) = (p.x + x, p.y + y, p.z + z)  
-    getRelative(thing, x, y, z).blockType != BlockType.AIR ||
-      (rx, ry, rz) == getEntityCell()
+    getOccupied(rx, ry, rz)
   }
   
   def getOccupied(x: Int, y: Int, z: Int): Boolean = {
-    get(x, y, z).blockType != BlockType.AIR ||
-      (x, y, z) == getEntityCell()
+    occupied.contains(x, y, z)//||
+      //(x, y, z) == getEntityCell()
   }
 
   def renderWorld() {

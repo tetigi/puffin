@@ -27,7 +27,7 @@ class Generation extends PuffinApp {
     */
     val treeVol = SimpleObjectInflater.inflateFile("resources/tree.avro")
     val sphereVol = SimpleObjectInflater.inflateFile("resources/sphere.avro")
-    sphereVol.getPosition.set(new Point(-10, 0, -5))
+    sphereVol.getPosition.set(new Point(-10, 0, -10))
     treeVol.getPosition.set(new Point(10, 0, -5))
     World.putThing(treeVol)
     World.putThing(sphereVol)
@@ -39,9 +39,9 @@ class Generation extends PuffinApp {
 }
 
 object Generation {
-  def main(args : Array[String]) = {
-    val app = new Generation()
-    app.start()
-  }
+  //def main(args : Array[String]) = {
+  //  val app = new Generation()
+  //  app.start()
+  //}
 }
 
