@@ -25,6 +25,7 @@ object Volume extends InflateableSimpleObject[Volume] {
     val volume = new Volume(data.dimX, data.dimY, data.dimZ)
     volume.data.copy(data)
     volume.usedPoints ++= obj.points
+    volume.position.set(obj.position)
     volume
   }
 }
@@ -43,9 +44,10 @@ class Volume(val dimX: Int, val dimY: Int, val dimZ: Int) extends SimpleObject {
 
   def getDims = (dimX, dimY, dimZ)
   val usedPoints: HashSet[Point] = new HashSet()
+  val position = new Point(-dimX/2, -dimY/2, -dimZ/2)
   def getUsedPoints = usedPoints
   def getData = data
-  def getPosition = new Point(-dimX/2, -dimY/2, -dimZ/2)
+  def getPosition = position
 
   def tick {}
 
