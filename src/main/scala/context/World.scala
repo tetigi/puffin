@@ -69,10 +69,7 @@ object World {
   }
 
   def renderWorld() {
-    things.map(_.render())
-  }
-  def renderWorld(opts: RenderOptions) {
-    things.map(_.render(opts))
+    things.map(_.render(Context.opts))
   }
 
   def tickWorld() {

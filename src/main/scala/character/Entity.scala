@@ -9,6 +9,7 @@ import scala.math._
 import com.puffin.Common._
 import com.puffin.utils.Camera
 import com.puffin.context.World
+import com.puffin.context.Context
 
 object Entity {
   def controlCycle(entity: Entity) {
@@ -26,14 +27,20 @@ object Entity {
           case Keyboard.KEY_S => entity.goBackwards()//moveForward(-posDelta)
           case Keyboard.KEY_D => entity.goRight()//moveLateral(posDelta)
           case Keyboard.KEY_SPACE => entity.toggleNoclip()
-
-          case _ => ()
+          case k: Int => systemCommands(k)
         }
       }
     }
     if (Mouse.isButtonDown(0)) {
       entity.lookLat(toRadiansF(Mouse.getDX()/6f))
       entity.lookLng(toRadiansF(-Mouse.getDY()/6f))
+    }
+  }
+
+  def systemCommands(key: Int) {
+    key match {
+      case Keyboard.KEY_Q => Context.opts.statusEnabled = !Context.opts.statusEnabled
+      case _ => ()
     }
   }
 }

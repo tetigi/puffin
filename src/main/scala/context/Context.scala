@@ -1,6 +1,7 @@
 package com.puffin.context
 
 import com.puffin.utils.Matrices
+import com.puffin.Common._
 
 object Context {
   var vaoId = 0
@@ -17,4 +18,6 @@ object Context {
 
   var debug = false
   var matrices: Matrices = null
+
+  var opts = new RenderOptions()
 }

@@ -115,8 +115,13 @@ object Common {
 
   class RenderOptions() {
     var occlusionEnabled = true
+    var statusEnabled = false
 
-    def setOcclusionEnabled(b: Boolean) = {
+    def setStatusEnabled(b: Boolean) {
+      statusEnabled = b
+    }
+
+    def setOcclusionEnabled(b: Boolean) {
       occlusionEnabled = b
     }
 

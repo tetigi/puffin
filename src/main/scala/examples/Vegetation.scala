@@ -15,8 +15,8 @@ class Vegetation extends PuffinApp {
     // Turn off swiveling
     rotateOn = false
 
-    volume.fillSimplexNoise(1.1)
-    //volume.fillSmallHills()
+    //volume.fillSimplexNoise(1.1)
+    volume.fillSmallHills()
     World.putThing(volume)
     //World.putThing(plane)
 

@@ -81,7 +81,7 @@ package object utils {
     val fieldOfView = 80f
     val aspectRatio = width.toFloat / height.toFloat
     val nearPlane = 0.001f
-    val farPlane = 100f
+    val farPlane = 5f
 
     def cotan(x: Double) = 1.0 / tan(x)
     val top = nearPlane * tan((Pi / 180) * fieldOfView / 2f).toFloat

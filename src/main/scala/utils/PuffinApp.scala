@@ -8,7 +8,9 @@ import com.puffin.Common._
 import com.puffin.utils.ShaderUtils._
 import com.puffin.utils._
 import com.puffin.context.World
+import com.puffin.context.Context
 import com.puffin.character.Entity
+import com.puffin.character.HUD
 
 trait PuffinApp {
   // The array containing volume data
@@ -16,13 +18,12 @@ trait PuffinApp {
   val WIDTH = 1024
   val HEIGHT = 768
 
-  val opts = new RenderOptions()
   var rotateOn = true
 
   def setupWorld(): Unit
 
   def init() {
-    opts.setOcclusionEnabled(true)
+    Context.opts.setOcclusionEnabled(true)
 
     // Setup input
     Keyboard.enableRepeatEvents(true)
@@ -57,7 +58,9 @@ trait PuffinApp {
     // Set all the matrices
     storeMatrices()
     // Get quads and render them
-    World.renderWorld(opts)
+    World.renderWorld()
+    if (Context.opts.statusEnabled)
+      HUD.render()
   }
 
   def logicCycle() = {
