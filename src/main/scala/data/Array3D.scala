@@ -64,7 +64,7 @@ class Array3D[@specialized(Int) T: Manifest] (val dimX: Int, val dimY: Int, val 
   def iterator = (for ((x, y, z) <- xyzIn(0, dimX, dimY, dimZ)) yield get(x, y, z)).iterator
 
   def iteratorWithKey = 
-    (for ((x, y, z) <- xyzIn(0, dimX, dimY, dimZ)) yield (new Point(x, y, z), get(x, y, z))).iterator
+    (for ((x, y, z) <- xyzIn(0, dimX, dimY, dimZ)) yield (new Point3(x, y, z), get(x, y, z))).iterator
 
   // Returns a new Array3D
   def map[U: Manifest](f: T => U) = {

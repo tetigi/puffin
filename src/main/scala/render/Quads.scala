@@ -51,9 +51,9 @@ trait Quads extends RenderableBase {
   }
 
   def getData: Array3D[Int]
-  def getUsedPoints: Iterable[Point]
+  def getUsedPoints: Iterable[Point3]
   def getDims: (Int, Int, Int)
-  def getPosition: Point
+  def getPosition: Point3
 
   // I want this method to be spawned as a separate task
   private def createRawQuadData(opts: RenderOptions): RawQuadData = {

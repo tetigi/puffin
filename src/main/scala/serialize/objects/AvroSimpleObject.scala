@@ -6,7 +6,7 @@ import com.gensler.scalavro.io.AvroTypeIO
 import scala.collection.mutable.{Set, HashSet}
 import scala.util.Success
 
-import com.puffin.Common.Point
+import com.puffin.Common.Point3
 import com.puffin.objects._
 import com.puffin.data.Array3D
 
@@ -19,8 +19,8 @@ import ObjectType._
 
 case class SimpleObject(
   objectType: ObjectType, 
-  position: Point,
-  points: Seq[Point],
+  position: Point3,
+  points: Seq[Point3],
   metadata: Map[String, String]
 )
 
@@ -58,7 +58,7 @@ trait InflateableSimpleObject[T <: com.puffin.objects.SimpleObject] {
   def deflate(obj: T): SimpleObject
   def inflate(obj: SimpleObject): T
 
-  def rebuildData(points: Seq[Point]): Array3D[Int] = {
+  def rebuildData(points: Seq[Point3]): Array3D[Int] = {
     val (minX, minY, minZ) = (points.map(_.x).min, points.map(_.y).min, points.map(_.z).min)
     val (maxX, maxY, maxZ) = (points.map(_.x).max, points.map(_.y).max, points.map(_.z).max)
     val (dimX, dimY, dimZ) = (maxX - minX + 1, maxY - minY + 1, maxZ - minZ + 1)

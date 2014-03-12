@@ -22,26 +22,26 @@ object Common {
     }
   }
 
-  case class Point(var x: Int, var y: Int, var z: Int) {
+  case class Point3(var x: Int, var y: Int, var z: Int) {
     def this() = this(0, 0, 0)
     def this(p: Tuple3[Int, Int, Int]) = this(p._1, p._2, p._3)
 
     def toVector3f = new Vector3f(x.toFloat, y.toFloat, z.toFloat)
     def toTuple = (x, y, z)
     def toTupleF = (x.toFloat, y.toFloat, z.toFloat)
-    def +(that: Point) =
-      new Point(this.x + that.x, this.y + that.y, this.z + that.z)
+    def +(that: Point3) =
+      new Point3(this.x + that.x, this.y + that.y, this.z + that.z)
 
     override def hashCode = 41 * (41 * (41 + x) + y) + z
     override def equals(other : Any) : Boolean = other match {
-      case that : Point => 
+      case that : Point3 => 
         this.x == that.x &&
         this.y == that.y &&
         this.z == that.z
       case _ => false
     }
 
-    def set(that: Point) {
+    def set(that: Point3) {
       this.x = that.x
       this.y = that.y
       this.z = that.z

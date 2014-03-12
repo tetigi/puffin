@@ -76,7 +76,7 @@ object World {
     things.clone().map(_.tick())
   }
 
-  def occludeBlocks(ps: Iterable[Point]) {
+  def occludeBlocks(ps: Iterable[Point3]) {
     for (p <- ps) {
       // TODO Do the occlusion in world-space then
       // assign the new occlusion values to the objects responsible
