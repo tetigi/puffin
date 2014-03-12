@@ -5,7 +5,6 @@ import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.{ HashSet, HashMap}
 
 import com.puffin.Common._
-import com.puffin.render.Quads
 import com.puffin.simplex.SimplexNoise
 import com.puffin.data.Array3D
 import com.puffin.avro.objects.InflateableSimpleObject

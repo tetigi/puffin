@@ -6,7 +6,6 @@ import scala.collection.mutable.HashMap
 
 import com.puffin.data.Array3D
 import com.puffin.Common.Point3
-import com.puffin.render.Quads
 import com.puffin.context.World
 import com.puffin.context.BlockType
 import com.puffin.avro.objects.InflateableSimpleObject

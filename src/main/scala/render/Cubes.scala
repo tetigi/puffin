@@ -27,7 +27,7 @@ import com.puffin.Common._
 import com.puffin.data.Array3D
 import com.puffin.utils.Model
 
-trait Quads extends RenderableBase {
+trait Cubes extends RenderableBase {
   var rawQuadCache: RawQuadData = new RawQuadData()
 
   var refreshPending = false
@@ -180,7 +180,7 @@ trait Quads extends RenderableBase {
                   else if (yoff < 0 || yoff >= dimY) break
                   else if (zoff < 0 || zoff >= dimZ) break
                   //else if (data.get(xoff, yoff, zoff) != 0) {
-                  else if (World.getOccupiedRelative(this, xoff - 1, yoff - 1, zoff - 1)) {
+                  else if (World.getOccupiedRelative(this.getPosition, xoff - 1, yoff - 1, zoff - 1)) {
                     collided = true
                     break
                   }

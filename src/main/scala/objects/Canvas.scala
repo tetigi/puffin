@@ -6,7 +6,7 @@ import com.puffin.Common.Point2
 trait Canvas {
   type RGB = (Int, Int, Int)
   // Single pixel putters and getters
-  def getPixel(x: Int, y: Int): RGB
+  def getPixel(x: Int, y: Int): Option[RGB]
   def putPixel(x: Int, y: Int, rgb: RGB): Unit
 
   // More complex drawing operations

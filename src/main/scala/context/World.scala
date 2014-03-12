@@ -9,7 +9,6 @@ import com.puffin.objects.SimpleObject
 import com.puffin.data.Map3D
 import com.puffin.data.Set3D
 import com.puffin.context.BlockType.BlockType
-import com.puffin.render.Quads
 import com.puffin.utils._
 import com.puffin.character.Entity
 
@@ -50,15 +49,20 @@ object World {
 
   def getEntityCell() = cam2cell(entity.pos.x, entity.pos.y, entity.pos.z)
 
-  def getRelative(thing: Quads, x: Int, y: Int, z: Int): Block = {
+  def getRelative(thing: SimpleObject, x: Int, y: Int, z: Int): Block = {
     val p = thing.getPosition
     val (rx, ry, rz) = (p.x + x, p.y + y, p.z + z)  
     //TODO Should probably check for OOB
     get(rx, ry, rz)
   }
 
-  def getOccupiedRelative(thing: Quads, x: Int, y: Int, z: Int): Boolean = {
+  def getOccupiedRelative(thing: SimpleObject, x: Int, y: Int, z: Int): Boolean = {
     val p = thing.getPosition
+    val (rx, ry, rz) = (p.x + x, p.y + y, p.z + z)  
+    getOccupied(rx, ry, rz)
+  }
+
+  def getOccupiedRelative(p: Point3, x: Int, y: Int, z: Int): Boolean = {
     val (rx, ry, rz) = (p.x + x, p.y + y, p.z + z)  
     getOccupied(rx, ry, rz)
   }
