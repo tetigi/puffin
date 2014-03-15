@@ -1,5 +1,7 @@
 package com.puffin.utils
 
+import scala.collection.mutable.ListBuffer
+
 import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.Display
 import org.lwjgl.opengl.GL11
@@ -11,6 +13,7 @@ import com.puffin.context.World
 import com.puffin.context.Context
 import com.puffin.character.Entity
 import com.puffin.character.HUD
+import com.puffin.render.RenderableBase
 
 trait PuffinApp {
   // The array containing volume data
@@ -21,6 +24,11 @@ trait PuffinApp {
   var rotateOn = true
 
   def setupWorld(): Unit
+
+  val renderables = new ListBuffer[RenderableBase]()
+  def registerRenderable(r: RenderableBase) {
+    renderables += r
+  }
 
   def init() {
     Context.opts.setOcclusionEnabled(true)
@@ -59,6 +67,7 @@ trait PuffinApp {
     storeMatrices()
     // Get quads and render them
     World.renderWorld()
+    renderables.map(_.render())
     if (Context.opts.statusEnabled)
       HUD.render()
   }
