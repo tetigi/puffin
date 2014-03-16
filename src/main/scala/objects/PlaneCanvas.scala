@@ -14,6 +14,8 @@ class PlaneCanvas(val dimX: Int, val dimY: Int, val position: Point3) extends Qu
   val data: Array2D[Option[RGB]] = Array2D.initWith(dimX, dimY, { () => None })
   val pixelsPerCube = 4f
 
+  def getDims = (dimX, dimY)
+
   def createRawQuadData(opts: RenderOptions): RawQuadData = {
     val pixels: ListBuffer[Pixel] = new ListBuffer()
     for ((p, rgb) <- data.iteratorWithKey) {

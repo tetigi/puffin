@@ -1,6 +1,6 @@
 package com.puffin.examples
 
-
+import com.puffin.render.Format
 import com.puffin.utils.PuffinApp
 import com.puffin.objects.PlaneCanvas
 import com.puffin.context.World
@@ -16,6 +16,7 @@ class Canvas extends PuffinApp {
       canvas.putPixel(i, 19-i, (0, 0, 0))
     }
     */
+   /*
    canvas.drawLine(Point2(2,2), Point2(18,18))
    canvas.drawLine(Point2(18,2), Point2(2,18))
 
@@ -26,6 +27,9 @@ class Canvas extends PuffinApp {
    canvas.drawLine(Point2(2,2), Point2(2,18))
    canvas.drawLine(Point2(18,18), Point2(18,2))
    canvas.drawLine(Point2(18,18), Point2(2,18))
+   */
+
+    canvas.write(Point2(2,10), "aabb", new Format())
     registerRenderable(canvas)
     World.entity.moveToCell(2, 2, -5)
   }

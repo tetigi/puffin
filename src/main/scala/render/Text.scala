@@ -38,10 +38,11 @@ object Text {
                         "XXXX",
                         "X  X"))
 
-  letters.put('b', List("    ",
-                        "    ",
-                        "    ",
-                        "    "))
+  letters.put('b', List("XXX ",
+                        "X X ",
+                        "X  X",
+                        "XXXX"))
+
 }
 
 // Doesn't do much yet

@@ -8,6 +8,8 @@ import com.puffin.Common.Point2
 // Something on which you can draw 2D graphics
 trait Canvas {
   type RGB = (Int, Int, Int)
+  def getDims: (Int, Int)
+
   // Single pixel putters and getters
   def getPixel(x: Int, y: Int): Option[RGB]
   def putPixel(x: Int, y: Int, rgb: RGB): Unit
@@ -42,6 +44,19 @@ trait Canvas {
   }
 
   def write(pos: Point2, text: String, fmt: Format) {
-    println("lol")
+    val (width, height) = getDims
+    val word = Text.get(text)
+    for (y <- 0 until word.length) {
+      val line = word(y)
+      for (x <- 0 until line.length) {
+        val pixel = line(x)
+        if (pixel != ' ' && 
+            pos.x + x < width &&
+            pos.y - y < height &&
+            pos.x + x >= 0 &&
+            pos.y - y >= 0) 
+          putPixel(pos.x + x, pos.y - y, (0, 0, 0))
+      }
+    } 
   }
 }
