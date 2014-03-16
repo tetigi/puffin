@@ -128,6 +128,9 @@ object Common {
     Matrix3f.transform(matrix, v, v)
   }
 
+  def zipWith[T](f: (T, T) => T, xs: List[T], ys: List[T]): List[T] =
+    xs.zip(ys).map({ case (x, y) => f(x, y) })
+
   class RenderOptions() {
     var occlusionEnabled = true
     var statusEnabled = false
