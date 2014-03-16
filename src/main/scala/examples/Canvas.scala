@@ -9,7 +9,7 @@ import com.puffin.Common._
 class Canvas extends PuffinApp {
   def setupWorld() {
     rotateOn = false
-    val canvas = new PlaneCanvas(20, 20, Point3(0, 0, 0))
+    val canvas = new PlaneCanvas(40, 20, Point3(0, 0, 0))
     /*
     for (i <- 2 until 18) {
       canvas.putPixel(i, i, (0, 0, 0))
@@ -29,7 +29,7 @@ class Canvas extends PuffinApp {
    canvas.drawLine(Point2(18,18), Point2(2,18))
    */
 
-    canvas.write(Point2(2,10), "aabb", new Format())
+    canvas.write(Point2(2,10), "abcde", new Format())
     registerRenderable(canvas)
     World.entity.moveToCell(2, 2, -5)
   }
