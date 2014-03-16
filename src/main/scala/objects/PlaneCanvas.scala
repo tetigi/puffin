@@ -12,7 +12,7 @@ import com.puffin.context.World
 // TODO Make position do something
 class PlaneCanvas(val dimX: Int, val dimY: Int, val position: Point3) extends Quads with Canvas {
   val data: Array2D[Option[RGB]] = Array2D.initWith(dimX, dimY, { () => None })
-  val pixelsPerCube = 4f
+  val pixelsPerCube = 40f
 
   def getDims = (dimX, dimY)
 

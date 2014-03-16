@@ -197,10 +197,10 @@ object Text {
                         "XX  X",
                         " XXX "))
 
-  letters.put('1', List(" XXX ",
-                        "X XX ",
-                        "  XX ",
-                        "  XX ",
+  letters.put('1', List(" XX  ",
+                        "X X  ",
+                        "  X  ",
+                        "  X  ",
                         "XXXXX"))
 
   letters.put('2', List(" XXXX",
