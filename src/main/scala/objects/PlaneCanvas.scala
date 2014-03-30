@@ -50,11 +50,11 @@ class PlaneCanvas(val dimX: Int, val dimY: Int, val position: Point3, val normal
     new RawQuadData(flatVerts, normals, occludes)
   }
 
-  private class Pixel(val pos: Point2, val norm: Vector3f) {
+  private class Pixel(val p: Point2, val norm: Vector3f) {
     // Make this change based on the normal
     def toVector3f = {
       val (h, v) = PlaneCanvas.getDirs(norm)
-      val v1 = new Vector3f(pos.x, pos.y, 0)
+      val v1 = new Vector3f(p.x*h.x + p.y*v.x, p.x*h.y + p.y*v.y, p.x*h.z + p.y*v.z)
 
       val v2 = new Vector3f()
       Vector3f.add(v1, h, v2)

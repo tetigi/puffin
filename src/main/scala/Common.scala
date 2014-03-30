@@ -7,6 +7,9 @@ import scala.math._
 import scala.collection.mutable.ListBuffer
 
 object Common {
+  object Vector3f {
+    def apply(x: Float, y: Float, z: Float) = new Vector3f(x, y, z)
+  }
   case class Point2(var x: Int, var y: Int) {
     def this() = this(0, 0)
     def this(p: Tuple2[Int, Int]) = this(p._1, p._2)
