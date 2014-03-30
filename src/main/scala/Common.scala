@@ -15,7 +15,7 @@ object Common {
       new Point2(this.x + that.x, this.y + that.y)
     override def hashCode = 41 * (41 + x) + y
     override def equals(other : Any) : Boolean = other match {
-      case that : Point2 => 
+      case that : Point2 =>
         this.x == that.x &&
         this.y == that.y
       case _ => false
@@ -34,7 +34,7 @@ object Common {
 
     override def hashCode = 41 * (41 * (41 + x) + y) + z
     override def equals(other : Any) : Boolean = other match {
-      case that : Point3 => 
+      case that : Point3 =>
         this.x == that.x &&
         this.y == that.y &&
         this.z == that.z
@@ -48,26 +48,26 @@ object Common {
     }
   }
 
-  def clamp(x: Int, ulim: Int) = 
+  def clamp(x: Int, ulim: Int) =
     min(ulim, x)
 
-  def clamp(x: Int, llim: Int, ulim: Int) = 
+  def clamp(x: Int, llim: Int, ulim: Int) =
     max(llim, min(ulim, x))
 
-  def clamp(x: Double, llim: Double, ulim: Double) = 
+  def clamp(x: Double, llim: Double, ulim: Double) =
     max(llim, min(ulim, x))
 
   def repeat[T](elem: T, n: Int) = {
     List.iterate(elem, n)({ x => x })
   }
 
-  def xzIn(start: Int, end: Int): IndexedSeq[Tuple2[Int, Int]] = 
+  def xzIn(start: Int, end: Int): IndexedSeq[Tuple2[Int, Int]] =
     xzIn(start, end, end)
 
   def xzIn(start: Int, endX: Int, endZ: Int): IndexedSeq[Tuple2[Int, Int]] =
     for (x <- start until endX; z <- start until endZ) yield (x, z)
 
-  def xzIn(startX: Int, startZ: Int, endX: Int, endZ: Int): IndexedSeq[Tuple2[Int, Int]] = 
+  def xzIn(startX: Int, startZ: Int, endX: Int, endZ: Int): IndexedSeq[Tuple2[Int, Int]] =
     for (x <- startX until endX; z <- startZ until endZ) yield (x, z)
 
   def xyzIn(start: Int, end: Int): IndexedSeq[Tuple3[Int, Int, Int]] = xyzIn(start, end, end, end)
@@ -121,7 +121,7 @@ object Common {
 
     Matrix3f.transform(matrix, v, v)
   }
-  
+
   def rotateZ(v: Vector3f, theta: Float) = {
     val matrix = getRotateZ(theta)
 
