@@ -9,6 +9,20 @@ import com.puffin.data.Array2D
 import com.puffin.Common._
 import com.puffin.context.World
 
+object PlaneCanvas {
+  def getDirs(n: Vector3f): (Vector3f, Vector3f) = {
+    // Work out the horizontal vector h
+    val h = new Vector3f(-n.z, 0, n.x)
+    h.normalise(h)
+
+    // Work out the vertical vector v
+    val v = new Vector3f(n.x*n.y, n.z*n.z - n.x*n.x, -n.z*n.y)
+    v.normalise(v)
+    (h, v)
+  }
+
+}
+
 // TODO Make position do something
 class PlaneCanvas(val dimX: Int, val dimY: Int, val position: Point3, val normal: Vector3f) extends Quads with Canvas {
   def this(dX: Int, dY: Int, pos: Point3) = this(dX, dY, pos, new Vector3f(0, 0, -1))
@@ -36,23 +50,26 @@ class PlaneCanvas(val dimX: Int, val dimY: Int, val position: Point3, val normal
     new RawQuadData(flatVerts, normals, occludes)
   }
 
-  // Need to work out the left vector and the right vector
-  // based on the normal
-  // Know one point on the plane (position at bottom left)
-  // Need to use this to work out the up and right vectores
-  // The bottom right vector should never have a Y component
-  // Need to write all this down really on a piece of paper. Maybe can do this at work.
   private class Pixel(val pos: Point2, val norm: Vector3f) {
     // Make this change based on the normal
     def toVector3f = {
-      val vecs: List[Vector3f] = 
-          List( new Vector3f(pos.x, pos.y, 0),
-            new Vector3f(pos.x + 1, pos.y, 0),
-            new Vector3f(pos.x + 1, pos.y + 1, 0),
-            new Vector3f(pos.x, pos.y + 1, 0))
+      val (h, v) = PlaneCanvas.getDirs(norm)
+      val v1 = new Vector3f(pos.x, pos.y, 0)
+
+      val v2 = new Vector3f()
+      Vector3f.add(v1, h, v2)
+
+      val v3 = new Vector3f()
+      Vector3f.add(v1, v, v3)
+
+      val v4 = new Vector3f()
+      Vector3f.add(v1, v, v4)
+      Vector3f.add(v4, h, v4)
+
+      val vecs: List[Vector3f] = List(v1, v2, v4, v3)
       vecs.map({v: Vector3f => scaleVector3f(v, 1f / pixelsPerCube, v)})
     }
-      
+
   }
 
   def getPixel(x: Int, y: Int): Option[RGB] =
