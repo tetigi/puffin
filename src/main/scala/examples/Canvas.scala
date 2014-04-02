@@ -1,5 +1,7 @@
 package com.puffin.examples
 
+import org.lwjgl.util.vector.Vector3f
+
 import com.puffin.render.Format
 import com.puffin.utils.PuffinApp
 import com.puffin.objects.PlaneCanvas
@@ -9,7 +11,7 @@ import com.puffin.Common._
 class Canvas extends PuffinApp {
   def setupWorld() {
     rotateOn = false
-    val canvas = new PlaneCanvas(100, 20, Point3(0, 1, 0), Vector3f(0, -1, -0.01f))
+    val canvas = new PlaneCanvas(100, 20, new Vector3f(0, 1, 0), new Vector3f(0, -1, -0.01f))
     /*
     for (i <- 2 until 18) {
       canvas.putPixel(i, i, (0, 0, 0))

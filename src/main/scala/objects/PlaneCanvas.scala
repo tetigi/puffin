@@ -24,13 +24,16 @@ object PlaneCanvas {
 }
 
 // TODO Make position do something
-class PlaneCanvas(val dimX: Int, val dimY: Int, val position: Point3, val normal: Vector3f) extends Quads with Canvas {
-  def this(dX: Int, dY: Int, pos: Point3) = this(dX, dY, pos, new Vector3f(0, 0, -1))
+class PlaneCanvas(val dimX: Int, val dimY: Int, val position: Vector3f, val normal: Vector3f) extends Quads with Canvas {
+  def this(dX: Int, dY: Int, pos: Vector3f) = this(dX, dY, pos, new Vector3f(0, 0, -1))
 
   val data: Array2D[Option[RGB]] = Array2D.initWith(dimX, dimY, { () => None })
   val pixelsPerCube = 40f
 
   def getDims = (dimX, dimY)
+
+  def setDir(n: Vector3f) = normal.set(n)
+  def setPos(p: Vector3f) = position.set(p)
 
   def createRawQuadData(opts: RenderOptions): RawQuadData = {
     val pixels: ListBuffer[Pixel] = new ListBuffer()
@@ -42,7 +45,7 @@ class PlaneCanvas(val dimX: Int, val dimY: Int, val position: Point3, val normal
 
     val (worldX, worldY, worldZ) = World.size
     val verts = pixels.flatMap(_.toVector3f)
-    verts.map({ v: Vector3f => Vector3f.add(v, position.toVector3f, v) })
+    verts.map({ v: Vector3f => Vector3f.add(v, position, v) })
     verts.map({ v: Vector3f => flatScaleVector3f(v, new Vector3f(1.0f/worldX, 1.0f/worldY, 1.0f/worldZ), v) })
     val flatVerts: Array[Float] = verts.flatMap( v => List(v.x, v.y, v.z)).toArray
     val normals: Array[Float] = repeat(new Vector3f(0, 0, -1), flatVerts.length/3).flatMap(v => List(v.x, v.y, v.z)).toArray
